@@ -1,5 +1,7 @@
 package com.spanishcoders.configuration;
 
+import com.spanishcoders.model.Service;
+import com.spanishcoders.repositories.ServiceRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -14,7 +16,6 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.util.Date;
 import java.util.Properties;
 
 @Configuration
@@ -59,14 +60,14 @@ public class TestDataBaseConfiguration {
         return transactionManager;
     }
 
-//    @Bean
-//    public CommandLineRunner insertDemoData(PatientRepository repository) {
-//        return (args) -> {
-//            for (int i = 0; i < 20; i++) {
-//                Patient patient = new Patient("Nombre " + i, "Primer Apellido " + i, Integer.toString(i), Integer.toString(i), new Date());
-//                Ingress ingress = new Ingress(patient, new Date());
-//                repository.save(patient);
-//            }
-//        };
-//    }
+    @Bean
+    public CommandLineRunner insertDemoData(ServiceRepository repository) {
+        return (args) -> {
+            Service service1 = new Service("Corte", 30);
+            Service service2 = new Service("Afeitado", 30);
+
+            repository.save(service1);
+            repository.save(service2);
+        };
+    }
 }

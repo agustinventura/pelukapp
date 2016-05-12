@@ -1,7 +1,5 @@
 package com.spanishcoders.model;
 
-import lombok.Data;
-
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -13,7 +11,6 @@ import java.util.List;
  * Created by pep on 12/05/2016.
  */
 
-@Data
 @Entity
 public class Hairdresser implements User {
 
@@ -34,8 +31,28 @@ public class Hairdresser implements User {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     @Override
     public String getPassword() {
         return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public List<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(List<Appointment> appointments) {
+        this.appointments = appointments;
     }
 }
