@@ -19,12 +19,12 @@ public class Appointment {
     @Temporal(TemporalType.TIMESTAMP)
     private Date startTime;
 
+    @ManyToOne
+    private Client client;
+
     @NotNull
     @ManyToOne
     private Hairdresser hairdresser;
-
-    @ManyToOne
-    private Client client;
 
     /**
      * in minutes
@@ -35,6 +35,10 @@ public class Appointment {
 
     @ManyToMany
     private Set<Service> bookedServices;
+
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 
     public int getId() {
         return id;
@@ -48,20 +52,20 @@ public class Appointment {
         this.startTime = startTime;
     }
 
-    public Hairdresser getHairdresser() {
-        return hairdresser;
-    }
-
-    public void setHairdresser(Hairdresser hairdresser) {
-        this.hairdresser = hairdresser;
-    }
-
     public Client getClient() {
         return client;
     }
 
     public void setClient(Client client) {
         this.client = client;
+    }
+
+    public Hairdresser getHairdresser() {
+        return hairdresser;
+    }
+
+    public void setHairdresser(Hairdresser hairdresser) {
+        this.hairdresser = hairdresser;
     }
 
     public int getDuration() {
