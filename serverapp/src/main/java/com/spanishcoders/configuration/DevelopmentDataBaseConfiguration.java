@@ -22,8 +22,8 @@ import javax.sql.DataSource;
 import java.util.Properties;
 
 @Configuration
-@Profile("test")
-public class TestDataBaseConfiguration {
+@Profile(value = {"development", "production"})
+public class DevelopmentDataBaseConfiguration {
 
     @Bean
     public DataSource dataSource() {
