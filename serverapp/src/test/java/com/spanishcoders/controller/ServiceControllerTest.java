@@ -41,5 +41,4 @@ public class ServiceControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"));
     }
-
 }

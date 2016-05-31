@@ -1,16 +1,16 @@
 buildscript {
-	ext {
+    ext {
         springBootVersion = '1.4.0.M3'
-	}
-	repositories {
-		mavenCentral()
-		maven { url "https://repo.spring.io/snapshot" }
-		maven { url "https://repo.spring.io/milestone" }
-	}
-	dependencies {
-		classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.M2")
-		classpath 'org.springframework:springloaded:1.2.0.RELEASE'
-	}
+    }
+    repositories {
+        mavenCentral()
+        maven { url "https://repo.spring.io/snapshot" }
+        maven { url "https://repo.spring.io/milestone" }
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.M3")
+        classpath 'org.springframework:springloaded:1.2.0.RELEASE'
+    }
 }
 
 apply plugin: 'idea'
@@ -18,33 +18,34 @@ apply plugin: 'java'
 apply plugin: 'spring-boot'
 
 jar {
-	baseName = 'pelukapp'
-	version = '0.0.1-SNAPSHOT'
+    baseName = 'pelukapp'
+    version = '0.0.1-SNAPSHOT'
 }
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 repositories {
-	mavenCentral()
-	maven { url "https://repo.spring.io/snapshot" }
-	maven { url "https://repo.spring.io/milestone" }
+    mavenCentral()
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
 }
 
 
 dependencies {
-	compile('org.springframework.boot:spring-boot-devtools')
+    compile('org.springframework.boot:spring-boot-devtools')
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
-	compile('org.springframework.boot:spring-boot-starter-security')
-	compile('org.springframework.boot:spring-boot-starter-web')
+    compile('org.springframework.boot:spring-boot-starter-security')
+    compile('org.springframework.boot:spring-boot-starter-web')
     compile('com.google.guava:guava:19.0')
-	runtime('com.h2database:h2')
-	testCompile('org.springframework.boot:spring-boot-starter-test') 
+    compile('io.jsonwebtoken:jjwt:0.6.0')
+    runtime('com.h2database:h2')
+    testCompile('org.springframework.boot:spring-boot-starter-test')
 }
 
 
 idea {
-	module {
-		inheritOutputDirs = false
-		outputDir = file("$buildDir/classes/main/")
-	}
+    module {
+        inheritOutputDirs = false
+        outputDir = file("$buildDir/classes/main/")
+    }
 }

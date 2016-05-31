@@ -12,7 +12,7 @@ import java.util.Set;
 public class Client extends User {
 
     @OneToMany(mappedBy = "client")
-    @OrderBy(value = "startTime asc" )
+    @OrderBy(value = "startTime asc")
     private Set<Appointment> appointments;
 
     public Set<Appointment> getAppointments() {

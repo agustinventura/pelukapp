@@ -1,9 +1,6 @@
 package com.spanishcoders.model;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Inheritance;
-import javax.persistence.InheritanceType;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 /**
@@ -12,24 +9,25 @@ import javax.validation.constraints.NotNull;
 
 @Entity
 @Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
-public abstract class User {
+public class User {
 
     @Id
-    private Integer id;
+    @GeneratedValue
+    protected Integer id;
 
     @NotNull
-    private String name;
+    protected String name;
 
     @NotNull
-    private String username;
-    private String password;
+    protected String username;
+    protected String password;
 
     @NotNull
-    private String phone;
+    protected String phone;
 
-    private String distance;
+    protected String distance;
 
-    private UserStatus status;
+    protected UserStatus status;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -67,7 +65,7 @@ public abstract class User {
         this.password = password;
     }
 
-    public int getId() {
+    public Integer getId() {
         return id;
     }
 

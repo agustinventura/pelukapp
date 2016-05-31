@@ -1,7 +1,10 @@
 package com.spanishcoders.configuration;
 
+import com.spanishcoders.model.Hairdresser;
 import com.spanishcoders.model.Service;
+import com.spanishcoders.model.UserStatus;
 import com.spanishcoders.repositories.ServiceRepository;
+import com.spanishcoders.repositories.UserRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -61,13 +64,19 @@ public class TestDataBaseConfiguration {
     }
 
     @Bean
-    public CommandLineRunner insertDemoData(ServiceRepository repository) {
+    public CommandLineRunner insertDemoData(ServiceRepository serviceRepository, UserRepository userRepository) {
         return (args) -> {
             Service service1 = new Service("Corte", 30);
             Service service2 = new Service("Afeitado", 30);
-
-            repository.save(service1);
-            repository.save(service2);
+            serviceRepository.save(service1);
+            serviceRepository.save(service2);
+            Hairdresser admin = new Hairdresser();
+            admin.setName("admin");
+            admin.setUsername("admin");
+            admin.setPassword("admin");
+            admin.setPhone("+34666666666");
+            admin.setStatus(UserStatus.ACTIVE);
+            userRepository.save(admin);
         };
     }
 }
