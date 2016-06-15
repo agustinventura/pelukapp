@@ -1,10 +1,8 @@
 package com.spanishcoders.configuration;
 
-import com.spanishcoders.model.Hairdresser;
-import com.spanishcoders.model.Service;
-import com.spanishcoders.model.UserStatus;
-import com.spanishcoders.repositories.ServiceRepository;
+import com.spanishcoders.model.*;
 import com.spanishcoders.repositories.UserRepository;
+import com.spanishcoders.repositories.WorkRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,6 +13,7 @@ import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.orm.jpa.vendor.Database;
 import org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.persistence.EntityManagerFactory;
@@ -64,19 +63,27 @@ public class DevelopmentDataBaseConfiguration {
     }
 
     @Bean
-    public CommandLineRunner insertDemoData(ServiceRepository serviceRepository, UserRepository userRepository) {
+    public CommandLineRunner insertDemoData(WorkRepository workRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return (args) -> {
-            Service service1 = new Service("Corte", 30);
-            Service service2 = new Service("Afeitado", 30);
-            serviceRepository.save(service1);
-            serviceRepository.save(service2);
+            Work cut = new Work("Corte", 30, WorkKind.PUBLIC);
+            Work shave = new Work("Afeitado", 30, WorkKind.PUBLIC);
+            Work regulation = new Work("Regulacion", 30, WorkKind.PRIVATE);
+            workRepository.save(cut);
+            workRepository.save(shave);
+            workRepository.save(regulation);
             Hairdresser admin = new Hairdresser();
             admin.setName("admin");
             admin.setUsername("admin");
-            admin.setPassword("admin");
+            admin.setPassword(passwordEncoder.encode("admin"));
             admin.setPhone("+34666666666");
             admin.setStatus(UserStatus.ACTIVE);
             userRepository.save(admin);
+            Client client = new Client();
+            client.setName("client");
+            client.setUsername("client");
+            client.setPassword(passwordEncoder.encode("client"));
+            client.setPhone("+34666666666");
+            client.setStatus(UserStatus.ACTIVE);
         };
     }
 }

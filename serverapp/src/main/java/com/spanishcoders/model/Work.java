@@ -1,14 +1,12 @@
 package com.spanishcoders.model;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * Created by pep on 12/05/2016.
  */
 @Entity
-public class Service {
+public class Work {
 
     @Id
     @GeneratedValue
@@ -21,12 +19,16 @@ public class Service {
      */
     private int duration;
 
-    public Service() {
+    @Enumerated(EnumType.STRING)
+    private WorkKind kind;
+
+    public Work() {
     }
 
-    public Service(String name, int duration) {
+    public Work(String name, int duration, WorkKind kind) {
         this.name = name;
         this.duration = duration;
+        this.kind = kind;
     }
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -50,5 +52,13 @@ public class Service {
 
     public void setDuration(int duration) {
         this.duration = duration;
+    }
+
+    public WorkKind getKind() {
+        return kind;
+    }
+
+    public void setKind(WorkKind kind) {
+        this.kind = kind;
     }
 }

@@ -40,6 +40,7 @@ dependencies {
     compile('io.jsonwebtoken:jjwt:0.6.0')
     runtime('com.h2database:h2')
     testCompile('org.springframework.boot:spring-boot-starter-test')
+    testCompile 'org.springframework.security:spring-security-test:4.1.0.RELEASE'
 }
 
 

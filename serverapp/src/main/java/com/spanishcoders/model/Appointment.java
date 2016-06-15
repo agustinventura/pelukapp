@@ -34,7 +34,7 @@ public class Appointment {
     private String notes;
 
     @ManyToMany
-    private Set<Service> bookedServices;
+    private Set<Work> bookedWorks;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -84,11 +84,11 @@ public class Appointment {
         this.notes = notes;
     }
 
-    public Set<Service> getBookedServices() {
-        return bookedServices;
+    public Set<Work> getBookedWorks() {
+        return bookedWorks;
     }
 
-    public void setBookedServices(Set<Service> bookedServices) {
-        this.bookedServices = bookedServices;
+    public void setBookedWorks(Set<Work> bookedWorks) {
+        this.bookedWorks = bookedWorks;
     }
 }

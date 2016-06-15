@@ -1,4 +1,4 @@
-package com.spanishcoders.configuration.security;
+package com.spanishcoders.controller.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spanishcoders.model.User;

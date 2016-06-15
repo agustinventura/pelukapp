@@ -1,7 +1,7 @@
 package com.spanishcoders.configuration;
 
-import com.spanishcoders.configuration.security.StatelessAuthenticationFilter;
-import com.spanishcoders.configuration.security.StatelessLoginFilter;
+import com.spanishcoders.controller.security.StatelessAuthenticationFilter;
+import com.spanishcoders.controller.security.StatelessLoginFilter;
 import com.spanishcoders.services.TokenAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;

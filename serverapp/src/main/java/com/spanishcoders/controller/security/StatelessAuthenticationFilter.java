@@ -1,4 +1,4 @@
-package com.spanishcoders.configuration.security;
+package com.spanishcoders.controller.security;
 
 import com.spanishcoders.services.TokenAuthenticationService;
 import org.springframework.security.core.Authentication;

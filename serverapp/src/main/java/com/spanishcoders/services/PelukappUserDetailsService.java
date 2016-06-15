@@ -46,7 +46,7 @@ public class PelukappUserDetailsService implements UserDetailsService {
         if (user instanceof Client) {
             authorities.add(new SimpleGrantedAuthority("ROLE_CLIENT"));
         } else if (user instanceof Hairdresser) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_HAIRDRESSER"));
+            authorities.add(new SimpleGrantedAuthority("ROLE_WORKER"));
         } else {
             throw new IllegalArgumentException("unexpected user type");
         }
