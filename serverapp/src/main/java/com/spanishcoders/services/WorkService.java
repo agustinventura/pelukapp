@@ -1,11 +1,11 @@
 package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
+import com.spanishcoders.model.Role;
 import com.spanishcoders.model.Work;
 import com.spanishcoders.model.WorkKind;
 import com.spanishcoders.repositories.WorkRepository;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
@@ -24,7 +24,7 @@ public class WorkService {
     }
 
     public Set<Work> getAvailableWorks(Collection<? extends GrantedAuthority> authorities) {
-        if (authorities.contains(new SimpleGrantedAuthority("ROLE_WORKER"))) {
+        if (authorities.contains(Role.WORKER.getGrantedAuthority())) {
             return Sets.newHashSet(workRepository.findAll());
         } else {
             return Sets.newHashSet(workRepository.findByKind(WorkKind.PUBLIC));

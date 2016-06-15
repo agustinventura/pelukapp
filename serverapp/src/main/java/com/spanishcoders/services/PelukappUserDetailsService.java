@@ -1,13 +1,9 @@
 package com.spanishcoders.services;
 
-import com.spanishcoders.model.Client;
-import com.spanishcoders.model.Hairdresser;
-import com.spanishcoders.model.User;
-import com.spanishcoders.model.UserStatus;
+import com.spanishcoders.model.*;
 import com.spanishcoders.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -44,9 +40,9 @@ public class PelukappUserDetailsService implements UserDetailsService {
         Set<GrantedAuthority> authorities = new HashSet<>();
 
         if (user instanceof Client) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_CLIENT"));
+            authorities.add(Role.CLIENT.getGrantedAuthority());
         } else if (user instanceof Hairdresser) {
-            authorities.add(new SimpleGrantedAuthority("ROLE_WORKER"));
+            authorities.add(Role.WORKER.getGrantedAuthority());
         } else {
             throw new IllegalArgumentException("unexpected user type");
         }
