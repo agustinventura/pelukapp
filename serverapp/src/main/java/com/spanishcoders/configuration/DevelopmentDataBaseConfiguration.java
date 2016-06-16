@@ -84,6 +84,7 @@ public class DevelopmentDataBaseConfiguration {
             client.setPassword(passwordEncoder.encode("client"));
             client.setPhone("+34666666666");
             client.setStatus(UserStatus.ACTIVE);
+            userRepository.save(client);
         };
     }
 }

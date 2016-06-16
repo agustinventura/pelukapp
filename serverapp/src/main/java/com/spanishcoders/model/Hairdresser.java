@@ -1,24 +1,22 @@
 package com.spanishcoders.model;
 
 import javax.persistence.Entity;
-import javax.persistence.OneToMany;
-import javax.persistence.OrderBy;
-import java.util.Set;
+import javax.persistence.OneToOne;
 
 /**
  * Created by pep on 12/05/2016.
  */
 @Entity
 public class Hairdresser extends User {
-    @OneToMany(mappedBy = "hairdresser")
-    @OrderBy(value = "startTime asc")
-    private Set<Appointment> appointments;
 
-    public Set<Appointment> getAppointments() {
-        return appointments;
+    @OneToOne(mappedBy = "hairdresser")
+    private Agenda agenda;
+
+    public Agenda getAgenda() {
+        return agenda;
     }
 
-    public void setAppointments(Set<Appointment> appointments) {
-        this.appointments = appointments;
+    public void setAgenda(Agenda agenda) {
+        this.agenda = agenda;
     }
 }
