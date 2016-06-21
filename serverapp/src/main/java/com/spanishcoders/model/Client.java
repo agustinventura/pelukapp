@@ -11,6 +11,8 @@ import java.util.Set;
 @Entity
 public class Client extends User {
 
+    private String distance;
+
     @OneToMany(mappedBy = "client")
     @OrderBy(value = "startTime asc")
     private Set<Appointment> appointments;
@@ -21,5 +23,13 @@ public class Client extends User {
 
     public void setAppointments(Set<Appointment> appointments) {
         this.appointments = appointments;
+    }
+
+    public String getDistance() {
+        return distance;
+    }
+
+    public void setDistance(String distance) {
+        this.distance = distance;
     }
 }

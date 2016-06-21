@@ -1,6 +1,9 @@
 package com.spanishcoders.model;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -14,15 +17,19 @@ public class Agenda {
     @GeneratedValue
     protected Integer id;
 
+    @NotNull
     @OneToOne
     private Hairdresser hairdresser;
 
+    @NotEmpty
     @OneToMany(mappedBy = "agenda")
     private Set<WorkingDay> workingDays;
 
+    @NotEmpty
     @ElementCollection
     private Set<LocalDate> nonWorkingDays;
 
+    @NotEmpty
     @ManyToMany(mappedBy = "agendas")
     private Set<Timetable> timetables;
 
@@ -64,5 +71,15 @@ public class Agenda {
 
     public void setTimetables(Set<Timetable> timetables) {
         this.timetables = timetables;
+    }
+
+    @Override
+    public String toString() {
+        return "Agenda{" +
+                "hairdresser=" + hairdresser +
+                ", workingDays=" + workingDays +
+                ", nonWorkingDays=" + nonWorkingDays +
+                ", timetables=" + timetables +
+                '}';
     }
 }

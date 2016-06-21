@@ -1,11 +1,15 @@
 package com.spanishcoders.model;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
+import javax.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.LocalTime;
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -18,10 +22,12 @@ public class Stretch {
     @GeneratedValue
     protected Integer id;
 
+    @NotNull
     private LocalTime start;
 
     private Duration length;
 
+    @NotEmpty
     @ManyToMany
     private Set<Timetable> timetables;
 
@@ -41,8 +47,12 @@ public class Stretch {
         this.start = start;
     }
 
-    public Duration getLength() {
-        return length;
+    public Optional<Duration> getLength() {
+        if (length != null) {
+            return Optional.of(length);
+        } else {
+            return Optional.empty();
+        }
     }
 
     public void setLength(Duration length) {
@@ -55,5 +65,13 @@ public class Stretch {
 
     public void setTimetables(Set<Timetable> timetables) {
         this.timetables = timetables;
+    }
+
+    @Override
+    public String toString() {
+        return "Stretch{" +
+                "start=" + start +
+                ", length=" + length +
+                '}';
     }
 }

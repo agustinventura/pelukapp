@@ -1,5 +1,7 @@
 package com.spanishcoders.model;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -22,9 +24,11 @@ public class Timetable {
 
     private Duration validity;
 
+    @NotEmpty
     @ManyToMany
     private Set<Agenda> agendas;
 
+    @NotEmpty
     @ManyToMany(mappedBy = "timetables")
     private Set<Stretch> stretches;
 
@@ -66,5 +70,14 @@ public class Timetable {
 
     public void setStretches(Set<Stretch> stretches) {
         this.stretches = stretches;
+    }
+
+    @Override
+    public String toString() {
+        return "Timetable{" +
+                "startDay=" + startDay +
+                ", validity=" + validity +
+                ", stretches=" + stretches +
+                '}';
     }
 }

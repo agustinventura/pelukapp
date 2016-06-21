@@ -20,18 +20,29 @@ public class User {
 
     @NotNull
     protected String username;
+
+    @NotNull
     protected String password;
 
     @NotNull
     protected String phone;
-
-    protected String distance;
 
     protected UserStatus status;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+
+    public User() {
+
+    }
+
+    public User(String username, String password, String phone) {
+        this.username = username;
+        this.password = password;
+        this.phone = phone;
+        this.status = UserStatus.ACTIVE;
+    }
 
     public String getUsername() {
         return username;
@@ -77,12 +88,14 @@ public class User {
         this.phone = phone;
     }
 
-    public String getDistance() {
-        return distance;
+    @Override
+    public String toString() {
+        return "User{" +
+                "name='" + name + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", phone='" + phone + '\'' +
+                ", status=" + status +
+                '}';
     }
-
-    public void setDistance(String distance) {
-        this.distance = distance;
-    }
-
 }

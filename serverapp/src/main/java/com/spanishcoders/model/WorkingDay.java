@@ -1,6 +1,9 @@
 package com.spanishcoders.model;
 
+import org.hibernate.validator.constraints.NotEmpty;
+
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -14,13 +17,24 @@ public class WorkingDay {
     @GeneratedValue
     protected Integer id;
 
+    @NotNull
     private LocalDate date;
 
+    @NotNull
     @ManyToOne
     private Agenda agenda;
 
+    @NotEmpty
     @OneToMany(mappedBy = "workingDay")
     private Set<Block> blocks;
+
+    public WorkingDay() {
+    }
+
+    public WorkingDay(LocalDate date, Agenda agenda) {
+        this.date = date;
+        this.agenda = agenda;
+    }
 
     public Integer getId() {
         return id;
@@ -52,5 +66,14 @@ public class WorkingDay {
 
     public void setBlocks(Set<Block> blocks) {
         this.blocks = blocks;
+    }
+
+    @Override
+    public String toString() {
+        return "WorkingDay{" +
+                "date=" + date +
+                ", agenda=" + agenda +
+                ", blocks=" + blocks +
+                '}';
     }
 }

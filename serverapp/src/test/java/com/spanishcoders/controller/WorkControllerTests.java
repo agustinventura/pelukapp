@@ -25,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @RunWith(SpringRunner.class)
 @WebMvcTest(controllers = WorkController.class, secure = true)
-public class WorkControllerTest {
+public class WorkControllerTests {
 
     @MockBean
     private WorkService workService;
