@@ -31,4 +31,11 @@ public class WorkService {
         }
     }
 
+    public Set<Work> get(Set<Integer> workIds) {
+        Set<Work> works = Sets.newHashSet();
+        if (workIds != null && !workIds.isEmpty()) {
+            works = Sets.newHashSet(workRepository.findAll(workIds));
+        }
+        return works;
+    }
 }

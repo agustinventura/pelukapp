@@ -3,14 +3,14 @@ package com.spanishcoders.controller;
 import com.spanishcoders.model.Block;
 import com.spanishcoders.model.Hairdresser;
 import com.spanishcoders.model.Work;
-import com.spanishcoders.repositories.WorkRepository;
 import com.spanishcoders.services.HairdresserService;
+import com.spanishcoders.services.WorkService;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.MatrixVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
@@ -25,17 +25,17 @@ public class HairdresserController {
 
     private HairdresserService hairdresserService;
 
-    private WorkRepository workRepository;
+    private WorkService workService;
 
-    public HairdresserController(HairdresserService hairdresserService, WorkRepository workRepository) {
+    public HairdresserController(HairdresserService hairdresserService, WorkService workService) {
         this.hairdresserService = hairdresserService;
-        this.workRepository = workRepository;
+        this.workService = workService;
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "blocks/free", method = RequestMethod.GET)
-    public Map<Hairdresser, Set<Block>> getWorks(Authentication authentication, @RequestParam(required = false) Integer work) {
-        Work requestedWork = workRepository.findOne(work);
-        return hairdresserService.getFirstTenAvailableBlocksByHairdresser(requestedWork);
+    @RequestMapping(value = "blocks/free/{works}", method = RequestMethod.GET)
+    public Map<Hairdresser, Set<Block>> getWorks(Authentication authentication, @MatrixVariable Set<Integer> works) {
+        Set<Work> requestedWorks = workService.get(works);
+        return hairdresserService.getFirstTenAvailableBlocksByHairdresser(requestedWorks);
     }
 }
