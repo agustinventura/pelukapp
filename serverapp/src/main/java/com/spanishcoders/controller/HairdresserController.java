@@ -34,8 +34,9 @@ public class HairdresserController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "blocks/free/{works}", method = RequestMethod.GET)
-    public Map<Hairdresser, Set<Block>> getWorks(Authentication authentication, @MatrixVariable Set<Integer> works) {
+    public Map<Hairdresser, Set<Block>> getFreeBlocks(Authentication authentication, @MatrixVariable Set<Integer> works) {
         Set<Work> requestedWorks = workService.get(works);
-        return hairdresserService.getFirstTenAvailableBlocksByHairdresser(requestedWorks);
+        Map<Hairdresser, Set<Block>> freeBlocks = hairdresserService.getFirstTenAvailableBlocksByHairdresser(requestedWorks);
+        return freeBlocks;
     }
 }

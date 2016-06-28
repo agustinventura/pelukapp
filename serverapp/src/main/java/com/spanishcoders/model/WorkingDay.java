@@ -84,12 +84,17 @@ public class WorkingDay {
 
         WorkingDay that = (WorkingDay) o;
 
-        return id.equals(that.id);
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        if (date != null ? !date.equals(that.date) : that.date != null) return false;
+        return agenda != null ? agenda.equals(that.agenda) : that.agenda == null;
 
     }
 
     @Override
     public int hashCode() {
-        return id.hashCode();
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (date != null ? date.hashCode() : 0);
+        result = 31 * result + (agenda != null ? agenda.hashCode() : 0);
+        return result;
     }
 }

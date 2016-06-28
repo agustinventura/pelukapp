@@ -100,12 +100,17 @@ public class Block {
 
         Block block = (Block) o;
 
-        return id != null ? id.equals(block.id) : block.id == null;
+        if (id != null ? !id.equals(block.id) : block.id != null) return false;
+        if (start != null ? !start.equals(block.start) : block.start != null) return false;
+        return workingDay != null ? workingDay.equals(block.workingDay) : block.workingDay == null;
 
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (start != null ? start.hashCode() : 0);
+        result = 31 * result + (workingDay != null ? workingDay.hashCode() : 0);
+        return result;
     }
 }
