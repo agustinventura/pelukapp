@@ -32,4 +32,6 @@ public class Client extends User {
     public void setDistance(String distance) {
         this.distance = distance;
     }
+
+
 }

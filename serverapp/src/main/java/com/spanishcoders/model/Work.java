@@ -61,4 +61,20 @@ public class Work {
     public void setKind(WorkKind kind) {
         this.kind = kind;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Work work = (Work) o;
+
+        return id != null ? id.equals(work.id) : work.id == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
 }

@@ -17,6 +17,7 @@ import java.util.concurrent.TimeUnit;
 public final class TokenHandler {
 
     private final String secret;
+
     private final UserDetailsService userDetailsService;
 
     public TokenHandler(String secret, UserDetailsService userService) {
@@ -43,5 +44,21 @@ public final class TokenHandler {
                 .setExpiration(expiration)
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        TokenHandler that = (TokenHandler) o;
+
+        return secret.equals(that.secret);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return secret.hashCode();
     }
 }

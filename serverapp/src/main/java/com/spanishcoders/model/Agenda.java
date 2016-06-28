@@ -82,4 +82,23 @@ public class Agenda {
                 ", timetables=" + timetables +
                 '}';
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Agenda agenda = (Agenda) o;
+
+        if (id != null ? !id.equals(agenda.id) : agenda.id != null) return false;
+        return hairdresser != null ? hairdresser.equals(agenda.hairdresser) : agenda.hairdresser == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (hairdresser != null ? hairdresser.hashCode() : 0);
+        return result;
+    }
 }
