@@ -1,7 +1,9 @@
 package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
-import com.spanishcoders.model.*;
+import com.spanishcoders.model.Role;
+import com.spanishcoders.model.Work;
+import com.spanishcoders.model.WorkKind;
 import com.spanishcoders.repositories.WorkRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -35,9 +37,5 @@ public class WorkService {
             works = Sets.newHashSet(workRepository.findAll(workIds));
         }
         return works;
-    }
-
-    public Set<Block> getFirstTenAvailableBlocks(Hairdresser hairdresser, Set<Work> works) {
-        return null;
     }
 }

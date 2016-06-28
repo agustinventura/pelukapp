@@ -1,8 +1,5 @@
 package com.spanishcoders.controller;
 
-import com.google.common.collect.Sets;
-import com.spanishcoders.model.Work;
-import com.spanishcoders.model.WorkKind;
 import com.spanishcoders.services.WorkService;
 import org.junit.Before;
 import org.junit.Test;
@@ -17,6 +14,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.Collection;
 
+import static com.spanishcoders.TestDataFactory.mockAllWorks;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
@@ -35,10 +33,7 @@ public class WorkControllerTests {
 
     @Before
     public void setUp() {
-        Work cut = new Work("Corte", 30, WorkKind.PUBLIC);
-        Work shave = new Work("Afeitado", 30, WorkKind.PUBLIC);
-        Work regulation = new Work("Regulacion", 30, WorkKind.PRIVATE);
-        given(workService.getAvailableWorks(any(Collection.class))).willReturn(Sets.newHashSet(cut, shave, regulation));
+        given(workService.getAvailableWorks(any(Collection.class))).willReturn(mockAllWorks());
     }
 
     @Test

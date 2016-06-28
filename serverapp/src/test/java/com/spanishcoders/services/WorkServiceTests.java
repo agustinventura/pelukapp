@@ -14,6 +14,8 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Collection;
 import java.util.Set;
 
+import static com.spanishcoders.TestDataFactory.mockAllWorks;
+import static com.spanishcoders.TestDataFactory.mockPublicWorks;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
@@ -34,38 +36,23 @@ public class WorkServiceTests {
         workService = new WorkService(workRepository);
     }
 
-    private Set<Work> mockPrivateWorks() {
-        Work regulation = new Work("Regulacion", 30, WorkKind.PRIVATE);
-        return Sets.newHashSet(regulation);
-    }
-
-    private Set<Work> mockPublicWorks() {
-        Work cut = new Work("Corte", 30, WorkKind.PUBLIC);
-        Work shave = new Work("Afeitado", 30, WorkKind.PUBLIC);
-        return Sets.newHashSet(cut, shave);
-    }
-
     @Test
     public void getAvailableWorksForWorker() throws Exception {
-        Set<Work> publicWorks = mockPublicWorks();
-        Set<Work> privateWorks = mockPrivateWorks();
-        given(workRepository.findAll()).willReturn(Sets.union(publicWorks, privateWorks));
+        given(workRepository.findAll()).willReturn(mockAllWorks());
         Set<Work> availableWorks = workService.getAvailableWorks(Sets.newHashSet(Role.WORKER.getGrantedAuthority()));
         assertThat(availableWorks, hasSize(3));
     }
 
     @Test
     public void getAvailableWorksForClient() throws Exception {
-        Set<Work> publicWorks = mockPublicWorks();
-        given(workRepository.findByKind(WorkKind.PUBLIC)).willReturn(publicWorks);
+        given(workRepository.findByKind(WorkKind.PUBLIC)).willReturn(mockPublicWorks());
         Set<Work> availableWorks = workService.getAvailableWorks(Sets.newHashSet(Role.CLIENT.getGrantedAuthority()));
         assertThat(availableWorks, hasSize(2));
     }
 
     @Test
     public void getWorksById() {
-        Set<Work> publicWorks = mockPublicWorks();
-        given(workRepository.findAll(any(Collection.class))).willReturn(publicWorks);
+        given(workRepository.findAll(any(Collection.class))).willReturn(mockPublicWorks());
         Set<Work> works = workService.get(Sets.newHashSet(1, 2));
         assertThat(works, hasSize(2));
     }

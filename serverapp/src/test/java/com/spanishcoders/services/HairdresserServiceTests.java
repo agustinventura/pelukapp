@@ -1,7 +1,10 @@
 package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
-import com.spanishcoders.model.*;
+import com.spanishcoders.model.Agenda;
+import com.spanishcoders.model.Block;
+import com.spanishcoders.model.Hairdresser;
+import com.spanishcoders.model.UserStatus;
 import com.spanishcoders.repositories.HairdresserRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -12,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 import java.util.Map;
 import java.util.Set;
 
+import static com.spanishcoders.TestDataFactory.*;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -26,13 +30,13 @@ public class HairdresserServiceTests {
     private HairdresserRepository hairdresserRepository;
 
     @MockBean
-    private WorkService workService;
+    private AgendaService agendaService;
 
     private HairdresserService hairdresserService;
 
     @Before
     public void setUp() throws Exception {
-        hairdresserService = new HairdresserService(hairdresserRepository, workService);
+        hairdresserService = new HairdresserService(hairdresserRepository, agendaService);
     }
 
     @Test
@@ -49,25 +53,11 @@ public class HairdresserServiceTests {
 
     @Test
     public void getAvailableBlocks() {
-        Hairdresser hairdresser = mockFindHairdresserByStatus();
-        mockGetFirstTenAvailableBlocks();
-        Work cut = new Work("Corte", 30, WorkKind.PUBLIC);
-        Map<Hairdresser, Set<Block>> availableBlocks = hairdresserService.getFirstTenAvailableBlocksByHairdresser(Sets.newHashSet(cut));
+        Hairdresser hairdresser = mockHairdresser();
+        given(hairdresserRepository.findByStatus(any(UserStatus.class))).willReturn(Sets.newHashSet(hairdresser));
+        given(agendaService.getFirstTenAvailableBlocks(any(Agenda.class), any(Set.class))).willReturn(mockBlocks());
+        Map<Hairdresser, Set<Block>> availableBlocks = hairdresserService.getFirstTenAvailableBlocksByHairdresser(mockPublicWorks());
         assertThat(availableBlocks.entrySet(), not((empty())));
         assertThat(availableBlocks.get(hairdresser).size(), is((10)));
-    }
-
-    private void mockGetFirstTenAvailableBlocks() {
-        Set<Block> blocks = Sets.newHashSet();
-        for (int i = 0; i < 10; i++) {
-            blocks.add(new Block());
-        }
-        given(workService.getFirstTenAvailableBlocks(any(Hairdresser.class), any(Set.class))).willReturn(blocks);
-    }
-
-    private Hairdresser mockFindHairdresserByStatus() {
-        Hairdresser hairdresser = new Hairdresser("admin", "admin", "phone");
-        given(hairdresserRepository.findByStatus(any(UserStatus.class))).willReturn(Sets.newHashSet(hairdresser));
-        return hairdresser;
     }
 }

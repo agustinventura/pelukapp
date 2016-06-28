@@ -16,11 +16,11 @@ public class HairdresserService {
 
     private HairdresserRepository hairdresserRepository;
 
-    private WorkService workService;
+    private AgendaService agendaService;
 
-    public HairdresserService(HairdresserRepository hairdresserRepository, WorkService workService) {
+    public HairdresserService(HairdresserRepository hairdresserRepository, AgendaService agendaService) {
         this.hairdresserRepository = hairdresserRepository;
-        this.workService = workService;
+        this.agendaService = agendaService;
     }
 
     public Map<Hairdresser, Set<Block>> getFirstTenAvailableBlocksByHairdresser(Set<Work> works) {
@@ -35,7 +35,7 @@ public class HairdresserService {
         Map<Hairdresser, Set<Block>> availableBlocks = Maps.newHashMap();
         Set<Hairdresser> hairdressers = hairdresserRepository.findByStatus(UserStatus.ACTIVE);
         for (Hairdresser hairdresser : hairdressers) {
-            Set<Block> hairdresserAvailableBlocks = workService.getFirstTenAvailableBlocks(hairdresser, works);
+            Set<Block> hairdresserAvailableBlocks = agendaService.getFirstTenAvailableBlocks(hairdresser.getAgenda(), works);
             availableBlocks.put(hairdresser, hairdresserAvailableBlocks);
         }
         return availableBlocks;
