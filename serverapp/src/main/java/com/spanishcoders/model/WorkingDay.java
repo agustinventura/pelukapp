@@ -1,17 +1,21 @@
 package com.spanishcoders.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeSet;
 
 /**
  * Created by agustin on 16/06/16.
  */
 @Entity
-public class WorkingDay {
+public class WorkingDay implements Comparable<WorkingDay> {
 
     @Id
     @GeneratedValue
@@ -26,14 +30,19 @@ public class WorkingDay {
 
     @NotEmpty
     @OneToMany(mappedBy = "workingDay")
+    @JsonManagedReference
     private Set<Block> blocks;
 
     public WorkingDay() {
+        this.blocks = new TreeSet<>();
     }
 
-    public WorkingDay(LocalDate date, Agenda agenda) {
-        this.date = date;
-        this.agenda = agenda;
+    public WorkingDay(Agenda agenda) {
+        this();
+        this.date = getNewWorkingDayDate(agenda.getNonWorkingDays(), agenda.getWorkingDays());
+        Set<Block> workingDayBlocks = createBlocksForDay(agenda.getCurrentTimetable());
+        this.setBlocks(workingDayBlocks);
+        agenda.addWorkingDay(this);
     }
 
     public Integer getId() {
@@ -72,7 +81,7 @@ public class WorkingDay {
     public String toString() {
         return "WorkingDay{" +
                 "date=" + date +
-                ", agenda=" + agenda +
+                ", agenda=" + agenda.getId() +
                 ", blocks=" + blocks +
                 '}';
     }
@@ -96,5 +105,46 @@ public class WorkingDay {
         result = 31 * result + (date != null ? date.hashCode() : 0);
         result = 31 * result + (agenda != null ? agenda.hashCode() : 0);
         return result;
+    }
+
+    public void addBlock(Block block) {
+        this.blocks.add(block);
+    }
+
+    private LocalDate getNewWorkingDayDate(Set<LocalDate> nonWorkingDays, SortedMap<LocalDate, WorkingDay> workingDays) {
+        LocalDate lastWorkingDayDate = null;
+        if (workingDays.isEmpty()) {
+            lastWorkingDayDate = LocalDate.now();
+        } else {
+            lastWorkingDayDate = workingDays.lastKey().plusDays(1);
+        }
+        if (nonWorkingDays != null && !nonWorkingDays.isEmpty()) {
+            while (nonWorkingDays.contains(lastWorkingDayDate)) {
+                lastWorkingDayDate = lastWorkingDayDate.plusDays(1);
+            }
+        }
+        return lastWorkingDayDate;
+    }
+
+    private Set<Block> createBlocksForDay(Timetable timetable) {
+        Set<Block> newBlocks = new TreeSet<>();
+        for (Stretch stretch : timetable.getStretches()) {
+            LocalTime startTime = stretch.getStart();
+            while (startTime.isBefore(stretch.getEnd())) {
+                Block newBlock = new Block(startTime, this);
+                newBlocks.add(newBlock);
+                startTime = startTime.plus(Block.DEFAULT_BLOCK_LENGTH);
+            }
+        }
+        return newBlocks;
+    }
+
+    public Set<Block> getAvailableBlocks(Set<Work> works) {
+        return null;
+    }
+
+    @Override
+    public int compareTo(WorkingDay o) {
+        return o.getDate().compareTo(date);
     }
 }

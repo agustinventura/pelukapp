@@ -30,7 +30,8 @@ public class Hairdresser extends User {
     @Override
     public String toString() {
         return "Hairdresser{" +
-                "username=" + username +
+                "username" + username +
+                "agenda=" + agenda +
                 '}';
     }
 }

@@ -33,5 +33,12 @@ public class Client extends User {
         this.distance = distance;
     }
 
-
+    @Override
+    public String toString() {
+        return "Client{" +
+                "username=" + username +
+                "distance='" + distance + '\'' +
+                ", appointments=" + appointments +
+                '}';
+    }
 }

@@ -1,5 +1,7 @@
 package com.spanishcoders.model;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -13,7 +15,7 @@ import java.time.temporal.ChronoUnit;
  * Created by agustin on 16/06/16.
  */
 @Entity
-public class Block {
+public class Block implements Comparable<Block> {
 
     public final static Duration DEFAULT_BLOCK_LENGTH = Duration.of(30, ChronoUnit.MINUTES);
 
@@ -29,6 +31,7 @@ public class Block {
 
     @NotNull
     @ManyToOne
+    @JsonBackReference
     private WorkingDay workingDay;
 
     @ManyToOne
@@ -42,6 +45,7 @@ public class Block {
         this.start = start;
         this.workingDay = workingDay;
         this.length = DEFAULT_BLOCK_LENGTH;
+        workingDay.addBlock(this);
     }
 
     public Integer getId() {
@@ -89,7 +93,7 @@ public class Block {
         return "Block{" +
                 "start=" + start +
                 ", length=" + length +
-                ", workingDay=" + workingDay +
+                ", workingDay=" + workingDay.getId() +
                 '}';
     }
 
@@ -112,5 +116,14 @@ public class Block {
         result = 31 * result + (start != null ? start.hashCode() : 0);
         result = 31 * result + (workingDay != null ? workingDay.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int compareTo(Block o) {
+        if (o.getStart().equals(start)) {
+            return o.getWorkingDay().compareTo(workingDay);
+        } else {
+            return o.getStart().compareTo(start);
+        }
     }
 }

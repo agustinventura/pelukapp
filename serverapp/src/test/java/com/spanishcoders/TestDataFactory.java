@@ -2,16 +2,12 @@ package com.spanishcoders;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import com.spanishcoders.model.Block;
-import com.spanishcoders.model.Hairdresser;
-import com.spanishcoders.model.Work;
-import com.spanishcoders.model.WorkKind;
+import com.spanishcoders.model.*;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Map;
 import java.util.Set;
-
-import static com.spanishcoders.model.Block.DEFAULT_BLOCK_LENGTH;
 
 /**
  * Created by agustin on 28/06/16.
@@ -19,13 +15,13 @@ import static com.spanishcoders.model.Block.DEFAULT_BLOCK_LENGTH;
 public class TestDataFactory {
 
     public static Set<Block> mockBlocks() {
-        LocalTime startTime = LocalTime.of(9, 00);
-        Set<Block> testBlocks = Sets.newHashSet();
-        for (int i = 0; i < 10; i++) {
-            startTime = startTime.plus(DEFAULT_BLOCK_LENGTH);
-            testBlocks.add(new Block(startTime, null));
-        }
-        return testBlocks;
+        WorkingDay mockWorkingDay = mockWorkingDay();
+        return mockWorkingDay.getBlocks();
+    }
+
+    public static WorkingDay mockWorkingDay() {
+        Agenda mockAgenda = mockFullAgenda();
+        return new WorkingDay(mockAgenda);
     }
 
     public static Set<Work> mockPrivateWorks() {
@@ -37,6 +33,11 @@ public class TestDataFactory {
         Work cut = new Work("Corte", 30, WorkKind.PUBLIC);
         Work shave = new Work("Afeitado", 30, WorkKind.PUBLIC);
         return Sets.newHashSet(cut, shave);
+    }
+
+    public static Set<Work> mockPublicWork() {
+        Work cut = new Work("Corte", 30, WorkKind.PUBLIC);
+        return Sets.newHashSet(cut);
     }
 
     public static Set<Work> mockAllWorks() {
@@ -51,5 +52,38 @@ public class TestDataFactory {
 
     public static Hairdresser mockHairdresser() {
         return new Hairdresser("admin", "admin", "phone");
+    }
+
+    public static Hairdresser mockHairdresser(Agenda agenda) {
+        Hairdresser hairdresser = mockHairdresser();
+        hairdresser.setAgenda(agenda);
+        return hairdresser;
+    }
+
+    public static Agenda mockAgenda() {
+        Agenda agenda = new Agenda(mockHairdresser());
+        return agenda;
+    }
+
+    public static Agenda mockFullAgenda() {
+        Agenda agenda = new Agenda(mockHairdresser());
+        LocalDate today = LocalDate.now();
+        Timetable timetable = new Timetable(agenda, today.minusDays(1), today.plusDays(1));
+        Stretch morning = new Stretch(timetable, LocalTime.of(9, 30), LocalTime.of(14, 00));
+        Stretch afternoon = new Stretch(timetable, LocalTime.of(17, 00), LocalTime.of(20, 30));
+        return agenda;
+    }
+
+    public static Timetable mockTimetable() {
+        LocalDate today = LocalDate.now();
+        Timetable timetable = new Timetable(mockAgenda(), today.minusDays(1), today.plusDays(1));
+        return timetable;
+    }
+
+    public static Set<Stretch> mockStretches() {
+        Timetable timetable = mockTimetable();
+        Stretch morning = new Stretch(timetable, LocalTime.of(9, 30), LocalTime.of(14, 00));
+        Stretch afternoon = new Stretch(timetable, LocalTime.of(17, 00), LocalTime.of(20, 30));
+        return Sets.newHashSet(morning, afternoon);
     }
 }

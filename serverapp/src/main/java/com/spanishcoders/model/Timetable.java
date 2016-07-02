@@ -1,12 +1,13 @@
 package com.spanishcoders.model;
 
+import com.google.common.collect.Sets;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
-import java.time.Duration;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Set;
 
@@ -20,9 +21,11 @@ public class Timetable {
     @GeneratedValue
     protected Integer id;
 
+    @NotNull
     private LocalDate startDay;
 
-    private Duration validity;
+    @NotNull
+    private LocalDate endDay;
 
     @NotEmpty
     @ManyToMany
@@ -31,6 +34,23 @@ public class Timetable {
     @NotEmpty
     @ManyToMany(mappedBy = "timetables")
     private Set<Stretch> stretches;
+
+    public Timetable() {
+        this.stretches = Sets.newHashSet();
+        this.agendas = Sets.newHashSet();
+    }
+
+    public Timetable(LocalDate startDay, LocalDate endDay) {
+        this();
+        this.startDay = startDay;
+        this.endDay = endDay;
+    }
+
+    public Timetable(Agenda agenda, LocalDate startDay, LocalDate endDay) {
+        this(startDay, endDay);
+        this.agendas.add(agenda);
+        agenda.addTimetable(this);
+    }
 
     public Integer getId() {
         return id;
@@ -48,12 +68,12 @@ public class Timetable {
         this.startDay = startDay;
     }
 
-    public Duration getValidity() {
-        return validity;
+    public LocalDate getEndDay() {
+        return endDay;
     }
 
-    public void setValidity(Duration validity) {
-        this.validity = validity;
+    public void setEndDay(LocalDate endDay) {
+        this.endDay = endDay;
     }
 
     public Set<Agenda> getAgendas() {
@@ -75,8 +95,9 @@ public class Timetable {
     @Override
     public String toString() {
         return "Timetable{" +
-                "startDay=" + startDay +
-                ", validity=" + validity +
+                "id=" + id +
+                ", startDay=" + startDay +
+                ", endDay=" + endDay +
                 ", stretches=" + stretches +
                 '}';
     }
@@ -95,5 +116,9 @@ public class Timetable {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    public void addStretch(Stretch stretch) {
+        this.stretches.add(stretch);
     }
 }

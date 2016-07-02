@@ -30,13 +30,13 @@ public class HairdresserServiceTests {
     private HairdresserRepository hairdresserRepository;
 
     @MockBean
-    private AgendaService agendaService;
+    private Agenda agenda;
 
     private HairdresserService hairdresserService;
 
     @Before
     public void setUp() throws Exception {
-        hairdresserService = new HairdresserService(hairdresserRepository, agendaService);
+        hairdresserService = new HairdresserService(hairdresserRepository);
     }
 
     @Test
@@ -53,11 +53,13 @@ public class HairdresserServiceTests {
 
     @Test
     public void getAvailableBlocks() {
-        Hairdresser hairdresser = mockHairdresser();
+        Hairdresser hairdresser = mockHairdresser(agenda);
         given(hairdresserRepository.findByStatus(any(UserStatus.class))).willReturn(Sets.newHashSet(hairdresser));
-        given(agendaService.getFirstTenAvailableBlocks(any(Agenda.class), any(Set.class))).willReturn(mockBlocks());
+        given(agenda.getFirstTenAvailableBlocks(any(Set.class))).willReturn(mockBlocks());
         Map<Hairdresser, Set<Block>> availableBlocks = hairdresserService.getFirstTenAvailableBlocksByHairdresser(mockPublicWorks());
         assertThat(availableBlocks.entrySet(), not((empty())));
         assertThat(availableBlocks.get(hairdresser).size(), is((10)));
     }
+
+
 }

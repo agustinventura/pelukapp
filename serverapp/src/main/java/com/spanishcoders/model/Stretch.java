@@ -1,5 +1,6 @@
 package com.spanishcoders.model;
 
+import com.google.common.collect.Sets;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.Entity;
@@ -7,9 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.validation.constraints.NotNull;
-import java.time.Duration;
 import java.time.LocalTime;
-import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -25,11 +24,24 @@ public class Stretch {
     @NotNull
     private LocalTime start;
 
-    private Duration length;
+    @NotNull
+    private LocalTime end;
 
     @NotEmpty
     @ManyToMany
     private Set<Timetable> timetables;
+
+    public Stretch() {
+        this.timetables = Sets.newHashSet();
+    }
+
+    public Stretch(Timetable timetable, LocalTime start, LocalTime end) {
+        this();
+        this.start = start;
+        this.end = end;
+        timetables.add(timetable);
+        timetable.addStretch(this);
+    }
 
     public Integer getId() {
         return id;
@@ -47,16 +59,12 @@ public class Stretch {
         this.start = start;
     }
 
-    public Optional<Duration> getLength() {
-        if (length != null) {
-            return Optional.of(length);
-        } else {
-            return Optional.empty();
-        }
+    public LocalTime getEnd() {
+        return end;
     }
 
-    public void setLength(Duration length) {
-        this.length = length;
+    public void setEnd(LocalTime end) {
+        this.end = end;
     }
 
     public Set<Timetable> getTimetables() {
@@ -70,8 +78,9 @@ public class Stretch {
     @Override
     public String toString() {
         return "Stretch{" +
-                "start=" + start +
-                ", length=" + length +
+                "id=" + id +
+                ", start=" + start +
+                ", end=" + end +
                 '}';
     }
 
@@ -82,12 +91,17 @@ public class Stretch {
 
         Stretch stretch = (Stretch) o;
 
-        return id != null ? id.equals(stretch.id) : stretch.id == null;
+        if (id != null ? !id.equals(stretch.id) : stretch.id != null) return false;
+        if (start != null ? !start.equals(stretch.start) : stretch.start != null) return false;
+        return end != null ? end.equals(stretch.end) : stretch.end == null;
 
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (start != null ? start.hashCode() : 0);
+        result = 31 * result + (end != null ? end.hashCode() : 0);
+        return result;
     }
 }
