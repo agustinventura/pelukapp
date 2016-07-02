@@ -149,9 +149,6 @@ public class Agenda {
                 for (Map.Entry<LocalDate, WorkingDay> entry : getWorkingDays().entrySet()) {
                     availableBlocks.addAll(entry.getValue().getAvailableBlocks(works));
                 }
-                if (availableBlocks.size() < 10) {
-                    WorkingDay newWorkingDay = new WorkingDay(this);
-                }
             }
         }
         return availableBlocks;

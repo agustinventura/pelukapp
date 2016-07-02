@@ -3,6 +3,7 @@ package com.spanishcoders;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.spanishcoders.model.*;
+import org.mockito.Mockito;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -46,7 +47,7 @@ public class TestDataFactory {
 
     public static Map<Hairdresser, Set<Block>> mockBlocksByHairdresser() {
         Map<Hairdresser, Set<Block>> availableBlocksByHairDresser = Maps.newHashMap();
-        availableBlocksByHairDresser.put(mockHairdresser(), mockBlocks());
+        availableBlocksByHairDresser.put(mockHairdresser(), mockTenBlocks());
         return availableBlocksByHairDresser;
     }
 
@@ -61,8 +62,7 @@ public class TestDataFactory {
     }
 
     public static Agenda mockAgenda() {
-        Agenda agenda = new Agenda(mockHairdresser());
-        return agenda;
+        return Mockito.mock(Agenda.class);
     }
 
     public static Agenda mockFullAgenda() {
@@ -85,5 +85,17 @@ public class TestDataFactory {
         Stretch morning = new Stretch(timetable, LocalTime.of(9, 30), LocalTime.of(14, 00));
         Stretch afternoon = new Stretch(timetable, LocalTime.of(17, 00), LocalTime.of(20, 30));
         return Sets.newHashSet(morning, afternoon);
+    }
+
+    public static Set<Block> mockTenBlocks() {
+        Set<Block> blocks = Sets.newHashSet();
+        LocalTime now = LocalTime.now();
+        WorkingDay workingDay = new WorkingDay();
+        workingDay.setDate(LocalDate.now());
+        for (int i = 0; i < 10; i++) {
+            blocks.add(new Block(now, workingDay));
+            now = now.plusMinutes(30);
+        }
+        return blocks;
     }
 }

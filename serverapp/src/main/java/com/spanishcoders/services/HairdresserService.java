@@ -14,10 +14,13 @@ import java.util.Set;
 @Service
 public class HairdresserService {
 
+    private AgendaService agendaService;
+
     private HairdresserRepository hairdresserRepository;
 
-    public HairdresserService(HairdresserRepository hairdresserRepository) {
+    public HairdresserService(HairdresserRepository hairdresserRepository, AgendaService agendaService) {
         this.hairdresserRepository = hairdresserRepository;
+        this.agendaService = agendaService;
     }
 
     public Map<Hairdresser, Set<Block>> getFirstTenAvailableBlocksByHairdresser(Set<Work> works) {
@@ -32,7 +35,7 @@ public class HairdresserService {
         Map<Hairdresser, Set<Block>> availableBlocks = Maps.newHashMap();
         Set<Hairdresser> hairdressers = hairdresserRepository.findByStatus(UserStatus.ACTIVE);
         for (Hairdresser hairdresser : hairdressers) {
-            Set<Block> hairdresserAvailableBlocks = hairdresser.getAgenda().getFirstTenAvailableBlocks(works);
+            Set<Block> hairdresserAvailableBlocks = agendaService.getFirstTenAvailableBlocks(hairdresser.getAgenda(), works);
             availableBlocks.put(hairdresser, hairdresserAvailableBlocks);
         }
         return availableBlocks;
