@@ -17,7 +17,7 @@ public class Agenda {
 
     @Id
     @GeneratedValue
-    protected Integer id;
+    private Integer id;
 
     @NotNull
     @OneToOne
@@ -95,10 +95,8 @@ public class Agenda {
     @Override
     public String toString() {
         return "Agenda{" +
-                "hairdresser=" + hairdresser.getId() +
-                ", workingDays=" + workingDays +
-                ", nonWorkingDays=" + nonWorkingDays +
-                ", timetables=" + timetables +
+                "id=" + id +
+                ", hairdresser=" + hairdresser +
                 '}';
     }
 
@@ -122,7 +120,17 @@ public class Agenda {
     }
 
     public void addWorkingDay(WorkingDay workingDay) {
+        if (workingDay == null || workingDay.getDate() == null) {
+            throw new IllegalArgumentException("To add a working day it needs to have a date");
+        }
         workingDays.put(workingDay.getDate(), workingDay);
+    }
+
+    public void addTimetable(Timetable timetable) {
+        if (timetable == null) {
+            throw new IllegalArgumentException("Can't add an empty timetable to agenda");
+        }
+        this.timetables.add(timetable);
     }
 
     public Timetable getCurrentTimetable() {
@@ -152,9 +160,5 @@ public class Agenda {
             }
         }
         return availableBlocks;
-    }
-
-    public void addTimetable(Timetable timetable) {
-        this.timetables.add(timetable);
     }
 }

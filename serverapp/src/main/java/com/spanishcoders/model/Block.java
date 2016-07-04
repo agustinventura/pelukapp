@@ -91,9 +91,10 @@ public class Block implements Comparable<Block> {
     @Override
     public String toString() {
         return "Block{" +
-                "start=" + start +
+                "id=" + id +
+                ", start=" + start +
                 ", length=" + length +
-                ", workingDay=" + workingDay.getId() +
+                ", workingDay=" + workingDay +
                 '}';
     }
 
@@ -120,10 +121,15 @@ public class Block implements Comparable<Block> {
 
     @Override
     public int compareTo(Block o) {
-        if (o.getStart().equals(start)) {
-            return o.getWorkingDay().compareTo(workingDay);
+        if (start.equals(o.getStart())) {
+            return workingDay.compareTo(getWorkingDay());
         } else {
-            return o.getStart().compareTo(start);
+            return start.compareTo(o.getStart());
         }
+    }
+
+    public boolean isContiguousTo(Block nextBlock) {
+        LocalTime nextBlockShouldStartAt = this.getStart().plus(this.getLength());
+        return nextBlockShouldStartAt.equals(nextBlock.getStart());
     }
 }

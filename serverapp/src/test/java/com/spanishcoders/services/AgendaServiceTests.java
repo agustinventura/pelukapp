@@ -60,10 +60,18 @@ public class AgendaServiceTests {
     }
 
     @Test
-    public void getFirstTenAvailableBlocks() {
+    public void getFirstTenAvailableBlocksForOneWork() {
         Agenda agenda = Mockito.mock(Agenda.class);
         given(agenda.getFirstTenAvailableBlocks(any(Set.class))).willReturn(mockTenBlocks());
         Set<Block> blocks = agendaService.getFirstTenAvailableBlocks(agenda, mockPublicWork());
+        assertThat(blocks.size(), is(10));
+    }
+
+    @Test
+    public void getFirstTenAvailableBlocksForAllPublicWorks() {
+        Agenda agenda = Mockito.mock(Agenda.class);
+        given(agenda.getFirstTenAvailableBlocks(any(Set.class))).willReturn(mockTenBlocks());
+        Set<Block> blocks = agendaService.getFirstTenAvailableBlocks(agenda, mockPublicWorks());
         assertThat(blocks.size(), is(10));
     }
 }

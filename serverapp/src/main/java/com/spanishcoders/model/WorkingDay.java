@@ -1,12 +1,14 @@
 package com.spanishcoders.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.google.common.collect.Sets;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.NavigableSet;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeSet;
@@ -31,7 +33,7 @@ public class WorkingDay implements Comparable<WorkingDay> {
     @NotEmpty
     @OneToMany(mappedBy = "workingDay")
     @JsonManagedReference
-    private Set<Block> blocks;
+    private NavigableSet<Block> blocks;
 
     public WorkingDay() {
         this.blocks = new TreeSet<>();
@@ -40,9 +42,21 @@ public class WorkingDay implements Comparable<WorkingDay> {
     public WorkingDay(Agenda agenda) {
         this();
         this.date = getNewWorkingDayDate(agenda.getNonWorkingDays(), agenda.getWorkingDays());
-        Set<Block> workingDayBlocks = createBlocksForDay(agenda.getCurrentTimetable());
+        NavigableSet<Block> workingDayBlocks = createBlocksForDay(agenda.getCurrentTimetable());
         this.setBlocks(workingDayBlocks);
+        this.agenda = agenda;
         agenda.addWorkingDay(this);
+    }
+
+    public WorkingDay(Agenda agenda, LocalDate date) {
+        this();
+        if (agenda.getNonWorkingDays().contains(date)) {
+            throw new IllegalArgumentException("Can't create working day on agenda " + agenda + " non working day: " + date);
+        }
+        this.agenda = agenda;
+        this.date = date;
+        agenda.addWorkingDay(this);
+        this.setBlocks(createBlocksForDay(agenda.getCurrentTimetable()));
     }
 
     public Integer getId() {
@@ -69,20 +83,20 @@ public class WorkingDay implements Comparable<WorkingDay> {
         this.agenda = agenda;
     }
 
-    public Set<Block> getBlocks() {
+    public NavigableSet<Block> getBlocks() {
         return blocks;
     }
 
-    public void setBlocks(Set<Block> blocks) {
+    public void setBlocks(NavigableSet<Block> blocks) {
         this.blocks = blocks;
     }
 
     @Override
     public String toString() {
         return "WorkingDay{" +
-                "date=" + date +
-                ", agenda=" + agenda.getId() +
-                ", blocks=" + blocks +
+                "id=" + id +
+                ", date=" + date +
+                ", agenda=" + agenda +
                 '}';
     }
 
@@ -108,6 +122,9 @@ public class WorkingDay implements Comparable<WorkingDay> {
     }
 
     public void addBlock(Block block) {
+        if (block == null) {
+            throw new IllegalArgumentException("Can't add an empty block to working day");
+        }
         this.blocks.add(block);
     }
 
@@ -126,8 +143,8 @@ public class WorkingDay implements Comparable<WorkingDay> {
         return lastWorkingDayDate;
     }
 
-    private Set<Block> createBlocksForDay(Timetable timetable) {
-        Set<Block> newBlocks = new TreeSet<>();
+    private NavigableSet<Block> createBlocksForDay(Timetable timetable) {
+        NavigableSet<Block> newBlocks = new TreeSet<>();
         for (Stretch stretch : timetable.getStretches()) {
             LocalTime startTime = stretch.getStart();
             while (startTime.isBefore(stretch.getEnd())) {
@@ -140,11 +157,50 @@ public class WorkingDay implements Comparable<WorkingDay> {
     }
 
     public Set<Block> getAvailableBlocks(Set<Work> works) {
-        return null;
+        Set<Block> availableBlocks = Sets.newHashSet();
+        if (works != null && !works.isEmpty()) {
+            for (Block block : blocks) {
+                if (isAvailable(block, getWorksTotalLength(works))) {
+                    availableBlocks.add(block);
+                }
+            }
+        }
+        return availableBlocks;
+    }
+
+    private boolean isAvailable(Block block, int totalLength) {
+        if (block.getAppointment() != null) {
+            return false;
+        } else {
+            totalLength -= block.getLength().toMinutes();
+            if (totalLength <= 0) {
+                return true;
+            } else {
+                NavigableSet<Block> nextBlocks = blocks.tailSet(block, false);
+                if (nextBlocks.isEmpty()) {
+                    return false;
+                } else {
+                    Block nextBlock = nextBlocks.first();
+                    if (block.isContiguousTo(nextBlock)) {
+                        return isAvailable(nextBlock, totalLength);
+                    } else {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+
+    private int getWorksTotalLength(Set<Work> works) {
+        int totalLength = 0;
+        for (Work work : works) {
+            totalLength += work.getDuration();
+        }
+        return totalLength;
     }
 
     @Override
     public int compareTo(WorkingDay o) {
-        return o.getDate().compareTo(date);
+        return date.compareTo(o.getDate());
     }
 }

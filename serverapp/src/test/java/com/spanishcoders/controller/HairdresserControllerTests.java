@@ -26,7 +26,7 @@ import static org.mockito.Matchers.any;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-//This class does not use @WebMvcTest because it need the DefaultHandlerMapping defined in WebMvcConfiguration
+//This class does not use @WebMvcTest because it needs the DefaultHandlerMapping defined in WebMvcConfiguration
 @RunWith(SpringRunner.class)
 @SpringBootTest
 public class HairdresserControllerTests {
@@ -52,6 +52,15 @@ public class HairdresserControllerTests {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getFirstTenAvailableBlocksWithOneWork() throws Exception {
+        this.mockMvc.perform(get("/hairdresser/blocks/free/works=1").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(jsonPath("$.*.*", hasSize(10)));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
+    public void getFirstTenAvailableBlocksWithTwoWorks() throws Exception {
         this.mockMvc.perform(get("/hairdresser/blocks/free/works=1;works=2").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
