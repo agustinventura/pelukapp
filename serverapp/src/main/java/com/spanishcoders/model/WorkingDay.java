@@ -153,10 +153,11 @@ public class WorkingDay implements Comparable<WorkingDay> {
     }
 
     public Set<Block> getAvailableBlocks(Set<Work> works) {
-        Set<Block> availableBlocks = Sets.newHashSet();
+        Set<Block> availableBlocks = Sets.newTreeSet();
         if (works != null && !works.isEmpty()) {
+            int worksLength = getWorksTotalLength(works);
             for (Block block : blocks) {
-                if (isAvailable(block, getWorksTotalLength(works))) {
+                if (isAvailable(block, worksLength)) {
                     availableBlocks.add(block);
                 }
             }
@@ -172,7 +173,8 @@ public class WorkingDay implements Comparable<WorkingDay> {
             if (totalLength <= 0) {
                 return true;
             } else {
-                NavigableSet<Block> nextBlocks = ((NavigableSet<Block>) blocks).tailSet(block, false);
+                NavigableSet<Block> nextBlocks = new TreeSet<>(blocks);
+                nextBlocks = nextBlocks.tailSet(block, false);
                 if (nextBlocks.isEmpty()) {
                     return false;
                 } else {

@@ -6,6 +6,7 @@ import com.spanishcoders.model.Block;
 import com.spanishcoders.model.Work;
 import com.spanishcoders.repositories.AgendaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 
@@ -13,6 +14,7 @@ import java.util.Set;
  * Created by agustin on 28/06/16.
  */
 @Service
+@Transactional
 public class AgendaService {
 
     private AgendaRepository agendaRepository;
@@ -25,9 +27,9 @@ public class AgendaService {
     }
 
     public Set<Block> getFirstTenAvailableBlocks(Agenda agenda, Set<Work> works) {
-        Set<Block> availableBlocks = Sets.newHashSet();
+        Set<Block> availableBlocks = Sets.newTreeSet();
         if (agenda != null && works != null && !works.isEmpty()) {
-            availableBlocks = workingDayService.getFirstTenAvailableBlocks(agenda, works);
+            availableBlocks.addAll(workingDayService.getFirstTenAvailableBlocks(agenda, works));
         }
         return availableBlocks;
     }

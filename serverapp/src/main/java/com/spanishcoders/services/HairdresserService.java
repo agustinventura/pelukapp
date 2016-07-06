@@ -7,11 +7,13 @@ import com.spanishcoders.model.UserStatus;
 import com.spanishcoders.model.Work;
 import com.spanishcoders.repositories.HairdresserRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Map;
 import java.util.Set;
 
 @Service
+@Transactional
 public class HairdresserService {
 
     private AgendaService agendaService;

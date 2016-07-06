@@ -7,6 +7,7 @@ import com.spanishcoders.model.Work;
 import com.spanishcoders.model.WorkingDay;
 import com.spanishcoders.repositories.WorkingDayRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Set;
 import java.util.SortedSet;
@@ -16,6 +17,7 @@ import java.util.stream.Collectors;
  * Created by agustin on 5/07/16.
  */
 @Service
+@Transactional
 public class WorkingDayService {
 
     private WorkingDayRepository workingDayRepository;
@@ -32,7 +34,7 @@ public class WorkingDayService {
     }
 
     public Set<Block> getFirstTenAvailableBlocks(Agenda agenda, Set<Work> works) {
-        Set<Block> availableBlocks = Sets.newHashSet();
+        Set<Block> availableBlocks = Sets.newTreeSet();
         if (works != null && !works.isEmpty()) {
             SortedSet<WorkingDay> nextWorkingDays = workingDayRepository.getNextWorkingDays(agenda);
             while (availableBlocks.size() < 10) {

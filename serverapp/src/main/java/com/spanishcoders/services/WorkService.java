@@ -7,6 +7,7 @@ import com.spanishcoders.model.WorkKind;
 import com.spanishcoders.repositories.WorkRepository;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collection;
 import java.util.Set;
@@ -15,6 +16,7 @@ import java.util.Set;
  * Created by agustin on 14/06/16.
  */
 @Service
+@Transactional
 public class WorkService {
 
     private WorkRepository workRepository;
