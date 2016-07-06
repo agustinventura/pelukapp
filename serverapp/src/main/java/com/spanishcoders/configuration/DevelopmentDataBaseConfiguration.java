@@ -18,6 +18,8 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Properties;
 
 @Configuration
@@ -65,26 +67,50 @@ public class DevelopmentDataBaseConfiguration {
     @Bean
     public CommandLineRunner insertDemoData(WorkRepository workRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
         return (args) -> {
-            Work cut = new Work("Corte", 30, WorkKind.PUBLIC);
-            Work shave = new Work("Afeitado", 30, WorkKind.PUBLIC);
-            Work regulation = new Work("Regulacion", 30, WorkKind.PRIVATE);
-            workRepository.save(cut);
-            workRepository.save(shave);
-            workRepository.save(regulation);
-            Hairdresser admin = new Hairdresser();
-            admin.setName("admin");
-            admin.setUsername("admin");
-            admin.setPassword(passwordEncoder.encode("admin"));
-            admin.setPhone("+34666666666");
-            admin.setStatus(UserStatus.ACTIVE);
-            userRepository.save(admin);
-            Client client = new Client();
-            client.setName("client");
-            client.setUsername("client");
-            client.setPassword(passwordEncoder.encode("client"));
-            client.setPhone("+34666666666");
-            client.setStatus(UserStatus.ACTIVE);
-            userRepository.save(client);
+            createWorks(workRepository);
+            createHairdresser(userRepository, passwordEncoder);
+            createClient(userRepository, passwordEncoder);
         };
+    }
+
+    private void createClient(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        Client client = new Client();
+        client.setName("client");
+        client.setUsername("client");
+        client.setPassword(passwordEncoder.encode("client"));
+        client.setPhone("+34666666666");
+        client.setStatus(UserStatus.ACTIVE);
+        userRepository.save(client);
+    }
+
+    private void createHairdresser(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+        Hairdresser admin = new Hairdresser();
+        admin.setName("admin");
+        admin.setUsername("admin");
+        admin.setPassword(passwordEncoder.encode("admin"));
+        admin.setPhone("+34666666666");
+        admin.setStatus(UserStatus.ACTIVE);
+        createAgenda(admin);
+        userRepository.save(admin);
+    }
+
+    private void createAgenda(Hairdresser admin) {
+        Agenda agenda = new Agenda(admin);
+        Timetable timetable = new Timetable(agenda, LocalDate.now().minusDays(365), LocalDate.now().plusDays(365));
+        Stretch morning = new Stretch(timetable, LocalTime.of(10, 00), LocalTime.of(14, 00));
+        Stretch afternoon = new Stretch(timetable, LocalTime.of(17, 00), LocalTime.of(21, 00));
+        agenda.addNonWorkingDay(LocalDate.of(2016, 01, 01));
+        agenda.addNonWorkingDay(LocalDate.of(2016, 01, 06));
+        agenda.addNonWorkingDay(LocalDate.of(2016, 02, 28));
+        agenda.addNonWorkingDay(LocalDate.of(2016, 8, 15));
+    }
+
+    private void createWorks(WorkRepository workRepository) {
+        Work cut = new Work("Corte", 30, WorkKind.PUBLIC);
+        Work shave = new Work("Afeitado", 30, WorkKind.PUBLIC);
+        Work regulation = new Work("Regulacion", 30, WorkKind.PRIVATE);
+        workRepository.save(cut);
+        workRepository.save(shave);
+        workRepository.save(regulation);
     }
 }

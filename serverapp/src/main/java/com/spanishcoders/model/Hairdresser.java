@@ -1,5 +1,6 @@
 package com.spanishcoders.model;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
@@ -9,7 +10,7 @@ import javax.persistence.OneToOne;
 @Entity
 public class Hairdresser extends User {
 
-    @OneToOne(mappedBy = "hairdresser")
+    @OneToOne(mappedBy = "hairdresser", cascade = CascadeType.ALL)
     private Agenda agenda;
 
     public Hairdresser() {

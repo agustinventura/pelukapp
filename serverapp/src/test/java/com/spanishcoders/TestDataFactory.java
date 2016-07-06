@@ -5,6 +5,7 @@ import com.google.common.collect.Sets;
 import com.spanishcoders.model.*;
 import org.mockito.Mockito;
 
+import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Map;
@@ -97,5 +98,16 @@ public class TestDataFactory {
             now = now.plusMinutes(30);
         }
         return blocks;
+    }
+
+    public static WorkingDay mockRandomFillWorkingDay() {
+        WorkingDay workingDay = mockWorkingDay();
+        SecureRandom secureRandom = new SecureRandom();
+        for (Block block : workingDay.getBlocks()) {
+            if (secureRandom.nextInt() % 2 == 0) {
+                block.setAppointment(new Appointment());
+            }
+        }
+        return workingDay;
     }
 }

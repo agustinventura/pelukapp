@@ -28,11 +28,14 @@ public class AgendaServiceTests {
     @MockBean
     private AgendaRepository agendaRepository;
 
+    @MockBean
+    private WorkingDayService workingDayService;
+
     private AgendaService agendaService;
 
     @Before
     public void setUp() {
-        agendaService = new AgendaService(agendaRepository);
+        agendaService = new AgendaService(agendaRepository, workingDayService);
     }
 
     @Test
@@ -62,7 +65,7 @@ public class AgendaServiceTests {
     @Test
     public void getFirstTenAvailableBlocksForOneWork() {
         Agenda agenda = Mockito.mock(Agenda.class);
-        given(agenda.getFirstTenAvailableBlocks(any(Set.class))).willReturn(mockTenBlocks());
+        given(workingDayService.getFirstTenAvailableBlocks(agenda, any(Set.class))).willReturn(mockTenBlocks());
         Set<Block> blocks = agendaService.getFirstTenAvailableBlocks(agenda, mockPublicWork());
         assertThat(blocks.size(), is(10));
     }
@@ -70,7 +73,7 @@ public class AgendaServiceTests {
     @Test
     public void getFirstTenAvailableBlocksForAllPublicWorks() {
         Agenda agenda = Mockito.mock(Agenda.class);
-        given(agenda.getFirstTenAvailableBlocks(any(Set.class))).willReturn(mockTenBlocks());
+        given(workingDayService.getFirstTenAvailableBlocks(agenda, any(Set.class))).willReturn(mockTenBlocks());
         Set<Block> blocks = agendaService.getFirstTenAvailableBlocks(agenda, mockPublicWorks());
         assertThat(blocks.size(), is(10));
     }

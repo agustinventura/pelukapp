@@ -3,10 +3,7 @@ package com.spanishcoders.model;
 import com.google.common.collect.Sets;
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.ManyToMany;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.Set;
@@ -32,7 +29,7 @@ public class Timetable {
     private Set<Agenda> agendas;
 
     @NotEmpty
-    @ManyToMany(mappedBy = "timetables")
+    @ManyToMany(mappedBy = "timetables", cascade = CascadeType.ALL)
     private Set<Stretch> stretches;
 
     public Timetable() {

@@ -7,7 +7,10 @@ import org.hibernate.validator.constraints.NotEmpty;
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.Iterator;
+import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 /**
  * Created by agustin on 16/06/16.
@@ -23,8 +26,7 @@ public class Agenda {
     @OneToOne
     private Hairdresser hairdresser;
 
-    @NotEmpty
-    @OneToMany(mappedBy = "agenda")
+    @OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL)
     @MapKey(name = "date")
     @OrderBy("date")
     private SortedMap<LocalDate, WorkingDay> workingDays;
@@ -33,7 +35,7 @@ public class Agenda {
     private Set<LocalDate> nonWorkingDays;
 
     @NotEmpty
-    @ManyToMany(mappedBy = "agendas")
+    @ManyToMany(mappedBy = "agendas", cascade = CascadeType.ALL)
     private Set<Timetable> timetables;
 
     public Agenda() {
@@ -45,6 +47,7 @@ public class Agenda {
     public Agenda(Hairdresser hairdresser) {
         this();
         this.hairdresser = hairdresser;
+        hairdresser.setAgenda(this);
     }
 
     public Agenda(Hairdresser hairdresser, Timetable timetable) {
@@ -150,15 +153,7 @@ public class Agenda {
         return currentTimetable;
     }
 
-    public Set<Block> getFirstTenAvailableBlocks(Set<Work> works) {
-        Set<Block> availableBlocks = Sets.newHashSet();
-        if (works != null && !works.isEmpty()) {
-            while (availableBlocks.size() < 10) {
-                for (Map.Entry<LocalDate, WorkingDay> entry : getWorkingDays().entrySet()) {
-                    availableBlocks.addAll(entry.getValue().getAvailableBlocks(works));
-                }
-            }
-        }
-        return availableBlocks;
+    public void addNonWorkingDay(LocalDate nonWorkingDay) {
+        this.nonWorkingDays.add(nonWorkingDay);
     }
 }

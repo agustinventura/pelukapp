@@ -53,11 +53,29 @@ public class WorkingDayTests {
     }
 
     @Test
-    public void getAvailableBlocksEmptyTwoOneWorks() throws Exception {
+    public void getAvailableBlocksEmptyTwoWorks() throws Exception {
         WorkingDay workingDay = mockWorkingDay();
         Set<Block> availableBlocks = workingDay.getAvailableBlocks(mockPublicWorks());
         assertThat(availableBlocks, is(not(empty())));
         assertThat(availableBlocks.size(), is(14));
+    }
+
+    @Test
+    public void getAvailableBlocksRandomFillDayOneWork() {
+        WorkingDay workingDay = mockRandomFillWorkingDay();
+        Set<Block> availableBlocks = workingDay.getAvailableBlocks(mockPublicWork());
+        int blocksWithoutAppointments = (int) workingDay.getBlocks().stream().filter(b -> b.getAppointment() == null).count();
+        assertThat(availableBlocks.size(), is(blocksWithoutAppointments));
+    }
+
+    @Test
+    public void getAvailableBlocksRandomFillDayTwoWorks() {
+        //TODO: this test seems a little fragile, but couldn't find a fast way to implement it without reimplementing code from WorkingDay
+        WorkingDay workingDay = mockWorkingDay();
+        workingDay.getBlocks().first().setAppointment(new Appointment());
+        workingDay.getBlocks().last().setAppointment(new Appointment());
+        Set<Block> availableBlocks = workingDay.getAvailableBlocks(mockPublicWorks());
+        assertThat(availableBlocks.size(), is(12));
     }
 
 }

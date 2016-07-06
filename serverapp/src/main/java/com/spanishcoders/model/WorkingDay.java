@@ -2,16 +2,12 @@ package com.spanishcoders.model;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.google.common.collect.Sets;
-import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.NavigableSet;
-import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeSet;
+import java.util.*;
 
 /**
  * Created by agustin on 16/06/16.
@@ -30,10 +26,10 @@ public class WorkingDay implements Comparable<WorkingDay> {
     @ManyToOne
     private Agenda agenda;
 
-    @NotEmpty
-    @OneToMany(mappedBy = "workingDay")
+    @OneToMany(mappedBy = "workingDay", cascade = CascadeType.ALL)
+    @OrderBy("start asc")
     @JsonManagedReference
-    private NavigableSet<Block> blocks;
+    private SortedSet<Block> blocks;
 
     public WorkingDay() {
         this.blocks = new TreeSet<>();
@@ -83,11 +79,11 @@ public class WorkingDay implements Comparable<WorkingDay> {
         this.agenda = agenda;
     }
 
-    public NavigableSet<Block> getBlocks() {
+    public SortedSet<Block> getBlocks() {
         return blocks;
     }
 
-    public void setBlocks(NavigableSet<Block> blocks) {
+    public void setBlocks(SortedSet<Block> blocks) {
         this.blocks = blocks;
     }
 
@@ -176,7 +172,7 @@ public class WorkingDay implements Comparable<WorkingDay> {
             if (totalLength <= 0) {
                 return true;
             } else {
-                NavigableSet<Block> nextBlocks = blocks.tailSet(block, false);
+                NavigableSet<Block> nextBlocks = ((NavigableSet<Block>) blocks).tailSet(block, false);
                 if (nextBlocks.isEmpty()) {
                     return false;
                 } else {

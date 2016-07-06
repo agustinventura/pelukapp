@@ -38,13 +38,13 @@ public class Block implements Comparable<Block> {
     private Appointment appointment;
 
     public Block() {
-
+        this.length = DEFAULT_BLOCK_LENGTH;
     }
 
     public Block(LocalTime start, WorkingDay workingDay) {
+        this();
         this.start = start;
         this.workingDay = workingDay;
-        this.length = DEFAULT_BLOCK_LENGTH;
         workingDay.addBlock(this);
     }
 
@@ -129,7 +129,11 @@ public class Block implements Comparable<Block> {
     }
 
     public boolean isContiguousTo(Block nextBlock) {
-        LocalTime nextBlockShouldStartAt = this.getStart().plus(this.getLength());
-        return nextBlockShouldStartAt.equals(nextBlock.getStart());
+        boolean contiguous = false;
+        if (nextBlock != null && nextBlock.getStart() != null) {
+            LocalTime nextBlockShouldStartAt = this.getStart().plus(this.getLength());
+            contiguous = nextBlockShouldStartAt.equals(nextBlock.getStart());
+        }
+        return contiguous;
     }
 }
