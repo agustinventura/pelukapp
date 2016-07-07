@@ -1,7 +1,7 @@
 package com.spanishcoders.controller;
 
-import com.spanishcoders.repositories.WorkRepository;
 import com.spanishcoders.services.HairdresserService;
+import com.spanishcoders.services.WorkService;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -15,7 +15,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.util.Collection;
 import java.util.Set;
 
 import static com.spanishcoders.TestDataFactory.mockAllWorks;
@@ -35,7 +34,7 @@ public class HairdresserControllerTests {
     private HairdresserService hairdresserService;
 
     @MockBean
-    private WorkRepository workRepository;
+    private WorkService workService;
 
     @Autowired
     private WebApplicationContext wac;
@@ -45,7 +44,7 @@ public class HairdresserControllerTests {
     @Before
     public void setUp() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
-        given(workRepository.findAll(any(Collection.class))).willReturn(mockAllWorks());
+        given(workService.get(any(Set.class))).willReturn(mockAllWorks());
         given(hairdresserService.getFirstTenAvailableBlocksByHairdresser(any(Set.class))).willReturn(mockBlocksByHairdresser());
     }
 
