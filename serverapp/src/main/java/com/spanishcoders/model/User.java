@@ -1,7 +1,10 @@
 package com.spanishcoders.model;
 
+import com.google.common.collect.Sets;
+
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 /**
  * Created by pep on 12/05/2016.
@@ -27,21 +30,28 @@ public class User {
     @NotNull
     protected String phone;
 
+    @NotNull
     protected UserStatus status;
+
+    @OneToMany(mappedBy = "user")
+    @OrderBy(value = "startTime asc")
+    private Set<Appointment> appointments;
+
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
     public User() {
-
+        this.status = UserStatus.ACTIVE;
+        this.appointments = Sets.newTreeSet();
     }
 
     public User(String username, String password, String phone) {
+        this();
         this.username = username;
         this.password = password;
         this.phone = phone;
-        this.status = UserStatus.ACTIVE;
     }
 
     public String getUsername() {
@@ -86,6 +96,14 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public Set<Appointment> getAppointments() {
+        return appointments;
+    }
+
+    public void setAppointments(Set<Appointment> appointments) {
+        this.appointments = appointments;
     }
 
     @Override

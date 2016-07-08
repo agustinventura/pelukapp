@@ -114,7 +114,7 @@ public class AppointmentControllerTests {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithInvalidPairingWorkBlock() throws Exception {
-        given(appointmentService.confirmAppointment(any(Authentication.class), any(Set.class), any(Set.class))).willThrow(new IllegalStateException());
+        given(appointmentService.confirmAppointment(any(Authentication.class), any(Set.class), any(Set.class))).willThrow(new IllegalArgumentException());
         this.mockMvc.perform(get("/appointment/new/works=1&blocks=1;blocks=2").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isBadRequest());
     }

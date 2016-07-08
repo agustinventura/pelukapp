@@ -13,7 +13,7 @@ import java.util.Set;
  */
 
 @Entity
-public class Appointment {
+public class Appointment implements Comparable<Appointment> {
 
     @Id
     @GeneratedValue
@@ -95,5 +95,10 @@ public class Appointment {
     @Override
     public int hashCode() {
         return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public int compareTo(Appointment o) {
+        return this.date.compareTo(o.getDate());
     }
 }
