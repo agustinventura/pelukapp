@@ -22,6 +22,7 @@ import static com.spanishcoders.TestDataFactory.mockBlocksByHairdresser;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -43,7 +44,7 @@ public class HairdresserControllerTests {
 
     @Before
     public void setUp() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).apply(springSecurity()).build();
         given(workService.get(any(Set.class))).willReturn(mockAllWorks());
         given(hairdresserService.getFirstTenAvailableBlocksByHairdresser(any(Set.class))).willReturn(mockBlocksByHairdresser());
     }

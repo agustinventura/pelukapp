@@ -6,14 +6,13 @@ import com.spanishcoders.model.Work;
 import com.spanishcoders.services.AppointmentService;
 import com.spanishcoders.services.BlockService;
 import com.spanishcoders.services.WorkService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.MatrixVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.Set;
 
 /**
@@ -37,10 +36,15 @@ public class AppointmentController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "new/{works}&{blocks}", method = RequestMethod.GET)
-    public Appointment getFreeBlocks(Authentication authentication, @MatrixVariable Set<Integer> works, @MatrixVariable Set<Integer> blocks) {
+    public Appointment getFreeBlocks(Principal principal, @MatrixVariable Set<Integer> works, @MatrixVariable Set<Integer> blocks) {
         Set<Work> requestedWorks = workService.get(works);
         Set<Block> requestedBlocks = blockService.get(blocks);
-        Appointment confirmed = appointmentService.confirmAppointment(requestedWorks, requestedBlocks);
+        Appointment confirmed = appointmentService.confirmAppointment(null, requestedWorks, requestedBlocks);
         return confirmed;
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity illegalStateExceptionHandler() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }

@@ -2,6 +2,7 @@ package com.spanishcoders.controller;
 
 import com.spanishcoders.model.Appointment;
 import com.spanishcoders.model.Block;
+import com.spanishcoders.model.User;
 import com.spanishcoders.model.Work;
 import com.spanishcoders.services.AppointmentService;
 import com.spanishcoders.services.BlockService;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -49,7 +51,7 @@ public class AppointmentControllerTests {
 
     @Before
     public void setUp() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).apply(springSecurity()).build();
         given(workService.get(any(Set.class))).willAnswer(invocation -> {
             Set<Integer> workIds = (Set<Integer>) invocation.getArguments()[0];
             Set<Work> works = workIds.stream().map(id -> {
@@ -73,7 +75,7 @@ public class AppointmentControllerTests {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithOneWork() throws Exception {
-        given(appointmentService.confirmAppointment(any(Set.class), any(Set.class))).willAnswer(invocation -> {
+        given(appointmentService.confirmAppointment(any(User.class), any(Set.class), any(Set.class))).willAnswer(invocation -> {
             Set<Work> works = (Set<Work>) invocation.getArguments()[0];
             Set<Block> blocks = (Set<Block>) invocation.getArguments()[1];
             Appointment appointment = new Appointment();
@@ -92,7 +94,7 @@ public class AppointmentControllerTests {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithTwoWorks() throws Exception {
-        given(appointmentService.confirmAppointment(any(Set.class), any(Set.class))).willAnswer(invocation -> {
+        given(appointmentService.confirmAppointment(any(User.class), any(Set.class), any(Set.class))).willAnswer(invocation -> {
             Set<Work> works = (Set<Work>) invocation.getArguments()[0];
             Set<Block> blocks = (Set<Block>) invocation.getArguments()[1];
             Appointment appointment = new Appointment();
@@ -111,12 +113,8 @@ public class AppointmentControllerTests {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithInvalidPairingWorkBlock() throws Exception {
-        given(appointmentService.confirmAppointment(any(Set.class), any(Set.class))).willThrow(new IllegalStateException());
+        given(appointmentService.confirmAppointment(any(User.class), any(Set.class), any(Set.class))).willThrow(new IllegalStateException());
         this.mockMvc.perform(get("/appointment/new/works=1&blocks=1;blocks=2").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.*", hasSize(6)))
-                .andExpect(jsonPath("$.blocks", hasSize(2)))
-                .andExpect(jsonPath("$.works", hasSize(2)));
+                .andExpect(status().isBadRequest());
     }
 }
