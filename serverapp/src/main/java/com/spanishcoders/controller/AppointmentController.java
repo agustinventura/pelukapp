@@ -9,6 +9,7 @@ import com.spanishcoders.services.WorkService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,12 +40,17 @@ public class AppointmentController {
     public Appointment getFreeBlocks(Principal principal, @MatrixVariable Set<Integer> works, @MatrixVariable Set<Integer> blocks) {
         Set<Work> requestedWorks = workService.get(works);
         Set<Block> requestedBlocks = blockService.get(blocks);
-        Appointment confirmed = appointmentService.confirmAppointment(null, requestedWorks, requestedBlocks);
+        Appointment confirmed = appointmentService.confirmAppointment(principal, requestedWorks, requestedBlocks);
         return confirmed;
     }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity illegalStateExceptionHandler() {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity accessDeniedExceptionExceptionHandler() {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
     }
 }
