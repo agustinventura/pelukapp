@@ -27,8 +27,9 @@ public class Appointment {
     @ManyToMany
     private Set<Work> works;
 
+    @NotNull
     @ManyToOne
-    private Client client;
+    private User user;
 
     @NotNull
     private LocalDateTime date;
@@ -56,12 +57,12 @@ public class Appointment {
         this.works = works;
     }
 
-    public Client getClient() {
-        return client;
+    public User getUser() {
+        return user;
     }
 
-    public void setClient(Client client) {
-        this.client = client;
+    public void setUser(User user) {
+        this.user = user;
     }
 
     public LocalDateTime getDate() {

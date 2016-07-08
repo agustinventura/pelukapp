@@ -14,13 +14,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import java.security.Principal;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -76,7 +76,7 @@ public class AppointmentControllerTests {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithOneWork() throws Exception {
-        given(appointmentService.confirmAppointment(any(Principal.class), any(Set.class), any(Set.class))).willAnswer(invocation -> {
+        given(appointmentService.confirmAppointment(any(Authentication.class), any(Set.class), any(Set.class))).willAnswer(invocation -> {
             Set<Work> works = (Set<Work>) invocation.getArguments()[1];
             Set<Block> blocks = (Set<Block>) invocation.getArguments()[2];
             Appointment appointment = new Appointment();
@@ -95,7 +95,7 @@ public class AppointmentControllerTests {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithTwoWorks() throws Exception {
-        given(appointmentService.confirmAppointment(any(Principal.class), any(Set.class), any(Set.class))).willAnswer(invocation -> {
+        given(appointmentService.confirmAppointment(any(Authentication.class), any(Set.class), any(Set.class))).willAnswer(invocation -> {
             Set<Work> works = (Set<Work>) invocation.getArguments()[1];
             Set<Block> blocks = (Set<Block>) invocation.getArguments()[2];
             Appointment appointment = new Appointment();
@@ -114,7 +114,7 @@ public class AppointmentControllerTests {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithInvalidPairingWorkBlock() throws Exception {
-        given(appointmentService.confirmAppointment(any(Principal.class), any(Set.class), any(Set.class))).willThrow(new IllegalStateException());
+        given(appointmentService.confirmAppointment(any(Authentication.class), any(Set.class), any(Set.class))).willThrow(new IllegalStateException());
         this.mockMvc.perform(get("/appointment/new/works=1&blocks=1;blocks=2").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isBadRequest());
     }
@@ -122,7 +122,7 @@ public class AppointmentControllerTests {
     @Test
     @WithMockUser(username = "client", roles = {"USER", "CLIENT"})
     public void getAppointmentWithPrivateWorkAsClient() throws Exception {
-        given(appointmentService.confirmAppointment(any(Principal.class), any(Set.class), any(Set.class))).willThrow(new AccessDeniedException("Access denied"));
+        given(appointmentService.confirmAppointment(any(Authentication.class), any(Set.class), any(Set.class))).willThrow(new AccessDeniedException("Access denied"));
         this.mockMvc.perform(get("/appointment/new/works=1&blocks=1").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isUnauthorized());
     }
