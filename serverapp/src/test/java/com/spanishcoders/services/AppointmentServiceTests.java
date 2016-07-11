@@ -3,6 +3,7 @@ package com.spanishcoders.services;
 import com.google.common.collect.Sets;
 import com.spanishcoders.model.*;
 import com.spanishcoders.repositories.AppointmentRepository;
+import com.spanishcoders.repositories.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -14,13 +15,15 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
-import java.util.HashSet;
+import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 
@@ -33,11 +36,14 @@ public class AppointmentServiceTests {
     @MockBean
     private AppointmentRepository appointmentRepository;
 
+    @MockBean
+    private UserRepository userRepository;
+
     private AppointmentService appointmentService;
 
     @Before
     public void setUp() throws Exception {
-        appointmentService = new AppointmentService(appointmentRepository);
+        appointmentService = new AppointmentService(appointmentRepository, userRepository);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -97,16 +103,24 @@ public class AppointmentServiceTests {
         Authentication authentication = Mockito.mock(Authentication.class);
         Collection<GrantedAuthority> clientAuthority = Sets.newHashSet(Role.CLIENT.getGrantedAuthority());
         given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
+        User user = Mockito.mock(User.class);
+        given(userRepository.findByUsername(any(String.class))).willReturn(user);
         Work work = Mockito.mock(Work.class);
         given(work.getDuration()).willReturn(30);
         given(work.getKind()).willReturn(WorkKind.PUBLIC);
         Block block = Mockito.mock(Block.class);
         given(block.getLength()).willReturn(Duration.of(30, ChronoUnit.MINUTES));
+        given(block.getStart()).willReturn(LocalTime.now());
+        WorkingDay workingDay = Mockito.mock(WorkingDay.class);
+        given(workingDay.getDate()).willReturn(LocalDate.now());
+        given(block.getWorkingDay()).willReturn(workingDay);
         given(appointmentRepository.save(any(Appointment.class))).willAnswer(invocation -> invocation.getArguments()[0]);
-        HashSet<Work> requestedWorks = Sets.newHashSet(work);
-        HashSet<Block> requestedBlocks = Sets.newHashSet(block);
+        Set<Work> requestedWorks = Sets.newTreeSet();
+        requestedWorks.add(work);
+        Set<Block> requestedBlocks = Sets.newTreeSet();
+        requestedBlocks.add(block);
         Appointment result = appointmentService.confirmAppointment(authentication, requestedWorks, requestedBlocks);
-        assertThat(result, is(not(null)));
+        assertThat(result, notNullValue());
         assertThat(result.getWorks(), is(requestedWorks));
         assertThat(result.getBlocks(), is(requestedBlocks));
     }

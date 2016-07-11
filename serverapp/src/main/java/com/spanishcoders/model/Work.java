@@ -6,7 +6,7 @@ import javax.persistence.*;
  * Created by pep on 12/05/2016.
  */
 @Entity
-public class Work {
+public class Work implements Comparable<Work> {
 
     @Id
     @GeneratedValue
@@ -83,5 +83,10 @@ public class Work {
         int result = id != null ? id.hashCode() : 0;
         result = 31 * result + (name != null ? name.hashCode() : 0);
         return result;
+    }
+
+    @Override
+    public int compareTo(Work o) {
+        return this.getName().compareTo(o.getName());
     }
 }

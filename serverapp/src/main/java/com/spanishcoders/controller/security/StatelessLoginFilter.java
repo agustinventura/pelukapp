@@ -2,8 +2,8 @@ package com.spanishcoders.controller.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spanishcoders.model.User;
-import com.spanishcoders.model.UserAuthentication;
-import com.spanishcoders.services.TokenAuthenticationService;
+import com.spanishcoders.model.security.UserAuthentication;
+import com.spanishcoders.services.security.TokenAuthenticationService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;

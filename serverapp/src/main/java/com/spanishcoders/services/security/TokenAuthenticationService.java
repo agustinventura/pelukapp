@@ -1,7 +1,6 @@
-package com.spanishcoders.services;
+package com.spanishcoders.services.security;
 
-import com.spanishcoders.model.TokenHandler;
-import com.spanishcoders.model.UserAuthentication;
+import com.spanishcoders.model.security.UserAuthentication;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

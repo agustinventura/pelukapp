@@ -1,12 +1,18 @@
 package com.spanishcoders.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.google.common.collect.Sets;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
+import java.util.SortedSet;
 
 /**
  * Created by pep on 12/05/2016.
@@ -21,6 +27,7 @@ public class Appointment implements Comparable<Appointment> {
 
     @NotEmpty
     @OneToMany(mappedBy = "appointment")
+    @JsonManagedReference
     private Set<Block> blocks;
 
     @NotEmpty
@@ -36,6 +43,25 @@ public class Appointment implements Comparable<Appointment> {
 
     @NotNull
     private Duration duration;
+
+    public Appointment() {
+        blocks = Sets.newTreeSet();
+        works = Sets.newTreeSet();
+    }
+
+    public Appointment(User requestUser, Set<Work> requestedWorks, Set<Block> requestedBlocks) {
+        this();
+        this.user = requestUser;
+        user.addAppointment(this);
+        this.works = requestedWorks;
+        this.blocks.addAll(requestedBlocks);
+        this.blocks.stream().forEach(block -> block.setAppointment(this));
+        Block firstBlock = ((SortedSet<Block>) this.blocks).first();
+        LocalTime appointmentTime = firstBlock.getStart();
+        LocalDate appointmentDate = firstBlock.getWorkingDay().getDate();
+        this.date = LocalDateTime.of(appointmentDate, appointmentTime);
+        this.duration = Duration.of(requestedWorks.stream().mapToInt(work -> work.getDuration()).sum(), ChronoUnit.MINUTES);
+    }
 
     public Integer getId() {
         return id;
@@ -100,5 +126,17 @@ public class Appointment implements Comparable<Appointment> {
     @Override
     public int compareTo(Appointment o) {
         return this.date.compareTo(o.getDate());
+    }
+
+    @Override
+    public String toString() {
+        return "Appointment{" +
+                "id=" + id +
+                ", user=" + user.getUsername() +
+                ", duration=" + duration +
+                ", date=" + date +
+                ", blocks=" + blocks.stream().mapToInt(block -> block.getId()).toArray() +
+                ", works=" + works.stream().mapToInt(work -> work.getId()).toArray() +
+                '}';
     }
 }

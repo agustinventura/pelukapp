@@ -35,6 +35,7 @@ public class Block implements Comparable<Block> {
     private WorkingDay workingDay;
 
     @ManyToOne
+    @JsonBackReference
     private Appointment appointment;
 
     public Block() {

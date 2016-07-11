@@ -1,4 +1,4 @@
-package com.spanishcoders.services;
+package com.spanishcoders.services.security;
 
 import com.spanishcoders.model.*;
 import com.spanishcoders.repositories.UserRepository;

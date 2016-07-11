@@ -1,6 +1,6 @@
 package com.spanishcoders.controller.security;
 
-import com.spanishcoders.services.TokenAuthenticationService;
+import com.spanishcoders.services.security.TokenAuthenticationService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.GenericFilterBean;

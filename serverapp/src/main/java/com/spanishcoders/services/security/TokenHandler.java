@@ -1,4 +1,4 @@
-package com.spanishcoders.model;
+package com.spanishcoders.services.security;
 
 import com.google.common.base.Preconditions;
 import io.jsonwebtoken.Jwts;
@@ -44,21 +44,5 @@ public final class TokenHandler {
                 .setExpiration(expiration)
                 .signWith(SignatureAlgorithm.HS512, secret)
                 .compact();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        TokenHandler that = (TokenHandler) o;
-
-        return secret.equals(that.secret);
-
-    }
-
-    @Override
-    public int hashCode() {
-        return secret.hashCode();
     }
 }

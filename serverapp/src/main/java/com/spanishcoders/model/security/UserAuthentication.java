@@ -1,4 +1,4 @@
-package com.spanishcoders.model;
+package com.spanishcoders.model.security;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
