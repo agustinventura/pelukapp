@@ -34,11 +34,13 @@ public class ProductionSecurityConfiguration extends WebSecurityConfigurerAdapte
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
+        http.headers().frameOptions().disable();
         http
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
                 .antMatchers("/favicon.ico").permitAll()
+                .antMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated().and()
                 // custom JSON based authentication by POST of {"username":"<name>","password":"<password>"} which sets the token header upon authentication
                 .addFilterBefore(new StatelessLoginFilter("/login", tokenAuthenticationService(), userDetailsService, authenticationManager()), UsernamePasswordAuthenticationFilter.class)

@@ -37,16 +37,22 @@ public class AppointmentServiceTests {
     private AppointmentRepository appointmentRepository;
 
     @MockBean
+    private BlockService blockService;
+
+    @MockBean
     private UserRepository userRepository;
 
     private AppointmentService appointmentService;
 
     @Before
     public void setUp() throws Exception {
-        appointmentService = new AppointmentService(appointmentRepository, userRepository);
+        appointmentService = new AppointmentService(appointmentRepository, blockService, userRepository);
+
+        Client user = Mockito.mock(Client.class);
+        given(userRepository.findByUsername(any(String.class))).willReturn(user);
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test(expected = AccessDeniedException.class)
     public void confirmAppointmentNullAuthorization() {
         appointmentService.confirmAppointment(null, Sets.newHashSet(), Sets.newHashSet());
     }
@@ -85,7 +91,9 @@ public class AppointmentServiceTests {
         Work privateWork = Mockito.mock(Work.class);
         given(privateWork.getKind()).willReturn(WorkKind.PRIVATE);
         Block block = Mockito.mock(Block.class);
-        appointmentService.confirmAppointment(authentication, Sets.newHashSet(privateWork), Sets.newHashSet(block));
+        Set<Block> blocks = Sets.newHashSet(block);
+        given(blockService.get(any(Collection.class))).willReturn(blocks);
+        appointmentService.confirmAppointment(authentication, Sets.newHashSet(privateWork), blocks);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -103,8 +111,6 @@ public class AppointmentServiceTests {
         Authentication authentication = Mockito.mock(Authentication.class);
         Collection<GrantedAuthority> clientAuthority = Sets.newHashSet(Role.CLIENT.getGrantedAuthority());
         given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
-        User user = Mockito.mock(User.class);
-        given(userRepository.findByUsername(any(String.class))).willReturn(user);
         Work work = Mockito.mock(Work.class);
         given(work.getDuration()).willReturn(30);
         given(work.getKind()).willReturn(WorkKind.PUBLIC);
@@ -119,6 +125,7 @@ public class AppointmentServiceTests {
         requestedWorks.add(work);
         Set<Block> requestedBlocks = Sets.newTreeSet();
         requestedBlocks.add(block);
+        given(blockService.get(any(Collection.class))).willReturn(requestedBlocks);
         Appointment result = appointmentService.confirmAppointment(authentication, requestedWorks, requestedBlocks);
         assertThat(result, notNullValue());
         assertThat(result.getWorks(), is(requestedWorks));

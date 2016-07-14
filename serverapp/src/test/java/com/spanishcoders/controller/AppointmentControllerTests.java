@@ -28,7 +28,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 //This class does not use @WebMvcTest because it needs the DefaultHandlerMapping defined in WebMvcConfiguration
@@ -84,7 +84,7 @@ public class AppointmentControllerTests {
             appointment.setWorks(works);
             return appointment;
         });
-        this.mockMvc.perform(get("/appointment/new/works=1&blocks=1").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        this.mockMvc.perform(put("/appointment/new/works=1&blocks=1").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.*", hasSize(6)))
@@ -103,7 +103,7 @@ public class AppointmentControllerTests {
             appointment.setWorks(works);
             return appointment;
         });
-        this.mockMvc.perform(get("/appointment/new/works=1;works=2&blocks=1;blocks=2").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        this.mockMvc.perform(put("/appointment/new/works=1;works=2&blocks=1;blocks=2").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.*", hasSize(6)))
@@ -115,7 +115,7 @@ public class AppointmentControllerTests {
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithInvalidPairingWorkBlock() throws Exception {
         given(appointmentService.confirmAppointment(any(Authentication.class), any(Set.class), any(Set.class))).willThrow(new IllegalArgumentException());
-        this.mockMvc.perform(get("/appointment/new/works=1&blocks=1;blocks=2").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        this.mockMvc.perform(put("/appointment/new/works=1&blocks=1;blocks=2").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isBadRequest());
     }
 
@@ -123,7 +123,7 @@ public class AppointmentControllerTests {
     @WithMockUser(username = "client", roles = {"USER", "CLIENT"})
     public void getAppointmentWithPrivateWorkAsClient() throws Exception {
         given(appointmentService.confirmAppointment(any(Authentication.class), any(Set.class), any(Set.class))).willThrow(new AccessDeniedException("Access denied"));
-        this.mockMvc.perform(get("/appointment/new/works=1&blocks=1").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        this.mockMvc.perform(put("/appointment/new/works=1&blocks=1").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isUnauthorized());
     }
 }

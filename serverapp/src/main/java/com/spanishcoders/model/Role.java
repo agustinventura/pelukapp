@@ -16,6 +16,16 @@ public enum Role {
         this.grantedAuthority = new SimpleGrantedAuthority(name);
     }
 
+    public static Role getRole(User user) {
+        if (user instanceof Client) {
+            return Role.CLIENT;
+        } else if (user instanceof Hairdresser) {
+            return Role.WORKER;
+        } else {
+            throw new IllegalArgumentException("unexpected user type");
+        }
+    }
+
     public String getName() {
         return this.name;
     }

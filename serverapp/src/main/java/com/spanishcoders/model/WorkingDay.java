@@ -124,6 +124,19 @@ public class WorkingDay implements Comparable<WorkingDay> {
         this.blocks.add(block);
     }
 
+    public Set<Block> getAvailableBlocks(Set<Work> works) {
+        Set<Block> availableBlocks = Sets.newTreeSet();
+        if (works != null && !works.isEmpty()) {
+            int worksLength = getWorksTotalLength(works);
+            for (Block block : blocks) {
+                if (isAvailable(block, worksLength)) {
+                    availableBlocks.add(block);
+                }
+            }
+        }
+        return availableBlocks;
+    }
+
     private LocalDate getNewWorkingDayDate(Set<LocalDate> nonWorkingDays, SortedMap<LocalDate, WorkingDay> workingDays) {
         LocalDate lastWorkingDayDate = null;
         if (workingDays.isEmpty()) {
@@ -152,25 +165,12 @@ public class WorkingDay implements Comparable<WorkingDay> {
         return newBlocks;
     }
 
-    public Set<Block> getAvailableBlocks(Set<Work> works) {
-        Set<Block> availableBlocks = Sets.newTreeSet();
-        if (works != null && !works.isEmpty()) {
-            int worksLength = getWorksTotalLength(works);
-            for (Block block : blocks) {
-                if (isAvailable(block, worksLength)) {
-                    availableBlocks.add(block);
-                }
-            }
-        }
-        return availableBlocks;
-    }
-
-    private boolean isAvailable(Block block, int totalLength) {
+    private boolean isAvailable(Block block, int worksTotalLength) {
         if (block.getAppointment() != null) {
             return false;
         } else {
-            totalLength -= block.getLength().toMinutes();
-            if (totalLength <= 0) {
+            worksTotalLength -= block.getLength().toMinutes();
+            if (worksTotalLength <= 0) {
                 return true;
             } else {
                 NavigableSet<Block> nextBlocks = new TreeSet<>(blocks);
@@ -180,7 +180,7 @@ public class WorkingDay implements Comparable<WorkingDay> {
                 } else {
                     Block nextBlock = nextBlocks.first();
                     if (block.isContiguousTo(nextBlock)) {
-                        return isAvailable(nextBlock, totalLength);
+                        return isAvailable(nextBlock, worksTotalLength);
                     } else {
                         return false;
                     }

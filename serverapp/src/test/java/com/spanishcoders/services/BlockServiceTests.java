@@ -2,6 +2,7 @@ package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.model.Block;
+import com.spanishcoders.model.WorkingDay;
 import com.spanishcoders.repositories.BlockRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -9,6 +10,8 @@ import org.junit.runner.RunWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,6 +45,10 @@ public class BlockServiceTests {
             Set<Block> blocks = blockIds.stream().map(id -> {
                 Block block = new Block();
                 block.setId(id);
+                block.setStart(LocalTime.now().plusHours(id));
+                WorkingDay workingDay = new WorkingDay();
+                workingDay.setDate(LocalDate.now());
+                block.setWorkingDay(workingDay);
                 return block;
             }).collect(Collectors.toSet());
             return blocks;

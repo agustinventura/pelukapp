@@ -45,9 +45,11 @@ public class WorkServiceTests {
 
     @Test
     public void getAvailableWorksForClient() throws Exception {
-        given(workRepository.findByKind(WorkKind.PUBLIC)).willReturn(mockPublicWorks());
+        Set<Work> publicWorks = mockPublicWorks();
+        given(workRepository.findByKind(WorkKind.PUBLIC)).willReturn(publicWorks);
         Set<Work> availableWorks = workService.getAvailableWorks(Sets.newHashSet(Role.CLIENT.getGrantedAuthority()));
-        assertThat(availableWorks, hasSize(2));
+        assertThat(availableWorks, hasSize(publicWorks.size()));
+        assertThat(availableWorks, is(publicWorks));
     }
 
     @Test

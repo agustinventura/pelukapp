@@ -14,7 +14,7 @@ import java.util.Set;
  */
 
 @Entity
-@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @JsonDeserialize(using = UserDeserializer.class)
 public class User {
 
@@ -41,7 +41,6 @@ public class User {
     @OrderBy(value = "date asc")
     @JsonIgnore
     private Set<Appointment> appointments;
-
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

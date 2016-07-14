@@ -1,6 +1,8 @@
 package com.spanishcoders.services.security;
 
-import com.spanishcoders.model.*;
+import com.spanishcoders.model.Role;
+import com.spanishcoders.model.User;
+import com.spanishcoders.model.UserStatus;
 import com.spanishcoders.repositories.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -38,15 +40,7 @@ public class PelukappUserDetailsService implements UserDetailsService {
 
     private Collection<? extends GrantedAuthority> getAuthorities(User user) {
         Set<GrantedAuthority> authorities = new HashSet<>();
-
-        if (user instanceof Client) {
-            authorities.add(Role.CLIENT.getGrantedAuthority());
-        } else if (user instanceof Hairdresser) {
-            authorities.add(Role.WORKER.getGrantedAuthority());
-        } else {
-            throw new IllegalArgumentException("unexpected user type");
-        }
-
+        authorities.add(Role.getRole(user).getGrantedAuthority());
         return authorities;
     }
 }

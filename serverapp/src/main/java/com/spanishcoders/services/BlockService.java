@@ -6,6 +6,7 @@ import com.spanishcoders.repositories.BlockRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collection;
 import java.util.Set;
 
 /**
@@ -21,10 +22,10 @@ public class BlockService {
         this.blockRepository = blockRepository;
     }
 
-    public Set<Block> get(Set<Integer> blockIds) {
+    public Set<Block> get(Collection<Integer> blockIds) {
         Set<Block> blocks = Sets.newHashSet();
         if (blockIds != null && !blockIds.isEmpty()) {
-            blocks = Sets.newHashSet(blockRepository.findAll(blockIds));
+            blocks = Sets.newTreeSet(blockRepository.findAll(blockIds));
         }
         return blocks;
     }
