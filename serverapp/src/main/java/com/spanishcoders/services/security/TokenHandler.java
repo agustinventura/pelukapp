@@ -1,8 +1,9 @@
 package com.spanishcoders.services.security;
 
 import com.google.common.base.Preconditions;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -16,6 +17,8 @@ import java.util.concurrent.TimeUnit;
  */
 public final class TokenHandler {
 
+    private static final Logger logger = LoggerFactory.getLogger(TokenHandler.class);
+
     private final String secret;
 
     private final UserDetailsService userDetailsService;
@@ -26,12 +29,18 @@ public final class TokenHandler {
     }
 
     public UserDetails parseUserFromToken(String token) {
-        String username = Jwts.parser()
-                .setSigningKey(secret)
-                .parseClaimsJws(token)
-                .getBody()
-                .getSubject();
-        return userDetailsService.loadUserByUsername(username);
+        UserDetails userDetails = null;
+        try {
+            String username = Jwts.parser()
+                    .setSigningKey(secret)
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getSubject();
+            userDetails = userDetailsService.loadUserByUsername(username);
+        } catch (ExpiredJwtException | MalformedJwtException | SignatureException jwte) {
+            logger.error("Used invalid JWT " + token + ": " + jwte.getMessage());
+        }
+        return userDetails;
     }
 
     public String createTokenForUser(UserDetails user) {

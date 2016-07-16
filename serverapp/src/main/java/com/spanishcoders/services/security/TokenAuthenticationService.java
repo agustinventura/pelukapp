@@ -28,13 +28,14 @@ public class TokenAuthenticationService {
 
     public Authentication getAuthentication(HttpServletRequest request) {
         final String token = request.getHeader(AUTH_HEADER_NAME);
+        UserAuthentication userAuthentication = null;
         if (token != null) {
             final UserDetails user = tokenHandler.parseUserFromToken(token);
             if (user != null) {
-                return new UserAuthentication(user);
+                userAuthentication = new UserAuthentication(user);
             }
         }
-        return null;
+        return userAuthentication;
     }
 }
 
