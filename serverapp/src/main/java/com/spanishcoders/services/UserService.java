@@ -1,5 +1,6 @@
 package com.spanishcoders.services;
 
+import com.google.common.collect.Sets;
 import com.spanishcoders.model.Appointment;
 import com.spanishcoders.model.User;
 import com.spanishcoders.repositories.UserRepository;
@@ -32,7 +33,7 @@ public class UserService {
         if (user == null) {
             throw new AccessDeniedException("User " + authentication.getName() + " does not exists");
         } else {
-            appointments = user.getAppointments();
+            appointments = Sets.newTreeSet(user.getAppointments());
         }
         return appointments;
     }

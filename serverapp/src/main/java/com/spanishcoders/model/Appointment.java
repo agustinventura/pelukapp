@@ -30,12 +30,12 @@ public class Appointment implements Comparable<Appointment> {
     private Integer id;
 
     @NotEmpty
-    @OneToMany(mappedBy = "appointment", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
+    @OneToMany(mappedBy = "appointment", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
     @JsonManagedReference
     private Set<Block> blocks;
 
     @NotEmpty
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     private Set<Work> works;
 
     @NotNull
