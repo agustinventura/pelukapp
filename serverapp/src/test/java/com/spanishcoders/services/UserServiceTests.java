@@ -1,10 +1,24 @@
 package com.spanishcoders.services;
 
+import com.google.common.collect.Sets;
+import com.spanishcoders.model.Appointment;
+import com.spanishcoders.model.User;
 import com.spanishcoders.repositories.UserRepository;
 import org.junit.Before;
+import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.core.Authentication;
 import org.springframework.test.context.junit4.SpringRunner;
+
+import java.util.Set;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.BDDMockito.given;
+import static org.mockito.Matchers.any;
 
 @RunWith(SpringRunner.class)
 public class UserServiceTests {
@@ -19,5 +33,37 @@ public class UserServiceTests {
         userService = new UserService(userRepository);
     }
 
+    @Test(expected = AccessDeniedException.class)
+    public void getNextAppointmentsNullAuthentication() {
+        userService.getNextAppointmnents(null);
+    }
 
+    @Test(expected = AccessDeniedException.class)
+    public void getNextAppointmentsNonExistingUser() {
+        given(userRepository.findByUsername(any(String.class))).willReturn(null);
+        userService.getNextAppointmnents(Mockito.mock(Authentication.class));
+    }
+
+    @Test
+    public void getNextAppointmentsUserWithoutAppointments() {
+        Authentication authentication = Mockito.mock(Authentication.class);
+        User user = Mockito.mock(User.class);
+        Set<Appointment> userAppointmnets = Sets.newHashSet();
+        given(user.getAppointments()).willReturn(userAppointmnets);
+        given(userRepository.findByUsername(any(String.class))).willReturn(user);
+        Set<Appointment> appointments = userService.getNextAppointmnents(authentication);
+        assertThat(appointments, is(userAppointmnets));
+    }
+
+    @Test
+    public void getNextAppointmentsUserWithAppointments() {
+        Authentication authentication = Mockito.mock(Authentication.class);
+        User user = Mockito.mock(User.class);
+        Appointment mockAppointment = Mockito.mock(Appointment.class);
+        Set<Appointment> userAppointments = Sets.newHashSet(mockAppointment);
+        given(user.getAppointments()).willReturn(userAppointments);
+        given(userRepository.findByUsername(any(String.class))).willReturn(user);
+        Set<Appointment> appointments = userService.getNextAppointmnents(authentication);
+        assertThat(appointments, is(userAppointments));
+    }
 }
