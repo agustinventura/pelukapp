@@ -14,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -37,11 +38,24 @@ public class AppointmentController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "new/{works}&{blocks}", method = RequestMethod.PUT)
-    public Appointment getAppointment(Authentication authentication, @MatrixVariable Set<Integer> works, @MatrixVariable Set<Integer> blocks) {
+    public Appointment confirmAppointment(Authentication authentication, @MatrixVariable Set<Integer> works, @MatrixVariable Set<Integer> blocks) {
         Set<Work> requestedWorks = workService.get(works);
         Set<Block> requestedBlocks = blockService.get(blocks);
         Appointment confirmed = appointmentService.confirmAppointment(authentication, requestedWorks, requestedBlocks);
         return confirmed;
+    }
+
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "{appointmentId}/cancel", method = RequestMethod.POST)
+    public Appointment cancelAppointment(Authentication authentication, @PathVariable Integer appointmentId) {
+        Optional<Appointment> maybeAppointment = appointmentService.get(appointmentId);
+        Appointment cancelled = null;
+        if (maybeAppointment.isPresent()) {
+            cancelled = appointmentService.cancelAppointment(authentication, maybeAppointment.get());
+        } else {
+            throw new IllegalArgumentException("There's no Appointment with id " + appointmentId);
+        }
+        return cancelled;
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

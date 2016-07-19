@@ -1,4 +1,4 @@
-package com.spanishcoders.controller.security;
+package com.spanishcoders.controller;
 
 import com.spanishcoders.model.Appointment;
 import com.spanishcoders.services.UserService;

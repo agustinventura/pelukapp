@@ -1,6 +1,7 @@
 package com.spanishcoders.controller;
 
 import com.spanishcoders.model.Appointment;
+import com.spanishcoders.model.AppointmentStatus;
 import com.spanishcoders.model.Block;
 import com.spanishcoders.model.Work;
 import com.spanishcoders.services.AppointmentService;
@@ -21,13 +22,16 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -87,7 +91,7 @@ public class AppointmentControllerTests {
         this.mockMvc.perform(put("/appointment/new/works=1&blocks=1").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.*", hasSize(6)))
+                .andExpect(jsonPath("$.*", hasSize(7)))
                 .andExpect(jsonPath("$.blocks", hasSize(1)))
                 .andExpect(jsonPath("$.works", hasSize(1)));
     }
@@ -106,7 +110,7 @@ public class AppointmentControllerTests {
         this.mockMvc.perform(put("/appointment/new/works=1;works=2&blocks=1;blocks=2").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.*", hasSize(6)))
+                .andExpect(jsonPath("$.*", hasSize(7)))
                 .andExpect(jsonPath("$.blocks", hasSize(2)))
                 .andExpect(jsonPath("$.works", hasSize(2)));
     }
@@ -125,5 +129,85 @@ public class AppointmentControllerTests {
         given(appointmentService.confirmAppointment(any(Authentication.class), any(Set.class), any(Set.class))).willThrow(new AccessDeniedException("Access denied"));
         this.mockMvc.perform(put("/appointment/new/works=1&blocks=1").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
+    public void cancelInvalidAppointment() throws Exception {
+        given(appointmentService.get(any(Integer.class))).willAnswer(invocation -> {
+            Optional<Appointment> appointment = Optional.empty();
+            return appointment;
+        });
+        this.mockMvc.perform(post("/appointment/1/cancel").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
+    public void cancelAppointmentWithMoreThan24Hours() throws Exception {
+        given(appointmentService.get(any(Integer.class))).willAnswer(invocation -> {
+            Optional<Appointment> appointment = Optional.of(new Appointment());
+            return appointment;
+        });
+        given(appointmentService.cancelAppointment(any(Authentication.class), any(Appointment.class))).willAnswer(invocation -> {
+            Appointment appointment = new Appointment();
+            appointment.setStatus(AppointmentStatus.CANCELLED);
+            return appointment;
+        });
+        this.mockMvc.perform(post("/appointment/1/cancel").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(jsonPath("$.*", hasSize(7)))
+                .andExpect(jsonPath("$.status", is("CANCELLED")));
+    }
+
+    @Test
+    @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
+    public void cancelAppointmentAsWorker() throws Exception {
+        given(appointmentService.get(any(Integer.class))).willAnswer(invocation -> {
+            Optional<Appointment> appointment = Optional.of(new Appointment());
+            return appointment;
+        });
+        given(appointmentService.cancelAppointment(any(Authentication.class), any(Appointment.class))).willAnswer(invocation -> {
+            Appointment appointment = new Appointment();
+            appointment.setStatus(AppointmentStatus.CANCELLED);
+            return appointment;
+        });
+        this.mockMvc.perform(post("/appointment/1/cancel").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(jsonPath("$.*", hasSize(7)))
+                .andExpect(jsonPath("$.status", is("CANCELLED")));
+    }
+
+    @Test
+    @WithMockUser(username = "client", roles = {"USER", "CLIENT"})
+    public void cancelAppointmentWithLessThan24HoursAsClient() throws Exception {
+        given(appointmentService.get(any(Integer.class))).willAnswer(invocation -> {
+            Optional<Appointment> appointment = Optional.of(new Appointment());
+            return appointment;
+        });
+        given(appointmentService.cancelAppointment(any(Authentication.class), any(Appointment.class))).willThrow(AccessDeniedException.class);
+        this.mockMvc.perform(post("/appointment/1/cancel").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+                .andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @WithMockUser(username = "client", roles = {"USER", "CLIENT"})
+    public void cancelAppointmentWithMoreThan24HoursAsClient() throws Exception {
+        given(appointmentService.get(any(Integer.class))).willAnswer(invocation -> {
+            Optional<Appointment> appointment = Optional.of(new Appointment());
+            return appointment;
+        });
+        given(appointmentService.cancelAppointment(any(Authentication.class), any(Appointment.class))).willAnswer(invocation -> {
+            Appointment appointment = new Appointment();
+            appointment.setStatus(AppointmentStatus.CANCELLED);
+            return appointment;
+        });
+        this.mockMvc.perform(post("/appointment/1/cancel").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(jsonPath("$.*", hasSize(7)))
+                .andExpect(jsonPath("$.status", is("CANCELLED")));
     }
 }

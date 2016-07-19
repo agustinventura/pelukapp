@@ -11,6 +11,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
 import java.util.Set;
 
 /**
@@ -41,11 +42,23 @@ public class AppointmentService {
         return confirmed;
     }
 
+    public Appointment cancelAppointment(Authentication authentication, Appointment appointment) {
+        return null;
+    }
+
     private Set<Block> refreshBlocks(Set<Block> requestedBlocks) {
         if (requestedBlocks != null && !requestedBlocks.isEmpty()) {
             int[] blocksIds = requestedBlocks.stream().mapToInt(block -> block.getId()).toArray();
             requestedBlocks = blockService.get(Collections.arrayToList(blocksIds));
         }
         return requestedBlocks;
+    }
+
+    public Optional<Appointment> get(Integer appointmentId) {
+        Optional<Appointment> appointment = Optional.empty();
+        if (appointmentId != null) {
+            appointment = Optional.ofNullable(appointmentRepository.findOne(appointmentId));
+        }
+        return appointment;
     }
 }

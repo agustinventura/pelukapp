@@ -48,9 +48,13 @@ public class Appointment implements Comparable<Appointment> {
     @NotNull
     private Duration duration;
 
+    @NotNull
+    private AppointmentStatus status;
+
     public Appointment() {
         blocks = Sets.newTreeSet();
         works = Sets.newTreeSet();
+        status = AppointmentStatus.VALID;
     }
 
     public Appointment(User user, Set<Work> works, Set<Block> blocks) {
@@ -114,6 +118,14 @@ public class Appointment implements Comparable<Appointment> {
 
     public void setDuration(Duration duration) {
         this.duration = duration;
+    }
+
+    public AppointmentStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(AppointmentStatus status) {
+        this.status = status;
     }
 
     @Override

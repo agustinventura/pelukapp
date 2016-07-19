@@ -1,7 +1,6 @@
 package com.spanishcoders.controller;
 
 import com.google.common.collect.Sets;
-import com.spanishcoders.controller.security.UserController;
 import com.spanishcoders.model.Appointment;
 import com.spanishcoders.model.User;
 import com.spanishcoders.services.UserService;
