@@ -35,13 +35,13 @@ public class UserServiceTests {
 
     @Test(expected = AccessDeniedException.class)
     public void getNextAppointmentsNullAuthentication() {
-        userService.getNextAppointmnents(null);
+        userService.getNextAppointments(null);
     }
 
     @Test(expected = AccessDeniedException.class)
     public void getNextAppointmentsNonExistingUser() {
         given(userRepository.findByUsername(any(String.class))).willReturn(null);
-        userService.getNextAppointmnents(Mockito.mock(Authentication.class));
+        userService.getNextAppointments(Mockito.mock(Authentication.class));
     }
 
     @Test
@@ -51,7 +51,7 @@ public class UserServiceTests {
         Set<Appointment> userAppointmnets = Sets.newHashSet();
         given(user.getAppointments()).willReturn(userAppointmnets);
         given(userRepository.findByUsername(any(String.class))).willReturn(user);
-        Set<Appointment> appointments = userService.getNextAppointmnents(authentication);
+        Set<Appointment> appointments = userService.getNextAppointments(authentication);
         assertThat(appointments, is(userAppointmnets));
     }
 
@@ -63,7 +63,7 @@ public class UserServiceTests {
         Set<Appointment> userAppointments = Sets.newHashSet(mockAppointment);
         given(user.getAppointments()).willReturn(userAppointments);
         given(userRepository.findByUsername(any(String.class))).willReturn(user);
-        Set<Appointment> appointments = userService.getNextAppointmnents(authentication);
+        Set<Appointment> appointments = userService.getNextAppointments(authentication);
         assertThat(appointments, is(userAppointments));
     }
 }

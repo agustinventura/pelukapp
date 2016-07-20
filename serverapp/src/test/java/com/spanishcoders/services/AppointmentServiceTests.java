@@ -7,7 +7,6 @@ import com.spanishcoders.repositories.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -16,6 +15,7 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Duration;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by agustin on 7/07/16.
@@ -48,7 +49,7 @@ public class AppointmentServiceTests {
     public void setUp() throws Exception {
         appointmentService = new AppointmentService(appointmentRepository, blockService, userRepository);
 
-        Client user = Mockito.mock(Client.class);
+        Client user = mock(Client.class);
         given(userRepository.findByUsername(any(String.class))).willReturn(user);
     }
 
@@ -59,38 +60,38 @@ public class AppointmentServiceTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void confirmAppointmentEmptyWorks() throws Exception {
-        Authentication authentication = Mockito.mock(Authentication.class);
+        Authentication authentication = mock(Authentication.class);
         appointmentService.confirmAppointment(authentication, Sets.newHashSet(), Sets.newHashSet());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void confirmAppointmentNullWorks() throws Exception {
-        Authentication authentication = Mockito.mock(Authentication.class);
+        Authentication authentication = mock(Authentication.class);
         appointmentService.confirmAppointment(authentication, null, Sets.newHashSet());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void confirmAppointmentEmptyBlocks() throws Exception {
-        Authentication authentication = Mockito.mock(Authentication.class);
-        Work work = Mockito.mock(Work.class);
+        Authentication authentication = mock(Authentication.class);
+        Work work = mock(Work.class);
         appointmentService.confirmAppointment(authentication, Sets.newHashSet(work), Sets.newHashSet());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void confirmAppointmentNullBlocks() throws Exception {
-        Authentication authentication = Mockito.mock(Authentication.class);
-        Work work = Mockito.mock(Work.class);
+        Authentication authentication = mock(Authentication.class);
+        Work work = mock(Work.class);
         appointmentService.confirmAppointment(authentication, Sets.newHashSet(work), null);
     }
 
     @Test(expected = AccessDeniedException.class)
     public void confirmAppointmentWithPrivateWorkAsClient() {
-        Authentication authentication = Mockito.mock(Authentication.class);
+        Authentication authentication = mock(Authentication.class);
         Collection<GrantedAuthority> clientAuthority = Sets.newHashSet(Role.CLIENT.getGrantedAuthority());
         given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
-        Work privateWork = Mockito.mock(Work.class);
+        Work privateWork = mock(Work.class);
         given(privateWork.getKind()).willReturn(WorkKind.PRIVATE);
-        Block block = Mockito.mock(Block.class);
+        Block block = mock(Block.class);
         Set<Block> blocks = Sets.newHashSet(block);
         given(blockService.get(any(Collection.class))).willReturn(blocks);
         appointmentService.confirmAppointment(authentication, Sets.newHashSet(privateWork), blocks);
@@ -98,26 +99,26 @@ public class AppointmentServiceTests {
 
     @Test(expected = IllegalArgumentException.class)
     public void confirmAppointmentWithoutEnoughBlocks() {
-        Authentication authentication = Mockito.mock(Authentication.class);
-        Work work = Mockito.mock(Work.class);
+        Authentication authentication = mock(Authentication.class);
+        Work work = mock(Work.class);
         given(work.getDuration()).willReturn(60);
-        Block block = Mockito.mock(Block.class);
+        Block block = mock(Block.class);
         given(block.getLength()).willReturn(Duration.of(30, ChronoUnit.MINUTES));
         appointmentService.confirmAppointment(authentication, Sets.newHashSet(work), Sets.newHashSet(block));
     }
 
     @Test
     public void confirmAppointment() {
-        Authentication authentication = Mockito.mock(Authentication.class);
+        Authentication authentication = mock(Authentication.class);
         Collection<GrantedAuthority> clientAuthority = Sets.newHashSet(Role.CLIENT.getGrantedAuthority());
         given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
-        Work work = Mockito.mock(Work.class);
+        Work work = mock(Work.class);
         given(work.getDuration()).willReturn(30);
         given(work.getKind()).willReturn(WorkKind.PUBLIC);
-        Block block = Mockito.mock(Block.class);
+        Block block = mock(Block.class);
         given(block.getLength()).willReturn(Duration.of(30, ChronoUnit.MINUTES));
         given(block.getStart()).willReturn(LocalTime.now());
-        WorkingDay workingDay = Mockito.mock(WorkingDay.class);
+        WorkingDay workingDay = mock(WorkingDay.class);
         given(workingDay.getDate()).willReturn(LocalDate.now());
         given(block.getWorkingDay()).willReturn(workingDay);
         given(appointmentRepository.save(any(Appointment.class))).willAnswer(invocation -> invocation.getArguments()[0]);
@@ -131,4 +132,47 @@ public class AppointmentServiceTests {
         assertThat(result.getWorks(), is(requestedWorks));
         assertThat(result.getBlocks(), is(requestedBlocks));
     }
+
+    @Test
+    public void cancelAppointmentWithLessThan24HoursAsWorker() throws Exception {
+        Authentication authentication = mock(Authentication.class);
+        Collection<GrantedAuthority> workerAuthority = Sets.newHashSet(Role.WORKER.getGrantedAuthority());
+        given(authentication.getAuthorities()).willAnswer(invocation -> workerAuthority);
+        Appointment appointment = mock(Appointment.class);
+        given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(23));
+        given(appointmentRepository.save(any(Appointment.class))).will(invocation -> {
+            Appointment requestedAppointment = (Appointment) invocation.getArguments()[0];
+            requestedAppointment.setStatus(AppointmentStatus.CANCELLED);
+            return requestedAppointment;
+        });
+        appointment = appointmentService.cancelAppointment(authentication, appointment);
+        assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void cancelAppointmentWithLessThan24HoursAsClient() throws Exception {
+        Authentication authentication = mock(Authentication.class);
+        Collection<GrantedAuthority> clientAuthority = Sets.newHashSet(Role.CLIENT.getGrantedAuthority());
+        given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
+        Appointment appointment = mock(Appointment.class);
+        given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(23));
+        appointmentService.cancelAppointment(authentication, appointment);
+    }
+
+    @Test
+    public void cancelAppointmentWithMoreThan24HoursAsClient() throws Exception {
+        Authentication authentication = mock(Authentication.class);
+        Collection<GrantedAuthority> clientAuthority = Sets.newHashSet(Role.CLIENT.getGrantedAuthority());
+        given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
+        Appointment appointment = mock(Appointment.class);
+        given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(25));
+        given(appointmentRepository.save(any(Appointment.class))).will(invocation -> {
+            Appointment requestedAppointment = (Appointment) invocation.getArguments()[0];
+            requestedAppointment.setStatus(AppointmentStatus.CANCELLED);
+            return requestedAppointment;
+        });
+        appointment = appointmentService.cancelAppointment(authentication, appointment);
+        assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
+    }
+
 }

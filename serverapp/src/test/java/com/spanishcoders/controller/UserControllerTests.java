@@ -40,7 +40,7 @@ public class UserControllerTests {
     @Test
     @WithMockUser(username = "client", roles = {"USER", "CLIENT"})
     public void getNextAppointments() throws Exception {
-        given(userService.getNextAppointmnents(any(Authentication.class))).will(invocation -> {
+        given(userService.getNextAppointments(any(Authentication.class))).will(invocation -> {
             Authentication authentication = (Authentication) invocation.getArguments()[0];
             User mockUser = new User();
             mockUser.setUsername(authentication.getName());

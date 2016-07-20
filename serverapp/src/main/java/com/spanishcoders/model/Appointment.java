@@ -29,7 +29,7 @@ public class Appointment implements Comparable<Appointment> {
     @GeneratedValue
     private Integer id;
 
-    @NotEmpty
+    @NotNull
     @OneToMany(mappedBy = "appointment", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
     @JsonManagedReference
     private Set<Block> blocks;
@@ -217,5 +217,11 @@ public class Appointment implements Comparable<Appointment> {
         if (user == null) {
             throw new AccessDeniedException("Can't create an Appointment without User");
         }
+    }
+
+    public void cancel() {
+        blocks.stream().forEach(block -> block.setAppointment(null));
+        blocks.clear();
+        status = AppointmentStatus.CANCELLED;
     }
 }

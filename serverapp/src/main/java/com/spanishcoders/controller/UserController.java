@@ -1,6 +1,8 @@
 package com.spanishcoders.controller;
 
 import com.spanishcoders.model.Appointment;
+import com.spanishcoders.model.Hairdresser;
+import com.spanishcoders.model.Role;
 import com.spanishcoders.services.UserService;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -27,7 +29,11 @@ public class UserController {
     @PreAuthorize("authenticated")
     @RequestMapping(value = "appointments/next", method = RequestMethod.GET)
     public Set<Appointment> getNextAppointments(Authentication authentication) {
-        Set<Appointment> nextAppointmnets = userService.getNextAppointmnents(authentication);
-        return nextAppointmnets;
+        Set<Appointment> nextAppointments = userService.getNextAppointments(authentication);
+        //TODO: This is a workaround for a lazy loading exception, we need to find a better solution
+        if (authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
+            nextAppointments.forEach(appointment -> ((Hairdresser) appointment.getUser()).setAgenda(null));
+        }
+        return nextAppointments;
     }
 }

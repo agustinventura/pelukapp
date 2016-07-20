@@ -1,16 +1,17 @@
 package com.spanishcoders.services;
 
-import com.spanishcoders.model.Appointment;
-import com.spanishcoders.model.Block;
-import com.spanishcoders.model.User;
-import com.spanishcoders.model.Work;
+import com.spanishcoders.model.*;
 import com.spanishcoders.repositories.AppointmentRepository;
 import com.spanishcoders.repositories.UserRepository;
 import io.jsonwebtoken.lang.Collections;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -43,7 +44,15 @@ public class AppointmentService {
     }
 
     public Appointment cancelAppointment(Authentication authentication, Appointment appointment) {
-        return null;
+        if (appointment.getDate().isBefore(LocalDateTime.now().plusHours(24))) {
+            Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication.getAuthorities();
+            if (!userAuthorities.stream().anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
+                throw new AccessDeniedException("To cancel an Appointment in less than 24 hours, User needs to be Worker");
+            }
+        }
+        appointment.setBlocks(refreshBlocks(appointment.getBlocks()));
+        appointment.cancel();
+        return appointmentRepository.save(appointment);
     }
 
     private Set<Block> refreshBlocks(Set<Block> requestedBlocks) {

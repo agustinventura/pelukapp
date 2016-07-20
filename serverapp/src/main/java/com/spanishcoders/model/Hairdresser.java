@@ -1,5 +1,7 @@
 package com.spanishcoders.model;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
@@ -11,6 +13,7 @@ import javax.persistence.OneToOne;
 public class Hairdresser extends User {
 
     @OneToOne(mappedBy = "hairdresser", cascade = CascadeType.ALL)
+    @JsonManagedReference
     private Agenda agenda;
 
     public Hairdresser() {

@@ -24,7 +24,7 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public Set<Appointment> getNextAppointmnents(Authentication authentication) {
+    public Set<Appointment> getNextAppointments(Authentication authentication) {
         Set<Appointment> appointments = null;
         if (authentication == null) {
             throw new AccessDeniedException("Can't get next appointments without Authentication");

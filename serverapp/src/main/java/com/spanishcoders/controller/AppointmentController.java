@@ -2,6 +2,7 @@ package com.spanishcoders.controller;
 
 import com.spanishcoders.model.Appointment;
 import com.spanishcoders.model.Block;
+import com.spanishcoders.model.Hairdresser;
 import com.spanishcoders.model.Work;
 import com.spanishcoders.services.AppointmentService;
 import com.spanishcoders.services.BlockService;
@@ -42,6 +43,10 @@ public class AppointmentController {
         Set<Work> requestedWorks = workService.get(works);
         Set<Block> requestedBlocks = blockService.get(blocks);
         Appointment confirmed = appointmentService.confirmAppointment(authentication, requestedWorks, requestedBlocks);
+        //TODO: This is a workaround for a lazy loading exception, we need to find a better solution
+        if (confirmed.getUser() instanceof Hairdresser) {
+            ((Hairdresser) confirmed.getUser()).setAgenda(null);
+        }
         return confirmed;
     }
 
@@ -52,6 +57,10 @@ public class AppointmentController {
         Appointment cancelled = null;
         if (maybeAppointment.isPresent()) {
             cancelled = appointmentService.cancelAppointment(authentication, maybeAppointment.get());
+            //TODO: This is a workaround for a lazy loading exception, we need to find a better solution
+            if (cancelled.getUser() instanceof Hairdresser) {
+                ((Hairdresser) cancelled.getUser()).setAgenda(null);
+            }
         } else {
             throw new IllegalArgumentException("There's no Appointment with id " + appointmentId);
         }
