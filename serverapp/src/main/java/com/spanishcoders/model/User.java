@@ -26,6 +26,7 @@ public class User {
     protected String name;
 
     @NotNull
+    @Column(unique = true)
     protected String username;
 
     @NotNull

@@ -1,15 +1,15 @@
 package com.spanishcoders.controller;
 
 import com.spanishcoders.model.Appointment;
+import com.spanishcoders.model.Client;
 import com.spanishcoders.model.Hairdresser;
 import com.spanishcoders.model.Role;
+import com.spanishcoders.model.dto.RegistrationDto;
 import com.spanishcoders.services.UserService;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
 
@@ -35,5 +35,22 @@ public class UserController {
             nextAppointments.forEach(appointment -> ((Hairdresser) appointment.getUser()).setAgenda(null));
         }
         return nextAppointments;
+    }
+
+    @RequestMapping(value = "register"
+            , method = RequestMethod.POST
+            , consumes = MediaType.APPLICATION_JSON_VALUE)
+    public
+    @ResponseBody
+    Client registerClient(Authentication authentication
+            , @RequestBody RegistrationDto registrationDto) {
+
+        Client client = userService.registerClient(authentication
+                , registrationDto.getUsername()
+                , registrationDto.getPassword()
+                , registrationDto.getName()
+                , registrationDto.getPhone());
+
+        return client;
     }
 }

@@ -11,6 +11,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Set;
@@ -30,7 +31,8 @@ public class UserServiceTests {
 
     @Before
     public void setUp() {
-        userService = new UserService(userRepository);
+        //TODO check password encoder (I have no idea what I am doing)
+        userService = new UserService(userRepository, new BCryptPasswordEncoder());
     }
 
     @Test(expected = AccessDeniedException.class)
