@@ -146,6 +146,8 @@ public class AppointmentServiceTests {
             return requestedAppointment;
         });
         appointment = appointmentService.cancelAppointment(authentication, appointment);
+
+        given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
         assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
     }
 
@@ -172,6 +174,8 @@ public class AppointmentServiceTests {
             return requestedAppointment;
         });
         appointment = appointmentService.cancelAppointment(authentication, appointment);
+
+        given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
         assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
     }
 
