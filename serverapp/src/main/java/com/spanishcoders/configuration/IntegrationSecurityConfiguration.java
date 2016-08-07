@@ -25,8 +25,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  */
 @Configuration
 @EnableWebSecurity
-@Profile("production")
-public class ProductionSecurityConfiguration extends WebSecurityConfigurerAdapter {
+@Profile("integration")
+public class IntegrationSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Autowired
     @Qualifier("pelukappUserDetailsService")

@@ -23,7 +23,7 @@ import java.time.LocalTime;
 import java.util.Properties;
 
 @Configuration
-@Profile(value = {"development", "production"})
+@Profile(value = {"development", "integration"})
 public class DevelopmentDataBaseConfiguration {
 
     @Bean

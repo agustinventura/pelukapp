@@ -7,7 +7,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 @Configuration
-@Profile(value = {"development", "production"})
+@Profile(value = {"development", "integration"})
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     @Override
