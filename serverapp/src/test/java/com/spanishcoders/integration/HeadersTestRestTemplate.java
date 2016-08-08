@@ -19,11 +19,19 @@ public class HeadersTestRestTemplate<T> {
         this.restTemplate = restTemplate;
     }
 
-    public T[] getWithAuthorizationHeader(String url, String authHeader, Class<T[]> returnClass) {
+    public T[] getArrayWithAuthorizationHeader(String url, String authHeader, Class<T[]> returnClass) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(AUTH_HEADER, authHeader);
         HttpEntity<?> request = new HttpEntity<>(headers);
         ResponseEntity<T[]> response = restTemplate.exchange(url, HttpMethod.GET, request, returnClass);
+        return response.getBody();
+    }
+
+    public T getWithAuthorizationHeader(String url, String authHeader, Class<T> returnClass) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(AUTH_HEADER, authHeader);
+        HttpEntity<?> request = new HttpEntity<>(headers);
+        ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, request, returnClass);
         return response.getBody();
     }
 }

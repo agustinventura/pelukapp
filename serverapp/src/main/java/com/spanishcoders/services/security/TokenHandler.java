@@ -37,7 +37,7 @@ public final class TokenHandler {
                     .getBody()
                     .getSubject();
             userDetails = userDetailsService.loadUserByUsername(username);
-        } catch (ExpiredJwtException | MalformedJwtException | SignatureException jwte) {
+        } catch (ExpiredJwtException | MalformedJwtException | SignatureException | IllegalArgumentException jwte) {
             logger.error("Used invalid JWT " + token + ": " + jwte.getMessage());
         }
         return userDetails;

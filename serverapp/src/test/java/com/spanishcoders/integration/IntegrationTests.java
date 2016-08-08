@@ -26,6 +26,7 @@ public class IntegrationTests {
     public static final String AUTH_HEADER = "X-AUTH-TOKEN";
     public static final String CLIENT_LOGIN = "{\"username\":\"client\",\"password\":\"client\"}";
     public static final String ADMIN_LOGIN = "{\"username\":\"admin\",\"password\":\"admin\"}";
+
     @Autowired
     protected TestRestTemplate testRestTemplate;
 
