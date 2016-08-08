@@ -14,7 +14,7 @@ import static org.hamcrest.core.Is.is;
 /**
  * Created by agustin on 8/08/16.
  */
-public class WorksTests extends IntegrationTests {
+public class WorkTests extends IntegrationTests {
 
     public static final String WORKS_URL = "/works";
 

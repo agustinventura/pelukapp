@@ -5,6 +5,7 @@ import com.spanishcoders.model.Block;
 import com.spanishcoders.model.Hairdresser;
 import com.spanishcoders.model.UserStatus;
 import com.spanishcoders.model.Work;
+import com.spanishcoders.model.dto.HairdresserDTO;
 import com.spanishcoders.repositories.HairdresserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,5 +42,12 @@ public class HairdresserService {
             availableBlocks.put(hairdresser, hairdresserAvailableBlocks);
         }
         return availableBlocks;
+    }
+
+    public HairdresserDTO getHairdresserDTO(Hairdresser hairdresser) {
+        //Again, this is a fix for the lazyloading exception
+        Hairdresser hairdresserWithAppointments = this.hairdresserRepository.findOne(hairdresser.getId());
+        hairdresserWithAppointments.getAppointments().size();
+        return new HairdresserDTO(hairdresserWithAppointments);
     }
 }

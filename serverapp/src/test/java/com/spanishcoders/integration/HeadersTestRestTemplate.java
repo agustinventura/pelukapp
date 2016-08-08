@@ -1,6 +1,7 @@
 package com.spanishcoders.integration;
 
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -32,6 +33,14 @@ public class HeadersTestRestTemplate<T> {
         headers.add(AUTH_HEADER, authHeader);
         HttpEntity<?> request = new HttpEntity<>(headers);
         ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, request, returnClass);
+        return response.getBody();
+    }
+
+    public T getWithAuthorizationHeaderByType(String url, String authHeader, ParameterizedTypeReference<T> typeReference) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.add(AUTH_HEADER, authHeader);
+        HttpEntity<?> request = new HttpEntity<>(headers);
+        ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, request, typeReference);
         return response.getBody();
     }
 }

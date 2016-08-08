@@ -123,7 +123,7 @@ public class Block implements Comparable<Block> {
     @Override
     public int compareTo(Block o) {
         if (start.equals(o.getStart())) {
-            return workingDay.compareTo(getWorkingDay());
+            return workingDay.compareTo(o.getWorkingDay());
         } else {
             return start.compareTo(o.getStart());
         }

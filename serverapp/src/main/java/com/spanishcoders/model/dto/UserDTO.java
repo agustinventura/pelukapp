@@ -7,19 +7,19 @@ import java.util.Set;
  */
 public class UserDTO {
 
-    private Long id;
+    private Integer id;
     private String name;
     private String username;
     private String password;
     private String phone;
-    private int status;
-    private Set<Long> appointments;
+    private Integer status;
+    private Set<Integer> appointments;
 
-    public Long getId() {
+    public Integer getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(Integer id) {
         this.id = id;
     }
 
@@ -55,19 +55,19 @@ public class UserDTO {
         this.phone = phone;
     }
 
-    public int getStatus() {
+    public Integer getStatus() {
         return status;
     }
 
-    public void setStatus(int status) {
+    public void setStatus(Integer status) {
         this.status = status;
     }
 
-    public Set<Long> getAppointments() {
+    public Set<Integer> getAppointments() {
         return appointments;
     }
 
-    public void setAppointments(Set<Long> appointments) {
+    public void setAppointments(Set<Integer> appointments) {
         this.appointments = appointments;
     }
 
