@@ -22,26 +22,28 @@ import static org.hamcrest.core.IsNull.notNullValue;
 @ActiveProfiles("integration")
 public class IntegrationTests {
 
+    public static final String LOGIN_URL = "/login";
+    public static final String AUTH_HEADER = "X-AUTH-TOKEN";
+    public static final String CLIENT_LOGIN = "{\"username\":\"client\",\"password\":\"client\"}";
+    public static final String ADMIN_LOGIN = "{\"username\":\"admin\",\"password\":\"admin\"}";
     @Autowired
-    private TestRestTemplate testRestTemplate;
+    protected TestRestTemplate testRestTemplate;
 
     public String loginAsClient() {
-        String login = "{\"username\":\"client\",\"password\":\"client\"}";
-        return login(login);
+        return login(CLIENT_LOGIN);
     }
 
     public String loginAsAdmin() {
-        String login = "{\"username\":\"admin\",\"password\":\"admin\"}";
-        return login(login);
+        return login(ADMIN_LOGIN);
     }
 
     private String login(String login) {
-        ResponseEntity<String> response = testRestTemplate.postForEntity("/login", login, String.class);
+        ResponseEntity<String> response = testRestTemplate.postForEntity(LOGIN_URL, login, String.class);
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         HttpHeaders headers = response.getHeaders();
         assertThat(headers, notNullValue());
-        assertThat(headers.containsKey("X-AUTH-TOKEN"), is(true));
-        String authToken = headers.get("X-AUTH-TOKEN").get(0);
+        assertThat(headers.containsKey(AUTH_HEADER), is(true));
+        String authToken = headers.get(AUTH_HEADER).get(0);
         assertThat(authToken, notNullValue());
         return authToken;
     }
