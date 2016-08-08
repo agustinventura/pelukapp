@@ -1,7 +1,7 @@
 package com.spanishcoders.controller.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spanishcoders.model.User;
+import com.spanishcoders.model.dto.UserDTO;
 import com.spanishcoders.model.security.UserAuthentication;
 import com.spanishcoders.services.security.TokenAuthenticationService;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -39,7 +39,7 @@ public class StatelessLoginFilter extends AbstractAuthenticationProcessingFilter
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
         UsernamePasswordAuthenticationToken loginToken = null;
         try {
-            final User user = new ObjectMapper().readValue(request.getInputStream(), User.class);
+            final UserDTO user = new ObjectMapper().readValue(request.getInputStream(), UserDTO.class);
             loginToken = new UsernamePasswordAuthenticationToken(
                     user.getUsername(), user.getPassword());
         } catch (IOException ioe) {

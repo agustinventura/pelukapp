@@ -4,7 +4,7 @@ import com.spanishcoders.model.Appointment;
 import com.spanishcoders.model.Client;
 import com.spanishcoders.model.Hairdresser;
 import com.spanishcoders.model.Role;
-import com.spanishcoders.model.dto.RegistrationDto;
+import com.spanishcoders.model.dto.UserDTO;
 import com.spanishcoders.services.UserService;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -43,13 +43,13 @@ public class UserController {
     public
     @ResponseBody
     Client registerClient(Authentication authentication
-            , @RequestBody RegistrationDto registrationDto) {
+            , @RequestBody UserDTO userDTO) {
 
         Client client = userService.registerClient(authentication
-                , registrationDto.getUsername()
-                , registrationDto.getPassword()
-                , registrationDto.getName()
-                , registrationDto.getPhone());
+                , userDTO.getUsername()
+                , userDTO.getPassword()
+                , userDTO.getName()
+                , userDTO.getPhone());
 
         return client;
     }

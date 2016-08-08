@@ -1,9 +1,7 @@
 package com.spanishcoders.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.common.collect.Sets;
-import com.spanishcoders.model.security.UserDeserializer;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -15,7 +13,6 @@ import java.util.Set;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@JsonDeserialize(using = UserDeserializer.class)
 public class User {
 
     @Id
