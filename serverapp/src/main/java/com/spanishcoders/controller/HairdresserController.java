@@ -1,6 +1,7 @@
 package com.spanishcoders.controller;
 
 import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.spanishcoders.model.Block;
 import com.spanishcoders.model.Hairdresser;
 import com.spanishcoders.model.Work;
@@ -50,10 +51,16 @@ public class HairdresserController {
     private Map<HairdresserDTO, Set<BlockDTO>> toDTOs(Map<Hairdresser, Set<Block>> freeBlocks) {
         Map<HairdresserDTO, Set<BlockDTO>> freeBlocksDTOs = Maps.newHashMap();
         for (Map.Entry<Hairdresser, Set<Block>> entry : freeBlocks.entrySet()) {
-            HairdresserDTO hairdresser = hairdresserService.getHairdresserDTO(entry.getKey());
-            Set<BlockDTO> blocks = blockService.getBlockDTOs(entry.getValue());
+            HairdresserDTO hairdresser = new HairdresserDTO(entry.getKey());
+            Set<BlockDTO> blocks = getBlockDTOs(entry.getValue());
             freeBlocksDTOs.put(hairdresser, blocks);
         }
         return freeBlocksDTOs;
+    }
+
+    public Set<BlockDTO> getBlockDTOs(Set<Block> blocks) {
+        Set<BlockDTO> blockDTOs = Sets.newTreeSet();
+        blocks.stream().forEach(block -> blockDTOs.add(new BlockDTO(block)));
+        return blockDTOs;
     }
 }

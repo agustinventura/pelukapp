@@ -2,7 +2,6 @@ package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.model.Block;
-import com.spanishcoders.model.dto.BlockDTO;
 import com.spanishcoders.repositories.BlockRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,11 +28,5 @@ public class BlockService {
             blocks = Sets.newTreeSet(blockRepository.findAll(blockIds));
         }
         return blocks;
-    }
-
-    public Set<BlockDTO> getBlockDTOs(Set<Block> blocks) {
-        Set<BlockDTO> blockDTOs = Sets.newTreeSet();
-        blocks.stream().forEach(block -> blockDTOs.add(new BlockDTO(block)));
-        return blockDTOs;
     }
 }

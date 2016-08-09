@@ -92,6 +92,7 @@ public class TestDataFactory {
         Set<Block> blocks = Sets.newHashSet();
         LocalTime now = LocalTime.now();
         WorkingDay workingDay = new WorkingDay();
+        workingDay.setId(1);
         workingDay.setDate(LocalDate.now());
         for (int i = 0; i < 10; i++) {
             blocks.add(new Block(now, workingDay));

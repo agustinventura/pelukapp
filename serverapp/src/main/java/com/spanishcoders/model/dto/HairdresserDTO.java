@@ -18,7 +18,7 @@ public class HairdresserDTO extends UserDTO {
         this.setPassword(hairdresser.getPassword());
         this.setPhone(hairdresser.getPhone());
         this.setStatus(hairdresser.getStatus().ordinal());
-        this.setAgenda(hairdresser.getAgenda().getId());
+        this.setAgenda(hairdresser.getAgenda() != null ? hairdresser.getAgenda().getId() : null);
         this.setAppointments(new TreeSet<>());
         hairdresser.getAppointments().stream().forEach(appointment -> this.getAppointments().add(appointment.getId()));
     }
