@@ -2,9 +2,6 @@ package com.spanishcoders.model.dto;
 
 import com.spanishcoders.model.Block;
 
-import java.time.Duration;
-import java.time.LocalTime;
-
 /**
  * Created by agustin on 8/08/16.
  */
@@ -12,18 +9,22 @@ public class BlockDTO implements Comparable<BlockDTO> {
 
     private Integer id;
 
-    private LocalTime start;
+    private String start;
 
-    private Duration length;
+    private String length;
 
     private Integer workingDay;
 
     private Integer appointment;
 
+    public BlockDTO() {
+
+    }
+
     public BlockDTO(Block block) {
         this.id = block.getId();
-        this.start = block.getStart();
-        this.length = block.getLength();
+        this.start = block.getStart().toString();
+        this.length = block.getLength().toString();
         this.workingDay = block.getWorkingDay().getId();
         this.appointment = block.getAppointment() != null ? block.getAppointment().getId() : null;
     }
@@ -36,19 +37,19 @@ public class BlockDTO implements Comparable<BlockDTO> {
         this.id = id;
     }
 
-    public LocalTime getStart() {
+    public String getStart() {
         return start;
     }
 
-    public void setStart(LocalTime start) {
+    public void setStart(String start) {
         this.start = start;
     }
 
-    public Duration getLength() {
+    public String getLength() {
         return length;
     }
 
-    public void setLength(Duration length) {
+    public void setLength(String length) {
         this.length = length;
     }
 
@@ -75,5 +76,32 @@ public class BlockDTO implements Comparable<BlockDTO> {
         } else {
             return start.compareTo(o.getStart());
         }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        BlockDTO blockDTO = (BlockDTO) o;
+
+        return id != null ? id.equals(blockDTO.id) : blockDTO.id == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
+    }
+
+    @Override
+    public String toString() {
+        return "BlockDTO{" +
+                "id=" + id +
+                ", start='" + start + '\'' +
+                ", length='" + length + '\'' +
+                ", workingDay=" + workingDay +
+                ", appointment=" + appointment +
+                '}';
     }
 }

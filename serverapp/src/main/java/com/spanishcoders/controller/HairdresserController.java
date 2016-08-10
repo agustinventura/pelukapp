@@ -1,11 +1,11 @@
 package com.spanishcoders.controller;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.spanishcoders.model.Block;
 import com.spanishcoders.model.Hairdresser;
 import com.spanishcoders.model.Work;
 import com.spanishcoders.model.dto.BlockDTO;
+import com.spanishcoders.model.dto.HairdresserAvailableBlocks;
 import com.spanishcoders.model.dto.HairdresserDTO;
 import com.spanishcoders.services.BlockService;
 import com.spanishcoders.services.HairdresserService;
@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -42,20 +44,21 @@ public class HairdresserController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "blocks/free/{works}", method = RequestMethod.GET)
-    public Map<HairdresserDTO, Set<BlockDTO>> getFreeBlocks(Authentication authentication, @MatrixVariable Set<Integer> works) {
+    public List<HairdresserAvailableBlocks> getFreeBlocks(Authentication authentication, @MatrixVariable Set<Integer> works) {
         Set<Work> requestedWorks = workService.get(works);
         Map<Hairdresser, Set<Block>> freeBlocks = hairdresserService.getFirstTenAvailableBlocksByHairdresser(requestedWorks);
         return toDTOs(freeBlocks);
     }
 
-    private Map<HairdresserDTO, Set<BlockDTO>> toDTOs(Map<Hairdresser, Set<Block>> freeBlocks) {
-        Map<HairdresserDTO, Set<BlockDTO>> freeBlocksDTOs = Maps.newHashMap();
+    private List<HairdresserAvailableBlocks> toDTOs(Map<Hairdresser, Set<Block>> freeBlocks) {
+        List<HairdresserAvailableBlocks> availableBlocks = new ArrayList<>(freeBlocks.keySet().size());
         for (Map.Entry<Hairdresser, Set<Block>> entry : freeBlocks.entrySet()) {
             HairdresserDTO hairdresser = new HairdresserDTO(entry.getKey());
             Set<BlockDTO> blocks = getBlockDTOs(entry.getValue());
-            freeBlocksDTOs.put(hairdresser, blocks);
+            HairdresserAvailableBlocks hairdresserAvailableBlocks = new HairdresserAvailableBlocks(hairdresser, blocks);
+            availableBlocks.add(hairdresserAvailableBlocks);
         }
-        return freeBlocksDTOs;
+        return availableBlocks;
     }
 
     public Set<BlockDTO> getBlockDTOs(Set<Block> blocks) {

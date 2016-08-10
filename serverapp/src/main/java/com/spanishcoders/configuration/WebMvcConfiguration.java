@@ -18,5 +18,4 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
         requestMappingHandlerMapping.setRemoveSemicolonContent(false);
         return requestMappingHandlerMapping;
     }
-
 }

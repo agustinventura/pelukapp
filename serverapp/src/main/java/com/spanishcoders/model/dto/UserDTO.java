@@ -89,4 +89,17 @@ public class UserDTO {
         result = 31 * result + (username != null ? username.hashCode() : 0);
         return result;
     }
+
+    @Override
+    public String toString() {
+        return "UserDTO{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", phone='" + phone + '\'' +
+                ", status=" + status +
+                ", appointments=" + appointments +
+                '}';
+    }
 }

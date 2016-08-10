@@ -55,7 +55,7 @@ public class HairdresserControllerTests {
         this.mockMvc.perform(get("/hairdresser/blocks/free/works=1").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.*.*", hasSize(10)));
+                .andExpect(jsonPath("$.*.*.availableBlocks", hasSize(10)));
     }
 
     @Test
