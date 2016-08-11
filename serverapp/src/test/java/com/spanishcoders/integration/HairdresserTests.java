@@ -53,4 +53,16 @@ public class HairdresserTests extends IntegrationTests {
         Set<BlockDTO> freeBlocks = hairdresserAvailableBlocks.getAvailableBlocks();
         assertThat(freeBlocks.size(), is(10));
     }
+
+    @Test
+    public void getAvailableBlocksAsHairdresser() {
+        String authHeader = loginAsAdmin();
+        List<HairdresserAvailableBlocks> availableBlocks = client.getWithAuthorizationHeader(FREE_BLOCKS_URL, authHeader, typeRef);
+        assertThat(availableBlocks, is(not(empty())));
+        HairdresserAvailableBlocks hairdresserAvailableBlocks = availableBlocks.get(0);
+        HairdresserDTO hairdresser = hairdresserAvailableBlocks.getHairdresser();
+        assertThat(hairdresser, notNullValue());
+        Set<BlockDTO> freeBlocks = hairdresserAvailableBlocks.getAvailableBlocks();
+        assertThat(freeBlocks.size(), is(10));
+    }
 }

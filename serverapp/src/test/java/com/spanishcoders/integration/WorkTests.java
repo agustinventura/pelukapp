@@ -5,10 +5,11 @@ import com.spanishcoders.model.WorkKind;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 
 import java.util.Set;
 
-import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
@@ -22,6 +23,8 @@ public class WorkTests extends IntegrationTests {
     public static final String WORKS_URL = "/works";
 
     private HeadersTestRestTemplate<Set<Work>> client;
+    private ParameterizedTypeReference<Set<Work>> typeRef = new ParameterizedTypeReference<Set<Work>>() {
+    };
 
     @Before
     public void setUp() {
@@ -30,18 +33,16 @@ public class WorkTests extends IntegrationTests {
 
     @Test
     public void getWorksWithoutAuthorization() {
-        HeadersTestRestTemplate<String> errorClient = new HeadersTestRestTemplate<>(testRestTemplate);
-        ParameterizedTypeReference<String> typeRef = new ParameterizedTypeReference<String>() {
+        HeadersTestRestTemplate<Object> errorClient = new HeadersTestRestTemplate<>(this.testRestTemplate);
+        ParameterizedTypeReference<Object> errorTypeRef = new ParameterizedTypeReference<Object>() {
         };
-        String result = errorClient.getWithAuthorizationHeader(WORKS_URL, "", typeRef);
-        assertThat(result, containsString("403"));
+        ResponseEntity<Object> result = errorClient.getResponseEntityWithAuthorizationHeader(WORKS_URL, "", errorTypeRef);
+        assertThat(result.getStatusCode(), is(HttpStatus.FORBIDDEN));
     }
 
     @Test
     public void getWorksAsClient() {
         String authHeader = loginAsClient();
-        ParameterizedTypeReference<Set<Work>> typeRef = new ParameterizedTypeReference<Set<Work>>() {
-        };
         Set<Work> works = client.getWithAuthorizationHeader(WORKS_URL, authHeader, typeRef);
         assertThat(works, not(empty()));
         for (Work work : works) {
@@ -52,8 +53,6 @@ public class WorkTests extends IntegrationTests {
     @Test
     public void getWorksAsAdmin() {
         String authHeader = loginAsAdmin();
-        ParameterizedTypeReference<Set<Work>> typeRef = new ParameterizedTypeReference<Set<Work>>() {
-        };
         Set<Work> works = client.getWithAuthorizationHeader(WORKS_URL, authHeader, typeRef);
         assertThat(works, not(empty()));
     }
