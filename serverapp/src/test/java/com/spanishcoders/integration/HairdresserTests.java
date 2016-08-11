@@ -24,7 +24,7 @@ import static org.hamcrest.core.IsNot.not;
  */
 public class HairdresserTests extends IntegrationTests {
 
-    public static final String FREE_BLOCKS_URL = "/hairdresser/blocks/free/works=1";
+    public static final String FREE_BLOCKS_URL = "/hairdresser/blocks/free/";
 
     private HeadersTestRestTemplate<List<HairdresserAvailableBlocks>> client;
     private ParameterizedTypeReference<List<HairdresserAvailableBlocks>> typeRef = new ParameterizedTypeReference<List<HairdresserAvailableBlocks>>() {
@@ -34,18 +34,21 @@ public class HairdresserTests extends IntegrationTests {
     public void setUp() {
         client = new HeadersTestRestTemplate<>(testRestTemplate);
         errorClient = new HeadersTestRestTemplate<>(testRestTemplate);
+        integrationDataFactory = new IntegrationDataFactory(testRestTemplate);
     }
 
     @Test
     public void getAvailableBlocksWithoutAuthorization() {
-        ResponseEntity<Map<String, String>> response = errorClient.getResponseEntityWithAuthorizationHeader(FREE_BLOCKS_URL, "", errorTypeRef);
+        String worksUrl = integrationDataFactory.getWorksUrl(loginAsClient());
+        ResponseEntity<Map<String, String>> response = errorClient.getResponseEntityWithAuthorizationHeader(FREE_BLOCKS_URL + worksUrl, "", errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
     }
 
     @Test
     public void getAvailableBlocksAsClient() {
         String authHeader = loginAsClient();
-        List<HairdresserAvailableBlocks> availableBlocks = client.getWithAuthorizationHeader(FREE_BLOCKS_URL, authHeader, typeRef);
+        String worksUrl = integrationDataFactory.getWorksUrl(authHeader);
+        List<HairdresserAvailableBlocks> availableBlocks = client.getWithAuthorizationHeader(FREE_BLOCKS_URL + worksUrl, authHeader, typeRef);
         assertThat(availableBlocks, is(not(empty())));
         HairdresserAvailableBlocks hairdresserAvailableBlocks = availableBlocks.get(0);
         HairdresserDTO hairdresser = hairdresserAvailableBlocks.getHairdresser();
@@ -57,7 +60,8 @@ public class HairdresserTests extends IntegrationTests {
     @Test
     public void getAvailableBlocksAsHairdresser() {
         String authHeader = loginAsAdmin();
-        List<HairdresserAvailableBlocks> availableBlocks = client.getWithAuthorizationHeader(FREE_BLOCKS_URL, authHeader, typeRef);
+        String worksUrl = integrationDataFactory.getWorksUrl(authHeader);
+        List<HairdresserAvailableBlocks> availableBlocks = client.getWithAuthorizationHeader(FREE_BLOCKS_URL + worksUrl, authHeader, typeRef);
         assertThat(availableBlocks, is(not(empty())));
         HairdresserAvailableBlocks hairdresserAvailableBlocks = availableBlocks.get(0);
         HairdresserDTO hairdresser = hairdresserAvailableBlocks.getHairdresser();

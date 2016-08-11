@@ -38,6 +38,8 @@ public class IntegrationTests {
     protected ParameterizedTypeReference<Map<String, String>> errorTypeRef = new ParameterizedTypeReference<Map<String, String>>() {
     };
 
+    protected IntegrationDataFactory integrationDataFactory;
+
     @Test
     public void contextLoads() {
     }
