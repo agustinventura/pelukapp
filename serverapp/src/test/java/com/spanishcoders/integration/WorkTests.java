@@ -8,6 +8,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.not;
@@ -28,15 +29,13 @@ public class WorkTests extends IntegrationTests {
 
     @Before
     public void setUp() {
-        this.client = new HeadersTestRestTemplate<>(testRestTemplate);
+        client = new HeadersTestRestTemplate<>(testRestTemplate);
+        errorClient = new HeadersTestRestTemplate<>(testRestTemplate);
     }
 
     @Test
     public void getWorksWithoutAuthorization() {
-        HeadersTestRestTemplate<Object> errorClient = new HeadersTestRestTemplate<>(this.testRestTemplate);
-        ParameterizedTypeReference<Object> errorTypeRef = new ParameterizedTypeReference<Object>() {
-        };
-        ResponseEntity<Object> result = errorClient.getResponseEntityWithAuthorizationHeader(WORKS_URL, "", errorTypeRef);
+        ResponseEntity<Map<String, String>> result = errorClient.getResponseEntityWithAuthorizationHeader(WORKS_URL, "", errorTypeRef);
         assertThat(result.getStatusCode(), is(HttpStatus.FORBIDDEN));
     }
 
@@ -56,5 +55,4 @@ public class WorkTests extends IntegrationTests {
         Set<Work> works = client.getWithAuthorizationHeader(WORKS_URL, authHeader, typeRef);
         assertThat(works, not(empty()));
     }
-
 }

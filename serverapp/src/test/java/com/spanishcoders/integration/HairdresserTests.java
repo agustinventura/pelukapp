@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -24,21 +25,20 @@ import static org.hamcrest.core.IsNot.not;
 public class HairdresserTests extends IntegrationTests {
 
     public static final String FREE_BLOCKS_URL = "/hairdresser/blocks/free/works=1";
+
     private HeadersTestRestTemplate<List<HairdresserAvailableBlocks>> client;
     private ParameterizedTypeReference<List<HairdresserAvailableBlocks>> typeRef = new ParameterizedTypeReference<List<HairdresserAvailableBlocks>>() {
     };
 
     @Before
     public void setUp() {
-        this.client = new HeadersTestRestTemplate<>(this.testRestTemplate);
+        client = new HeadersTestRestTemplate<>(testRestTemplate);
+        errorClient = new HeadersTestRestTemplate<>(testRestTemplate);
     }
 
     @Test
     public void getAvailableBlocksWithoutAuthorization() {
-        HeadersTestRestTemplate<Object> errorClient = new HeadersTestRestTemplate<>(this.testRestTemplate);
-        ParameterizedTypeReference<Object> errorTypeRef = new ParameterizedTypeReference<Object>() {
-        };
-        ResponseEntity<Object> response = errorClient.getResponseEntityWithAuthorizationHeader(FREE_BLOCKS_URL, "", errorTypeRef);
+        ResponseEntity<Map<String, String>> response = errorClient.getResponseEntityWithAuthorizationHeader(FREE_BLOCKS_URL, "", errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
     }
 
