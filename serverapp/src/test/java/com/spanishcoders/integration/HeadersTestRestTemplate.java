@@ -21,14 +21,28 @@ public class HeadersTestRestTemplate<T> {
     }
 
     public ResponseEntity<T> getResponseEntityWithAuthorizationHeader(String url, String authHeader, ParameterizedTypeReference<T> typeReference) {
+        HttpEntity<?> request = getHeaders(authHeader);
+        ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, request, typeReference);
+        return response;
+    }
+
+    private HttpEntity<?> getHeaders(String authHeader) {
         HttpHeaders headers = new HttpHeaders();
         headers.add(AUTH_HEADER, authHeader);
-        HttpEntity<?> request = new HttpEntity<>(headers);
-        ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, request, typeReference);
+        return new HttpEntity<>(headers);
+    }
+
+    public ResponseEntity<T> postResponseEntityWithAuthorizationHeader(String url, String authHeader, ParameterizedTypeReference<T> typeReference) {
+        HttpEntity<?> request = getHeaders(authHeader);
+        ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.POST, request, typeReference);
         return response;
     }
 
     public T getWithAuthorizationHeader(String url, String authHeader, ParameterizedTypeReference<T> typeReference) {
         return getResponseEntityWithAuthorizationHeader(url, authHeader, typeReference).getBody();
+    }
+
+    public T postWithAuthorizationHeader(String url, String authHeader, ParameterizedTypeReference<T> typeReference) {
+        return postResponseEntityWithAuthorizationHeader(url, authHeader, typeReference).getBody();
     }
 }

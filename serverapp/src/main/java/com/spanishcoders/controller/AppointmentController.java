@@ -38,7 +38,7 @@ public class AppointmentController {
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "new/{works}&{blocks}", method = RequestMethod.PUT)
+    @RequestMapping(value = "new/{works}&{blocks}", method = RequestMethod.POST)
     public Appointment confirmAppointment(Authentication authentication, @MatrixVariable Set<Integer> works, @MatrixVariable Set<Integer> blocks) {
         Set<Work> requestedWorks = workService.get(works);
         Set<Block> requestedBlocks = blockService.get(blocks);
