@@ -14,7 +14,7 @@ public class UserTests extends IntegrationTests {
 
     @Test
     public void loginWithWrongPassword() {
-        loginWrongPassword();
+        login("foo", "bar");
     }
 
     @Test

@@ -35,11 +35,13 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(controllers = AppointmentController.class)
 public class AppointmentControllerTests extends PelukaapUnitTest {
 
+    public static final String APPOINTMENT_URL = "/appointment";
     @MockBean
     private AppointmentService appointmentService;
 
@@ -80,25 +82,11 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithOneWork() throws Exception {
-        given(appointmentService.confirmAppointment(any(Authentication.class), any(AppointmentDTO.class))).willAnswer(invocation -> {
-            AppointmentDTO appointmentDTO = (AppointmentDTO) invocation.getArguments()[1];
-            Appointment appointment = new Appointment();
-            appointment.setBlocks(appointmentDTO.getBlocks().stream().map(blockId -> {
-                Block block = new Block();
-                block.setId(blockId);
-                return block;
-            }).collect(Collectors.toSet()));
-            appointment.setWorks(appointmentDTO.getWorks().stream().map(workId -> {
-                Work work = new Work();
-                work.setId(workId);
-                return work;
-            }).collect(Collectors.toSet()));
-            return appointment;
-        });
+        answerAppointmentFromDTO();
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(1);
         appointmentDTO.getBlocks().add(1);
-        this.mockMvc.perform(post("/appointment/new")
+        this.mockMvc.perform(post(APPOINTMENT_URL)
                 .content(toJSON(appointmentDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -117,6 +105,22 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithTwoWorks() throws Exception {
+        answerAppointmentFromDTO();
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        appointmentDTO.getWorks().addAll(Arrays.asList(1, 2));
+        appointmentDTO.getBlocks().addAll(Arrays.asList(1, 2));
+        this.mockMvc.perform(post(APPOINTMENT_URL)
+                .content(toJSON(appointmentDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json;charset=UTF-8"))
+                .andExpect(jsonPath("$.*", hasSize(7)))
+                .andExpect(jsonPath("$.blocks", hasSize(2)))
+                .andExpect(jsonPath("$.works", hasSize(2)));
+    }
+
+    private void answerAppointmentFromDTO() {
         given(appointmentService.confirmAppointment(any(Authentication.class), any(AppointmentDTO.class))).willAnswer(invocation -> {
             AppointmentDTO appointmentDTO = (AppointmentDTO) invocation.getArguments()[1];
             Appointment appointment = new Appointment();
@@ -132,18 +136,6 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             }).collect(Collectors.toSet()));
             return appointment;
         });
-        AppointmentDTO appointmentDTO = new AppointmentDTO();
-        appointmentDTO.getWorks().addAll(Arrays.asList(1, 2));
-        appointmentDTO.getBlocks().addAll(Arrays.asList(1, 2));
-        this.mockMvc.perform(post("/appointment/new")
-                .content(toJSON(appointmentDTO))
-                .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.*", hasSize(7)))
-                .andExpect(jsonPath("$.blocks", hasSize(2)))
-                .andExpect(jsonPath("$.works", hasSize(2)));
     }
 
     @Test
@@ -151,7 +143,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
     public void getAppointmentWithInvalidPairingWorkBlock() throws Exception {
         given(appointmentService.confirmAppointment(any(Authentication.class), any(AppointmentDTO.class))).willThrow(new IllegalArgumentException());
         AppointmentDTO appointmentDTO = new AppointmentDTO();
-        this.mockMvc.perform(post("/appointment/new")
+        this.mockMvc.perform(post(APPOINTMENT_URL)
                 .content(toJSON(appointmentDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -163,7 +155,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
     public void getAppointmentWithPrivateWorkAsClient() throws Exception {
         given(appointmentService.confirmAppointment(any(Authentication.class), any(AppointmentDTO.class))).willThrow(new AccessDeniedException("Access denied"));
         AppointmentDTO appointmentDTO = new AppointmentDTO();
-        this.mockMvc.perform(post("/appointment/new")
+        this.mockMvc.perform(post(APPOINTMENT_URL)
                 .content(toJSON(appointmentDTO))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -177,7 +169,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             Optional<Appointment> appointment = Optional.empty();
             return appointment;
         });
-        this.mockMvc.perform(post("/appointment/1/cancel").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        this.mockMvc.perform(put(APPOINTMENT_URL).accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isBadRequest());
     }
 
@@ -193,7 +185,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             appointment.setStatus(AppointmentStatus.CANCELLED);
             return appointment;
         });
-        this.mockMvc.perform(post("/appointment/1/cancel").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        this.mockMvc.perform(put(APPOINTMENT_URL).accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.*", hasSize(7)))
@@ -212,7 +204,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             appointment.setStatus(AppointmentStatus.CANCELLED);
             return appointment;
         });
-        this.mockMvc.perform(post("/appointment/1/cancel").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        this.mockMvc.perform(put(APPOINTMENT_URL).accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.*", hasSize(7)))
@@ -227,7 +219,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             return appointment;
         });
         given(appointmentService.cancelAppointment(any(Authentication.class), any(Appointment.class))).willThrow(AccessDeniedException.class);
-        this.mockMvc.perform(post("/appointment/1/cancel").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        this.mockMvc.perform(put(APPOINTMENT_URL).accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -243,7 +235,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             appointment.setStatus(AppointmentStatus.CANCELLED);
             return appointment;
         });
-        this.mockMvc.perform(post("/appointment/1/cancel").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        this.mockMvc.perform(put(APPOINTMENT_URL).accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.*", hasSize(7)))

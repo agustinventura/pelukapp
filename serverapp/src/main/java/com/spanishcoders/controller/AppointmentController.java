@@ -1,7 +1,6 @@
 package com.spanishcoders.controller;
 
 import com.spanishcoders.model.Appointment;
-import com.spanishcoders.model.Hairdresser;
 import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.services.AppointmentService;
 import org.springframework.http.HttpStatus;
@@ -29,23 +28,19 @@ public class AppointmentController {
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "new", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-    public AppointmentDTO confirmAppointment(Authentication authentication, @RequestBody AppointmentDTO appointment) {
+    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public AppointmentDTO createAppointment(Authentication authentication, @RequestBody AppointmentDTO appointment) {
         Appointment confirmed = appointmentService.confirmAppointment(authentication, appointment);
         return new AppointmentDTO(confirmed);
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "{appointmentId}/cancel", method = RequestMethod.POST)
-    public Appointment cancelAppointment(Authentication authentication, @PathVariable Integer appointmentId) {
+    @RequestMapping(method = RequestMethod.PUT)
+    public AppointmentDTO updateAppointment(Authentication authentication, @PathVariable Integer appointmentId) {
         Optional<Appointment> maybeAppointment = appointmentService.get(appointmentId);
-        Appointment cancelled = null;
+        AppointmentDTO cancelled = null;
         if (maybeAppointment.isPresent()) {
-            cancelled = appointmentService.cancelAppointment(authentication, maybeAppointment.get());
-            //TODO: This is a workaround for a lazy loading exception, we need to find a better solution
-            if (cancelled.getUser() instanceof Hairdresser) {
-                ((Hairdresser) cancelled.getUser()).setAgenda(null);
-            }
+            cancelled = new AppointmentDTO(appointmentService.cancelAppointment(authentication, maybeAppointment.get()));
         } else {
             throw new IllegalArgumentException("There's no Appointment with id " + appointmentId);
         }

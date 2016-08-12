@@ -23,7 +23,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
  */
 public class AppointmentTests extends IntegrationTests {
 
-    public static final String NEW_APPOINTMENT_URL = "/appointment/new";
+    public static final String APPOINTMENT_URL = "/appointment";
 
     private HeadersTestRestTemplate<AppointmentDTO> client;
     private ParameterizedTypeReference<AppointmentDTO> typeRef = new ParameterizedTypeReference<AppointmentDTO>() {
@@ -37,7 +37,7 @@ public class AppointmentTests extends IntegrationTests {
 
     @Test
     public void getAppointmentWithoutAuthorization() {
-        ResponseEntity<AppointmentDTO> response = client.getResponseEntityWithAuthorizationHeader(NEW_APPOINTMENT_URL, "", typeRef);
+        ResponseEntity<AppointmentDTO> response = client.getResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, "", typeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
     }
 
@@ -49,7 +49,7 @@ public class AppointmentTests extends IntegrationTests {
         work.setId(work.getId() + 1);
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().addAll(works.stream().map(workId -> workId.getId()).collect(Collectors.toSet()));
-        ResponseEntity<AppointmentDTO> response = client.postResponseEntityWithAuthorizationHeader(NEW_APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        ResponseEntity<AppointmentDTO> response = client.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
 
@@ -60,7 +60,7 @@ public class AppointmentTests extends IntegrationTests {
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(works.first().getId());
         appointmentDTO.getBlocks().add(-1);
-        ResponseEntity<AppointmentDTO> response = client.postResponseEntityWithAuthorizationHeader(NEW_APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        ResponseEntity<AppointmentDTO> response = client.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
 
@@ -72,7 +72,7 @@ public class AppointmentTests extends IntegrationTests {
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().addAll(works.stream().map(work -> work.getId()).collect(Collectors.toSet()));
         appointmentDTO.getBlocks().add(blocks.first().getId());
-        ResponseEntity<AppointmentDTO> response = client.postResponseEntityWithAuthorizationHeader(NEW_APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        ResponseEntity<AppointmentDTO> response = client.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
 
@@ -84,7 +84,7 @@ public class AppointmentTests extends IntegrationTests {
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(works.first().getId());
         appointmentDTO.getBlocks().addAll(blocks.stream().map(blockDTO -> blockDTO.getId()).collect(Collectors.toSet()));
-        ResponseEntity<AppointmentDTO> response = client.postResponseEntityWithAuthorizationHeader(NEW_APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        ResponseEntity<AppointmentDTO> response = client.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
 
@@ -94,7 +94,7 @@ public class AppointmentTests extends IntegrationTests {
         confirmAppointmentWithOneWork(auth);
     }
 
-    private void confirmAppointmentWithOneWork(String auth) {
+    private AppointmentDTO confirmAppointmentWithOneWork(String auth) {
         TreeSet<Work> works = (TreeSet<Work>) integrationDataFactory.getWorks(auth);
         Work work = works.first();
         TreeSet<BlockDTO> blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works);
@@ -102,11 +102,12 @@ public class AppointmentTests extends IntegrationTests {
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(work.getId());
         appointmentDTO.getBlocks().add(block.getId());
-        AppointmentDTO appointment = client.postWithAuthorizationHeader(NEW_APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        AppointmentDTO appointment = client.postWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
         assertThat(appointment, notNullValue());
         assertThat(appointment.getId(), notNullValue());
         assertThat(appointment.getWorks(), hasItem(work.getId()));
         assertThat(appointment.getBlocks(), hasItem(block.getId()));
+        return appointment;
     }
 
     @Test
@@ -121,7 +122,7 @@ public class AppointmentTests extends IntegrationTests {
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().addAll(works.stream().map(work -> work.getId()).collect(Collectors.toSet()));
         appointmentDTO.getBlocks().addAll(blocks.stream().map(blockDTO -> blockDTO.getId()).collect(Collectors.toSet()));
-        AppointmentDTO appointment = client.postWithAuthorizationHeader(NEW_APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        AppointmentDTO appointment = client.postWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
         assertThat(appointment, notNullValue());
         assertThat(appointment.getId(), notNullValue());
         Set<Integer> worksId = works.stream().map(work -> work.getId()).collect(Collectors.toSet());
@@ -140,5 +141,27 @@ public class AppointmentTests extends IntegrationTests {
     public void getAppointmentWithManyWorksAsAdmin() {
         String auth = loginAsAdmin();
         confirmAppointmentWithManyWorks(auth);
+    }
+
+    @Test
+    public void cancelAdminAppointmentAsAdmin() {
+        String auth = loginAsAdmin();
+        AppointmentDTO toBeCancelled = confirmAppointmentWithOneWork(auth);
+        //AppointmentDTO cancelled = client.postWithAuthorizationHeader();
+    }
+
+    @Test
+    public void cancelAdminAppointmentAsClient() {
+
+    }
+
+    @Test
+    public void cancelClientAppointmentAsClient() {
+
+    }
+
+    @Test
+    public void cancelClientAppointmentAsAdmin() {
+
     }
 }
