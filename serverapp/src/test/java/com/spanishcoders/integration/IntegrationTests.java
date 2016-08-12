@@ -25,6 +25,7 @@ public abstract class IntegrationTests {
     public static final String LOGIN_URL = "/login";
     public static final String AUTH_HEADER = "X-AUTH-TOKEN";
     public static final String CLIENT_LOGIN = "{\"username\":\"client\",\"password\":\"client\"}";
+    public static final String CLIENT_LOGIN_WRONG_PASSWORD = "{\"username\":\"client\",\"password\":\"wrongpasswd\"}";
     public static final String ADMIN_LOGIN = "{\"username\":\"admin\",\"password\":\"admin\"}";
 
     @Autowired
@@ -53,5 +54,17 @@ public abstract class IntegrationTests {
         String authToken = headers.get(AUTH_HEADER).get(0);
         assertThat(authToken, notNullValue());
         return authToken;
+    }
+
+    public void loginWrongPassword() {
+
+        ResponseEntity<String> response = testRestTemplate.postForEntity(LOGIN_URL, CLIENT_LOGIN_WRONG_PASSWORD, String.class);
+        assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
+        /*HttpHeaders headers = response.getHeaders();
+        assertThat(headers, notNullValue());
+        assertThat(headers.containsKey(AUTH_HEADER), is(true));
+        String authToken = headers.get(AUTH_HEADER).get(0);
+        assertThat(authToken, notNullValue());
+    */
     }
 }

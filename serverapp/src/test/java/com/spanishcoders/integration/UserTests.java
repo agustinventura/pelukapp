@@ -13,6 +13,11 @@ public class UserTests extends IntegrationTests {
     }
 
     @Test
+    public void loginWithWrongPassword() {
+        loginWrongPassword();
+    }
+
+    @Test
     public void adminLogin() {
         loginAsAdmin();
     }
