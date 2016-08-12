@@ -1,18 +1,17 @@
 package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
+import com.spanishcoders.PelukaapUnitTest;
 import com.spanishcoders.model.*;
 import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.repositories.AppointmentRepository;
 import com.spanishcoders.repositories.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -32,8 +31,7 @@ import static org.mockito.Mockito.mock;
 /**
  * Created by agustin on 7/07/16.
  */
-@RunWith(SpringRunner.class)
-public class AppointmentServiceTests {
+public class AppointmentServiceTests extends PelukaapUnitTest {
 
     @MockBean
     private AppointmentRepository appointmentRepository;

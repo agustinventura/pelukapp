@@ -1,18 +1,17 @@
 package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
+import com.spanishcoders.PelukaapUnitTest;
 import com.spanishcoders.model.Appointment;
 import com.spanishcoders.model.User;
 import com.spanishcoders.repositories.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Set;
 
@@ -21,8 +20,7 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 
-@RunWith(SpringRunner.class)
-public class UserServiceTests {
+public class UserServiceTests extends PelukaapUnitTest {
 
     @MockBean
     private UserRepository userRepository;

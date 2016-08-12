@@ -1,14 +1,13 @@
 package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
+import com.spanishcoders.PelukaapUnitTest;
 import com.spanishcoders.model.Block;
 import com.spanishcoders.model.WorkingDay;
 import com.spanishcoders.repositories.BlockRepository;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -25,8 +24,7 @@ import static org.mockito.Matchers.any;
 /**
  * Created by agustin on 7/07/16.
  */
-@RunWith(SpringRunner.class)
-public class BlockServiceTests {
+public class BlockServiceTests extends PelukaapUnitTest {
 
     @MockBean
     private BlockRepository blockRepository;

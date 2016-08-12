@@ -1,6 +1,7 @@
 package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
+import com.spanishcoders.PelukaapUnitTest;
 import com.spanishcoders.model.Agenda;
 import com.spanishcoders.model.Block;
 import com.spanishcoders.model.Hairdresser;
@@ -8,9 +9,7 @@ import com.spanishcoders.model.UserStatus;
 import com.spanishcoders.repositories.HairdresserRepository;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Map;
 import java.util.Set;
@@ -23,8 +22,7 @@ import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 
-@RunWith(SpringRunner.class)
-public class HairdresserServiceTests {
+public class HairdresserServiceTests extends PelukaapUnitTest {
 
     @MockBean
     private HairdresserRepository hairdresserRepository;

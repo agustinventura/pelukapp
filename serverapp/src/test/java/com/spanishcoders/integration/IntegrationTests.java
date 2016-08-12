@@ -1,6 +1,5 @@
 package com.spanishcoders.integration;
 
-import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,7 +20,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integration")
-public class IntegrationTests {
+public abstract class IntegrationTests {
 
     public static final String LOGIN_URL = "/login";
     public static final String AUTH_HEADER = "X-AUTH-TOKEN";
@@ -32,10 +31,6 @@ public class IntegrationTests {
     protected TestRestTemplate testRestTemplate;
 
     protected IntegrationDataFactory integrationDataFactory;
-
-    @Test
-    public void contextLoads() {
-    }
 
     public String loginAsClient() {
         return login(CLIENT_LOGIN);

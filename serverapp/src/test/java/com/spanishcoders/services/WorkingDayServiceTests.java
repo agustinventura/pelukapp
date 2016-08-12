@@ -1,16 +1,15 @@
 package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
+import com.spanishcoders.PelukaapUnitTest;
 import com.spanishcoders.model.Agenda;
 import com.spanishcoders.model.Block;
 import com.spanishcoders.model.WorkingDay;
 import com.spanishcoders.repositories.WorkingDayRepository;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Set;
 import java.util.SortedSet;
@@ -25,8 +24,7 @@ import static org.mockito.Matchers.any;
 /**
  * Created by agustin on 6/07/16.
  */
-@RunWith(SpringRunner.class)
-public class WorkingDayServiceTests {
+public class WorkingDayServiceTests extends PelukaapUnitTest {
 
     @MockBean
     private WorkingDayRepository workingDayRepository;

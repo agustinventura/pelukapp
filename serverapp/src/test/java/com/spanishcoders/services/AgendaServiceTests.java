@@ -1,15 +1,14 @@
 package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
+import com.spanishcoders.PelukaapUnitTest;
 import com.spanishcoders.model.Agenda;
 import com.spanishcoders.model.Block;
 import com.spanishcoders.repositories.AgendaRepository;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.Set;
 
@@ -22,8 +21,7 @@ import static org.mockito.Matchers.any;
 /**
  * Created by agustin on 2/07/16.
  */
-@RunWith(SpringRunner.class)
-public class AgendaServiceTests {
+public class AgendaServiceTests extends PelukaapUnitTest {
 
     @MockBean
     private AgendaRepository agendaRepository;
