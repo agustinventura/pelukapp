@@ -87,6 +87,6 @@ public class Work implements Comparable<Work> {
 
     @Override
     public int compareTo(Work o) {
-        return this.getName().compareTo(o.getName());
+        return this.getId().compareTo(o.getId());
     }
 }

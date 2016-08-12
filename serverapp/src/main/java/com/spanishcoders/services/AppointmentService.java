@@ -1,6 +1,7 @@
 package com.spanishcoders.services;
 
 import com.spanishcoders.model.*;
+import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.repositories.AppointmentRepository;
 import com.spanishcoders.repositories.UserRepository;
 import io.jsonwebtoken.lang.Collections;
@@ -26,19 +27,23 @@ public class AppointmentService {
 
     private BlockService blockService;
 
+    private WorkService workService;
+
     private UserRepository userRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, BlockService blockService, UserRepository userRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository, BlockService blockService, WorkService workService, UserRepository userRepository) {
         this.appointmentRepository = appointmentRepository;
         this.blockService = blockService;
+        this.workService = workService;
         this.userRepository = userRepository;
     }
 
-    public Appointment confirmAppointment(Authentication authentication, Set<Work> requestedWorks, Set<Block> requestedBlocks) {
+    public Appointment confirmAppointment(Authentication authentication, AppointmentDTO appointmentDTO) {
         Appointment confirmed = null;
-        Set<Block> blocks = refreshBlocks(requestedBlocks);
+        Set<Block> blocks = blockService.get(appointmentDTO.getBlocks());
+        Set<Work> works = workService.get(appointmentDTO.getWorks());
         User requestUser = authentication != null ? userRepository.findByUsername(authentication.getName()) : null;
-        confirmed = new Appointment(requestUser, requestedWorks, blocks);
+        confirmed = new Appointment(requestUser, works, blocks);
         confirmed = appointmentRepository.save(confirmed);
         return confirmed;
     }

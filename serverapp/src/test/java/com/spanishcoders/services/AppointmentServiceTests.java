@@ -2,6 +2,7 @@ package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.model.*;
+import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.repositories.AppointmentRepository;
 import com.spanishcoders.repositories.UserRepository;
 import org.junit.Before;
@@ -41,47 +42,54 @@ public class AppointmentServiceTests {
     private BlockService blockService;
 
     @MockBean
+    private WorkService workService;
+
+    @MockBean
     private UserRepository userRepository;
 
     private AppointmentService appointmentService;
 
     @Before
     public void setUp() throws Exception {
-        appointmentService = new AppointmentService(appointmentRepository, blockService, userRepository);
-
+        appointmentService = new AppointmentService(appointmentRepository, blockService, workService, userRepository);
         Client user = mock(Client.class);
         given(userRepository.findByUsername(any(String.class))).willReturn(user);
     }
 
     @Test(expected = AccessDeniedException.class)
     public void confirmAppointmentNullAuthorization() {
-        appointmentService.confirmAppointment(null, Sets.newHashSet(), Sets.newHashSet());
+        appointmentService.confirmAppointment(null, new AppointmentDTO());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void confirmAppointmentEmptyWorks() throws Exception {
         Authentication authentication = mock(Authentication.class);
-        appointmentService.confirmAppointment(authentication, Sets.newHashSet(), Sets.newHashSet());
+        appointmentService.confirmAppointment(authentication, new AppointmentDTO());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void confirmAppointmentNullWorks() throws Exception {
         Authentication authentication = mock(Authentication.class);
-        appointmentService.confirmAppointment(authentication, null, Sets.newHashSet());
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        appointmentDTO.setWorks(null);
+        appointmentService.confirmAppointment(authentication, appointmentDTO);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void confirmAppointmentEmptyBlocks() throws Exception {
         Authentication authentication = mock(Authentication.class);
-        Work work = mock(Work.class);
-        appointmentService.confirmAppointment(authentication, Sets.newHashSet(work), Sets.newHashSet());
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        appointmentDTO.getWorks().add(1);
+        appointmentService.confirmAppointment(authentication, appointmentDTO);
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void confirmAppointmentNullBlocks() throws Exception {
         Authentication authentication = mock(Authentication.class);
-        Work work = mock(Work.class);
-        appointmentService.confirmAppointment(authentication, Sets.newHashSet(work), null);
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        appointmentDTO.getWorks().add(1);
+        appointmentDTO.setBlocks(null);
+        appointmentService.confirmAppointment(authentication, appointmentDTO);
     }
 
     @Test(expected = AccessDeniedException.class)
@@ -94,7 +102,10 @@ public class AppointmentServiceTests {
         Block block = mock(Block.class);
         Set<Block> blocks = Sets.newHashSet(block);
         given(blockService.get(any(Collection.class))).willReturn(blocks);
-        appointmentService.confirmAppointment(authentication, Sets.newHashSet(privateWork), blocks);
+        Set<Work> works = Sets.newHashSet(privateWork);
+        given(workService.get(any(Set.class))).willReturn(works);
+        AppointmentDTO appointmentDTO = mock(AppointmentDTO.class);
+        appointmentService.confirmAppointment(authentication, appointmentDTO);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -104,7 +115,12 @@ public class AppointmentServiceTests {
         given(work.getDuration()).willReturn(60);
         Block block = mock(Block.class);
         given(block.getLength()).willReturn(Duration.of(30, ChronoUnit.MINUTES));
-        appointmentService.confirmAppointment(authentication, Sets.newHashSet(work), Sets.newHashSet(block));
+        Set<Block> blocks = Sets.newHashSet(block);
+        given(blockService.get(any(Collection.class))).willReturn(blocks);
+        Set<Work> works = Sets.newHashSet(work);
+        given(workService.get(any(Set.class))).willReturn(works);
+        AppointmentDTO appointmentDTO = mock(AppointmentDTO.class);
+        appointmentService.confirmAppointment(authentication, appointmentDTO);
     }
 
     @Test
@@ -127,7 +143,9 @@ public class AppointmentServiceTests {
         Set<Block> requestedBlocks = Sets.newTreeSet();
         requestedBlocks.add(block);
         given(blockService.get(any(Collection.class))).willReturn(requestedBlocks);
-        Appointment result = appointmentService.confirmAppointment(authentication, requestedWorks, requestedBlocks);
+        given(workService.get(any(Set.class))).willReturn(requestedWorks);
+        AppointmentDTO appointmentDTO = mock(AppointmentDTO.class);
+        Appointment result = appointmentService.confirmAppointment(authentication, appointmentDTO);
         assertThat(result, notNullValue());
         assertThat(result.getWorks(), is(requestedWorks));
         assertThat(result.getBlocks(), is(requestedBlocks));

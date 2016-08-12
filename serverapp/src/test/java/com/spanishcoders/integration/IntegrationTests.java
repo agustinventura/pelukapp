@@ -5,14 +5,11 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
-
-import java.util.Map;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
@@ -33,10 +30,6 @@ public class IntegrationTests {
 
     @Autowired
     protected TestRestTemplate testRestTemplate;
-
-    protected HeadersTestRestTemplate<Map<String, String>> errorClient;
-    protected ParameterizedTypeReference<Map<String, String>> errorTypeRef = new ParameterizedTypeReference<Map<String, String>>() {
-    };
 
     protected IntegrationDataFactory integrationDataFactory;
 

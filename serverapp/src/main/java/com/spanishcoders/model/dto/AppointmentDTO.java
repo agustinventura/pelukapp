@@ -4,6 +4,7 @@ import com.google.common.collect.Sets;
 import com.spanishcoders.model.Appointment;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by agustin on 11/08/16.
@@ -24,16 +25,17 @@ public class AppointmentDTO {
     }
 
     public AppointmentDTO(Appointment appointment) {
+        this();
         this.id = appointment.getId();
         this.user = appointment.getUser() != null ? appointment.getUser().getId() : null;
         this.date = appointment.getDate() != null ? appointment.getDate().toString() : null;
         this.duration = appointment.getDuration() != null ? appointment.getDuration().toString() : null;
         this.status = appointment.getStatus() != null ? appointment.getStatus().ordinal() : null;
         if (appointment.getBlocks() != null) {
-            appointment.getBlocks().stream().forEach(block -> this.blocks.add(block.getId()));
+            this.blocks.addAll(appointment.getBlocks().stream().map(block -> block.getId()).collect(Collectors.toSet()));
         }
         if (appointment.getWorks() != null) {
-            appointment.getWorks().stream().forEach(work -> this.works.add(work.getId()));
+            this.works.addAll(appointment.getWorks().stream().map(work -> work.getId()).collect(Collectors.toSet()));
         }
     }
 

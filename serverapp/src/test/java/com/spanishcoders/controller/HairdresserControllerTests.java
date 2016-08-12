@@ -24,6 +24,7 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 //This class does not use @WebMvcTest because it needs the DefaultHandlerMapping defined in WebMvcConfiguration
@@ -52,7 +53,7 @@ public class HairdresserControllerTests {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getFirstTenAvailableBlocksWithOneWork() throws Exception {
-        this.mockMvc.perform(get("/hairdresser/blocks/free/works=1").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        this.mockMvc.perform(get("/hairdresser/blocks/free/works=1").accept(MediaType.parseMediaType("application/json;charset=UTF-8"))).andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$[0].availableBlocks.*", hasSize(10)));

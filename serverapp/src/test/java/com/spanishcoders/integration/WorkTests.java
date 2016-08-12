@@ -8,7 +8,6 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
-import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.not;
@@ -30,12 +29,14 @@ public class WorkTests extends IntegrationTests {
     @Before
     public void setUp() {
         client = new HeadersTestRestTemplate<>(testRestTemplate);
-        errorClient = new HeadersTestRestTemplate<>(testRestTemplate);
     }
 
     @Test
     public void getWorksWithoutAuthorization() {
-        ResponseEntity<Map<String, String>> result = errorClient.getResponseEntityWithAuthorizationHeader(WORKS_URL, "", errorTypeRef);
+        HeadersTestRestTemplate<Work> client = new HeadersTestRestTemplate<>(testRestTemplate);
+        ParameterizedTypeReference<Work> typeRef = new ParameterizedTypeReference<Work>() {
+        };
+        ResponseEntity<Work> result = client.getResponseEntityWithAuthorizationHeader(WORKS_URL, "", typeRef);
         assertThat(result.getStatusCode(), is(HttpStatus.FORBIDDEN));
     }
 

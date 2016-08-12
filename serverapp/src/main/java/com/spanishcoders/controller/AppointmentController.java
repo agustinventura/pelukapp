@@ -1,12 +1,9 @@
 package com.spanishcoders.controller;
 
 import com.spanishcoders.model.Appointment;
-import com.spanishcoders.model.Block;
 import com.spanishcoders.model.Hairdresser;
-import com.spanishcoders.model.Work;
+import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.services.AppointmentService;
-import com.spanishcoders.services.BlockService;
-import com.spanishcoders.services.WorkService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,7 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Created by agustin on 21/06/16.
@@ -27,27 +23,16 @@ public class AppointmentController {
 
     private AppointmentService appointmentService;
 
-    private WorkService workService;
 
-    private BlockService blockService;
-
-    public AppointmentController(AppointmentService appointmentService, WorkService workService, BlockService blockService) {
+    public AppointmentController(AppointmentService appointmentService) {
         this.appointmentService = appointmentService;
-        this.workService = workService;
-        this.blockService = blockService;
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "new/{works}&{blocks}", method = RequestMethod.POST)
-    public Appointment confirmAppointment(Authentication authentication, @MatrixVariable Set<Integer> works, @MatrixVariable Set<Integer> blocks) {
-        Set<Work> requestedWorks = workService.get(works);
-        Set<Block> requestedBlocks = blockService.get(blocks);
-        Appointment confirmed = appointmentService.confirmAppointment(authentication, requestedWorks, requestedBlocks);
-        //TODO: This is a workaround for a lazy loading exception, we need to find a better solution
-        if (confirmed.getUser() instanceof Hairdresser) {
-            ((Hairdresser) confirmed.getUser()).setAgenda(null);
-        }
-        return confirmed;
+    @RequestMapping(value = "new", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    public AppointmentDTO confirmAppointment(Authentication authentication, @RequestBody AppointmentDTO appointment) {
+        Appointment confirmed = appointmentService.confirmAppointment(authentication, appointment);
+        return new AppointmentDTO(confirmed);
     }
 
     @PreAuthorize("authenticated")

@@ -10,7 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -33,14 +32,16 @@ public class HairdresserTests extends IntegrationTests {
     @Before
     public void setUp() {
         client = new HeadersTestRestTemplate<>(testRestTemplate);
-        errorClient = new HeadersTestRestTemplate<>(testRestTemplate);
         integrationDataFactory = new IntegrationDataFactory(testRestTemplate);
     }
 
     @Test
     public void getAvailableBlocksWithoutAuthorization() {
         String worksUrl = integrationDataFactory.getWorksUrl(loginAsClient());
-        ResponseEntity<Map<String, String>> response = errorClient.getResponseEntityWithAuthorizationHeader(FREE_BLOCKS_URL + worksUrl, "", errorTypeRef);
+        HeadersTestRestTemplate<HairdresserAvailableBlocks> client = new HeadersTestRestTemplate<>(testRestTemplate);
+        ParameterizedTypeReference<HairdresserAvailableBlocks> typeRef = new ParameterizedTypeReference<HairdresserAvailableBlocks>() {
+        };
+        ResponseEntity<HairdresserAvailableBlocks> response = client.getResponseEntityWithAuthorizationHeader(FREE_BLOCKS_URL + worksUrl, "", typeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
     }
 

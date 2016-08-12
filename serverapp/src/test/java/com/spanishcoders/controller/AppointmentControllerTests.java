@@ -1,9 +1,12 @@
 package com.spanishcoders.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spanishcoders.model.Appointment;
 import com.spanishcoders.model.AppointmentStatus;
 import com.spanishcoders.model.Block;
 import com.spanishcoders.model.Work;
+import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.services.AppointmentService;
 import com.spanishcoders.services.BlockService;
 import com.spanishcoders.services.WorkService;
@@ -11,7 +14,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
@@ -22,6 +25,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,12 +36,10 @@ import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-//This class does not use @WebMvcTest because it needs the DefaultHandlerMapping defined in WebMvcConfiguration
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@WebMvcTest(controllers = AppointmentController.class, secure = true)
 public class AppointmentControllerTests {
 
     @MockBean
@@ -80,15 +82,28 @@ public class AppointmentControllerTests {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithOneWork() throws Exception {
-        given(appointmentService.confirmAppointment(any(Authentication.class), any(Set.class), any(Set.class))).willAnswer(invocation -> {
-            Set<Work> works = (Set<Work>) invocation.getArguments()[1];
-            Set<Block> blocks = (Set<Block>) invocation.getArguments()[2];
+        given(appointmentService.confirmAppointment(any(Authentication.class), any(AppointmentDTO.class))).willAnswer(invocation -> {
+            AppointmentDTO appointmentDTO = (AppointmentDTO) invocation.getArguments()[1];
             Appointment appointment = new Appointment();
-            appointment.setBlocks(blocks);
-            appointment.setWorks(works);
+            appointment.setBlocks(appointmentDTO.getBlocks().stream().map(blockId -> {
+                Block block = new Block();
+                block.setId(blockId);
+                return block;
+            }).collect(Collectors.toSet()));
+            appointment.setWorks(appointmentDTO.getWorks().stream().map(workId -> {
+                Work work = new Work();
+                work.setId(workId);
+                return work;
+            }).collect(Collectors.toSet()));
             return appointment;
         });
-        this.mockMvc.perform(put("/appointment/new/works=1&blocks=1").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        appointmentDTO.getWorks().add(1);
+        appointmentDTO.getBlocks().add(1);
+        this.mockMvc.perform(post("/appointment/new")
+                .content(toJSON(appointmentDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.*", hasSize(7)))
@@ -96,18 +111,36 @@ public class AppointmentControllerTests {
                 .andExpect(jsonPath("$.works", hasSize(1)));
     }
 
+    private String toJSON(AppointmentDTO appointmentDTO) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(appointmentDTO);
+    }
+
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithTwoWorks() throws Exception {
-        given(appointmentService.confirmAppointment(any(Authentication.class), any(Set.class), any(Set.class))).willAnswer(invocation -> {
-            Set<Work> works = (Set<Work>) invocation.getArguments()[1];
-            Set<Block> blocks = (Set<Block>) invocation.getArguments()[2];
+        given(appointmentService.confirmAppointment(any(Authentication.class), any(AppointmentDTO.class))).willAnswer(invocation -> {
+            AppointmentDTO appointmentDTO = (AppointmentDTO) invocation.getArguments()[1];
             Appointment appointment = new Appointment();
-            appointment.setBlocks(blocks);
-            appointment.setWorks(works);
+            appointment.setBlocks(appointmentDTO.getBlocks().stream().map(blockId -> {
+                Block block = new Block();
+                block.setId(blockId);
+                return block;
+            }).collect(Collectors.toSet()));
+            appointment.setWorks(appointmentDTO.getWorks().stream().map(workId -> {
+                Work work = new Work();
+                work.setId(workId);
+                return work;
+            }).collect(Collectors.toSet()));
             return appointment;
         });
-        this.mockMvc.perform(put("/appointment/new/works=1;works=2&blocks=1;blocks=2").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        appointmentDTO.getWorks().addAll(Arrays.asList(1, 2));
+        appointmentDTO.getBlocks().addAll(Arrays.asList(1, 2));
+        this.mockMvc.perform(post("/appointment/new")
+                .content(toJSON(appointmentDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.*", hasSize(7)))
@@ -118,16 +151,24 @@ public class AppointmentControllerTests {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithInvalidPairingWorkBlock() throws Exception {
-        given(appointmentService.confirmAppointment(any(Authentication.class), any(Set.class), any(Set.class))).willThrow(new IllegalArgumentException());
-        this.mockMvc.perform(put("/appointment/new/works=1&blocks=1;blocks=2").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        given(appointmentService.confirmAppointment(any(Authentication.class), any(AppointmentDTO.class))).willThrow(new IllegalArgumentException());
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        this.mockMvc.perform(post("/appointment/new")
+                .content(toJSON(appointmentDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isBadRequest());
     }
 
     @Test
     @WithMockUser(username = "client", roles = {"USER", "CLIENT"})
     public void getAppointmentWithPrivateWorkAsClient() throws Exception {
-        given(appointmentService.confirmAppointment(any(Authentication.class), any(Set.class), any(Set.class))).willThrow(new AccessDeniedException("Access denied"));
-        this.mockMvc.perform(put("/appointment/new/works=1&blocks=1").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        given(appointmentService.confirmAppointment(any(Authentication.class), any(AppointmentDTO.class))).willThrow(new AccessDeniedException("Access denied"));
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        this.mockMvc.perform(post("/appointment/new")
+                .content(toJSON(appointmentDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isUnauthorized());
     }
 

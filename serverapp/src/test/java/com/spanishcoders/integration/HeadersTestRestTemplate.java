@@ -21,19 +21,25 @@ public class HeadersTestRestTemplate<T> {
     }
 
     public ResponseEntity<T> getResponseEntityWithAuthorizationHeader(String url, String authHeader, ParameterizedTypeReference<T> typeReference) {
-        HttpEntity<?> request = getHeaders(authHeader);
+        HttpEntity<?> request = getHeaders(authHeader, null);
         ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.GET, request, typeReference);
         return response;
     }
 
-    private HttpEntity<?> getHeaders(String authHeader) {
+    private HttpEntity<T> getHeaders(String authHeader, T requestEntity) {
+        HttpEntity<T> result = null;
         HttpHeaders headers = new HttpHeaders();
         headers.add(AUTH_HEADER, authHeader);
-        return new HttpEntity<>(headers);
+        if (requestEntity != null) {
+            result = new HttpEntity<>(requestEntity, headers);
+        } else {
+            result = new HttpEntity<>(headers);
+        }
+        return result;
     }
 
-    public ResponseEntity<T> postResponseEntityWithAuthorizationHeader(String url, String authHeader, ParameterizedTypeReference<T> typeReference) {
-        HttpEntity<?> request = getHeaders(authHeader);
+    public ResponseEntity<T> postResponseEntityWithAuthorizationHeader(String url, String authHeader, T requestEntity, ParameterizedTypeReference<T> typeReference) {
+        HttpEntity<T> request = getHeaders(authHeader, requestEntity);
         ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.POST, request, typeReference);
         return response;
     }
@@ -42,7 +48,7 @@ public class HeadersTestRestTemplate<T> {
         return getResponseEntityWithAuthorizationHeader(url, authHeader, typeReference).getBody();
     }
 
-    public T postWithAuthorizationHeader(String url, String authHeader, ParameterizedTypeReference<T> typeReference) {
-        return postResponseEntityWithAuthorizationHeader(url, authHeader, typeReference).getBody();
+    public T postWithAuthorizationHeader(String url, String authHeader, T requestEntity, ParameterizedTypeReference<T> typeReference) {
+        return postResponseEntityWithAuthorizationHeader(url, authHeader, requestEntity, typeReference).getBody();
     }
 }
