@@ -16,4 +16,11 @@ public class UserTests extends IntegrationTests {
     public void adminLogin() {
         loginAsAdmin();
     }
+
+    @Test
+    public void registerUser() {
+        String json = "";
+
+        loginAs(json);
+    }
 }

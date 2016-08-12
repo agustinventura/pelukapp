@@ -43,6 +43,10 @@ public class IntegrationTests {
         return login(ADMIN_LOGIN);
     }
 
+    public String loginAs(String loginJson) {
+        return login(loginJson);
+    }
+
     private String login(String login) {
         ResponseEntity<String> response = testRestTemplate.postForEntity(LOGIN_URL, login, String.class);
         assertThat(response.getStatusCode(), is(HttpStatus.OK));

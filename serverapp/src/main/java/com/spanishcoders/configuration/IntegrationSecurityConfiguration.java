@@ -40,15 +40,20 @@ public class IntegrationSecurityConfiguration extends WebSecurityConfigurerAdapt
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
+                .antMatchers(HttpMethod.POST, "/user/register").permitAll()
                 .antMatchers("/favicon.ico").permitAll()
+
                 //Enable for access to h2-console
                 //.antMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated().and()
+
                 // custom JSON based authentication by POST of {"username":"<name>","password":"<password>"} which sets the token header upon authentication
                 .addFilterBefore(new StatelessLoginFilter("/login", tokenAuthenticationService(), userDetailsService, authenticationManager()), UsernamePasswordAuthenticationFilter.class)
+
                 // Custom Token based authentication based on the header previously given to the client
                 .addFilterBefore(new StatelessAuthenticationFilter(tokenAuthenticationService()),
                         UsernamePasswordAuthenticationFilter.class)
+
                 .exceptionHandling().and()
                 .anonymous().and()
                 .servletApi().and()
