@@ -1,5 +1,8 @@
 package com.spanishcoders.model.dto;
 
+import com.google.common.collect.Sets;
+import com.spanishcoders.model.User;
+
 import java.util.Set;
 
 /**
@@ -14,6 +17,21 @@ public class UserDTO {
     private String phone;
     private Integer status;
     private Set<Integer> appointments;
+
+    public UserDTO() {
+        appointments = Sets.newTreeSet();
+    }
+
+    public UserDTO(User user) {
+        this();
+        this.setId(user.getId());
+        this.setName(user.getName());
+        this.setUsername(user.getUsername());
+        this.setPassword(user.getPassword());
+        this.setPhone(user.getPhone());
+        this.setStatus(user.getStatus().ordinal());
+        user.getAppointments().stream().forEach(appointment -> this.getAppointments().add(appointment.getId()));
+    }
 
     public Integer getId() {
         return id;

@@ -49,6 +49,9 @@ public class WorkingDayService {
                         availableBlocks = availableBlocks.stream().limit(10).collect(Collectors.toSet());
                     }
                 }
+                if (availableBlocks.size() > 10) {
+                    availableBlocks = availableBlocks.stream().limit(10).collect(Collectors.toSet());
+                }
             }
         }
         return availableBlocks;
