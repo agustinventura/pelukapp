@@ -1,6 +1,12 @@
 package com.spanishcoders.integration;
 
+import com.spanishcoders.model.dto.UserDTO;
 import org.junit.Test;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.Is.is;
 
 /**
  * Created by agustin on 6/08/16.
@@ -14,7 +20,7 @@ public class UserTests extends IntegrationTests {
 
     @Test
     public void loginWithWrongPassword() {
-        login("foo", "bar");
+        ResponseEntity<UserDTO> response = login("foo", "bar");
     }
 
     @Test
@@ -24,8 +30,18 @@ public class UserTests extends IntegrationTests {
 
     @Test
     public void registerUser() {
-        String json = "";
 
-        loginAs(json);
+        String username = "usuario1234";
+        String password = "usuario1234";
+        String name = "usuario";
+        String phone = "666666666";
+
+        ResponseEntity<UserDTO> registrationResponse = register(username, password, phone, name);
+        assertThat(registrationResponse.getStatusCode(), is(HttpStatus.OK));
+
+        ResponseEntity<UserDTO> loginResponse = login(username, password);
+        assertThat(loginResponse.getStatusCode(), is(HttpStatus.OK));
+
+
     }
 }

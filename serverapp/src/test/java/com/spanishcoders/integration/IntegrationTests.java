@@ -25,6 +25,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
 public abstract class IntegrationTests {
 
     public static final String LOGIN_URL = "/login";
+    public static final String REGISTER_URL = "/user/register";
     public static final String AUTH_HEADER = "X-AUTH-TOKEN";
     public static final String CLIENT_USERNAME = "client";
     public static final String CLIENT_PASSWORD = "client";
@@ -70,6 +71,17 @@ public abstract class IntegrationTests {
         userDTO.setPassword(password);
         HttpEntity<UserDTO> request = new HttpEntity<>(userDTO);
         ResponseEntity<UserDTO> response = testRestTemplate.postForEntity(LOGIN_URL, request, UserDTO.class);
+        return response;
+    }
+
+    protected ResponseEntity<UserDTO> register(String username, String password, String phone, String name) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(username);
+        userDTO.setPassword(password);
+        userDTO.setName(name);
+        userDTO.setPhone(phone);
+        HttpEntity<UserDTO> request = new HttpEntity<>(userDTO);
+        ResponseEntity<UserDTO> response = testRestTemplate.postForEntity(REGISTER_URL, request, UserDTO.class);
         return response;
     }
 }
