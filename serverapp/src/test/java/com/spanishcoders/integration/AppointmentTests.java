@@ -9,13 +9,13 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.Is.is;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsNull.notNullValue;
 
 /**
@@ -94,7 +94,7 @@ public class AppointmentTests extends IntegrationTests {
         confirmAppointmentWithOneWork(auth);
     }
 
-    private AppointmentDTO confirmAppointmentWithOneWork(String auth) {
+    public AppointmentDTO getAppointmentDTO(String auth) {
         TreeSet<Work> works = (TreeSet<Work>) integrationDataFactory.getWorks(auth);
         Work work = works.first();
         TreeSet<BlockDTO> blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works);
@@ -102,11 +102,21 @@ public class AppointmentTests extends IntegrationTests {
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(work.getId());
         appointmentDTO.getBlocks().add(block.getId());
+        LocalDate twoDaysFromNow = LocalDate.now().plusDays(2);
+        appointmentDTO.setDate(twoDaysFromNow.toString());
+        return appointmentDTO;
+    }
+
+    private AppointmentDTO confirmAppointmentWithOneWork(String auth) {
+        return confirmAppointment(auth, getAppointmentDTO(auth));
+    }
+
+    private AppointmentDTO confirmAppointment(String auth, AppointmentDTO appointmentDTO) {
         AppointmentDTO appointment = client.postWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
         assertThat(appointment, notNullValue());
         assertThat(appointment.getId(), notNullValue());
-        assertThat(appointment.getWorks(), hasItem(work.getId()));
-        assertThat(appointment.getBlocks(), hasItem(block.getId()));
+        assertThat(appointment.getWorks(), is(appointmentDTO.getWorks()));
+        assertThat(appointment.getBlocks(), is(appointmentDTO.getBlocks()));
         return appointment;
     }
 
@@ -122,13 +132,7 @@ public class AppointmentTests extends IntegrationTests {
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().addAll(works.stream().map(work -> work.getId()).collect(Collectors.toSet()));
         appointmentDTO.getBlocks().addAll(blocks.stream().map(blockDTO -> blockDTO.getId()).collect(Collectors.toSet()));
-        AppointmentDTO appointment = client.postWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
-        assertThat(appointment, notNullValue());
-        assertThat(appointment.getId(), notNullValue());
-        Set<Integer> worksId = works.stream().map(work -> work.getId()).collect(Collectors.toSet());
-        assertThat(appointment.getWorks().equals(worksId), is(true));
-        Set<Integer> blocksId = blocks.stream().map(block -> block.getId()).collect(Collectors.toSet());
-        assertThat(appointment.getBlocks().equals(blocksId), is(true));
+        confirmAppointment(auth, appointmentDTO);
     }
 
     @Test
@@ -144,24 +148,71 @@ public class AppointmentTests extends IntegrationTests {
     }
 
     @Test
+    public void cancelInvalidAppointment() {
+        String auth = loginAsClient();
+        AppointmentDTO appointmentDTO = getAppointmentDTO(auth);
+        ResponseEntity<AppointmentDTO> response = client.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+    }
+
+    @Test
     public void cancelAdminAppointmentAsAdmin() {
         String auth = loginAsAdmin();
-        AppointmentDTO toBeCancelled = confirmAppointmentWithOneWork(auth);
-        //AppointmentDTO cancelled = client.postWithAuthorizationHeader();
+        cancelAppointment(auth);
     }
 
     @Test
     public void cancelAdminAppointmentAsClient() {
-
+        String adminAuth = loginAsAdmin();
+        AppointmentDTO toBeCancelled = confirmAppointmentWithOneWork(adminAuth);
+        String clientAuth = loginAsClient();
+        ResponseEntity<AppointmentDTO> response = client.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, clientAuth, toBeCancelled, typeRef);
+        assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
     }
 
     @Test
     public void cancelClientAppointmentAsClient() {
+        String auth = loginAsClient();
+        cancelAppointment(auth);
+    }
 
+    private void cancelAppointment(String auth) {
+        AppointmentDTO toBeCancelled = confirmAppointmentWithOneWork(auth);
+        AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth, toBeCancelled, typeRef);
+        assertThat(cancelled, notNullValue());
+        assertThat(cancelled.getStatus(), is(1));
     }
 
     @Test
     public void cancelClientAppointmentAsAdmin() {
+        String clientAuth = loginAsClient();
+        AppointmentDTO toBeCancelled = confirmAppointmentWithOneWork(clientAuth);
+        String adminAuth = loginAsAdmin();
+        AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, adminAuth, toBeCancelled, typeRef);
+        assertThat(cancelled, notNullValue());
+        assertThat(cancelled.getStatus(), is(1));
+    }
 
+    @Test
+    public void cancelAppointmentWithLessThan24HoursAsClient() {
+        String auth = loginAsClient();
+        AppointmentDTO appointmentDTO = getAppointmentDTO(auth);
+        LocalDate today = LocalDate.now();
+        appointmentDTO.setDate(today.toString());
+        appointmentDTO = confirmAppointment(auth, appointmentDTO);
+        ResponseEntity<AppointmentDTO> response = client.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
+    }
+
+    @Test
+    public void cancelAppointmentWithLessThan24HoursAsAdmin() {
+        String auth = loginAsAdmin();
+        AppointmentDTO appointmentDTO = getAppointmentDTO(auth);
+        LocalDate today = LocalDate.now();
+        appointmentDTO.setDate(today.toString());
+        appointmentDTO = confirmAppointment(auth, appointmentDTO);
+        AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        assertThat(cancelled, notNullValue());
+        assertThat(cancelled.getStatus(), is(1));
     }
 }

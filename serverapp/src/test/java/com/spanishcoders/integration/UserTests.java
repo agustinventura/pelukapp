@@ -20,7 +20,7 @@ public class UserTests extends IntegrationTests {
 
     @Test
     public void loginWithWrongPassword() {
-        ResponseEntity<UserDTO> response = login("foo", "bar");
+        ResponseEntity<UserDTO> response = login(CLIENT_USERNAME + "s", CLIENT_PASSWORD);
     }
 
     @Test

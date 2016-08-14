@@ -185,11 +185,15 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             appointment.setStatus(AppointmentStatus.CANCELLED);
             return appointment;
         });
-        this.mockMvc.perform(put(APPOINTMENT_URL).accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        this.mockMvc.perform(put(APPOINTMENT_URL)
+                .content(toJSON(appointmentDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.*", hasSize(7)))
-                .andExpect(jsonPath("$.status", is("CANCELLED")));
+                .andExpect(jsonPath("$.status", is(1)));
     }
 
     @Test
@@ -204,11 +208,15 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             appointment.setStatus(AppointmentStatus.CANCELLED);
             return appointment;
         });
-        this.mockMvc.perform(put(APPOINTMENT_URL).accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        this.mockMvc.perform(put(APPOINTMENT_URL)
+                .content(toJSON(appointmentDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.*", hasSize(7)))
-                .andExpect(jsonPath("$.status", is("CANCELLED")));
+                .andExpect(jsonPath("$.status", is(1)));
     }
 
     @Test
@@ -219,7 +227,11 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             return appointment;
         });
         given(appointmentService.cancelAppointment(any(Authentication.class), any(Appointment.class))).willThrow(AccessDeniedException.class);
-        this.mockMvc.perform(put(APPOINTMENT_URL).accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        this.mockMvc.perform(put(APPOINTMENT_URL)
+                .content(toJSON(appointmentDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isUnauthorized());
     }
 
@@ -235,10 +247,14 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             appointment.setStatus(AppointmentStatus.CANCELLED);
             return appointment;
         });
-        this.mockMvc.perform(put(APPOINTMENT_URL).accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        this.mockMvc.perform(put(APPOINTMENT_URL)
+                .content(toJSON(appointmentDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.*", hasSize(7)))
-                .andExpect(jsonPath("$.status", is("CANCELLED")));
+                .andExpect(jsonPath("$.status", is(1)));
     }
 }

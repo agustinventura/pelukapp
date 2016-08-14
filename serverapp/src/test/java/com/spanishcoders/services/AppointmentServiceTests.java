@@ -177,6 +177,34 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
         appointmentService.cancelAppointment(authentication, appointment);
     }
 
+    @Test(expected = AccessDeniedException.class)
+    public void cancelAnotherClientAppointmentAsClient() throws Exception {
+        Authentication authentication = mock(Authentication.class);
+        Collection<GrantedAuthority> clientAuthority = Sets.newHashSet(Role.CLIENT.getGrantedAuthority());
+        given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
+        Appointment appointment = mock(Appointment.class);
+        given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(25));
+        appointmentService.cancelAppointment(authentication, appointment);
+    }
+
+    @Test
+    public void cancelAnotherClientAppointmentAsWorker() throws Exception {
+        Authentication authentication = mock(Authentication.class);
+        Collection<GrantedAuthority> workerAuthority = Sets.newHashSet(Role.WORKER.getGrantedAuthority());
+        given(authentication.getAuthorities()).willAnswer(invocation -> workerAuthority);
+        Appointment appointment = mock(Appointment.class);
+        given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(25));
+        given(appointmentRepository.save(any(Appointment.class))).will(invocation -> {
+            Appointment requestedAppointment = (Appointment) invocation.getArguments()[0];
+            requestedAppointment.setStatus(AppointmentStatus.CANCELLED);
+            return requestedAppointment;
+        });
+        appointment = appointmentService.cancelAppointment(authentication, appointment);
+
+        given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
+        assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
+    }
+
     @Test
     public void cancelAppointmentWithMoreThan24HoursAsClient() throws Exception {
         Authentication authentication = mock(Authentication.class);
@@ -189,6 +217,9 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
             requestedAppointment.setStatus(AppointmentStatus.CANCELLED);
             return requestedAppointment;
         });
+        User user = mock(User.class);
+        given(userRepository.findByUsername(any(String.class))).willReturn(user);
+        given(appointment.getUser()).willReturn(user);
         appointment = appointmentService.cancelAppointment(authentication, appointment);
 
         given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);

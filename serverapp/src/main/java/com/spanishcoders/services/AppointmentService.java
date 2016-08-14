@@ -55,6 +55,13 @@ public class AppointmentService {
                 throw new AccessDeniedException("To cancel an Appointment in less than 24 hours, User needs to be Worker");
             }
         }
+        User requestUser = authentication != null ? userRepository.findByUsername(authentication.getName()) : null;
+        if (!requestUser.equals(appointment.getUser())) {
+            Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication.getAuthorities();
+            if (!userAuthorities.stream().anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
+                throw new AccessDeniedException("To cancel another User Appointments, User needs to be Worker");
+            }
+        }
         appointment.setBlocks(refreshBlocks(appointment.getBlocks()));
         appointment.cancel();
         return appointmentRepository.save(appointment);

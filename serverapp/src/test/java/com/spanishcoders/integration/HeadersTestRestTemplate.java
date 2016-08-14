@@ -44,11 +44,21 @@ public class HeadersTestRestTemplate<T> {
         return response;
     }
 
+    public ResponseEntity<T> putResponseEntityWithAuthorizationHeader(String url, String authHeader, T requestEntity, ParameterizedTypeReference<T> typeReference) {
+        HttpEntity<T> request = getHeaders(authHeader, requestEntity);
+        ResponseEntity<T> response = restTemplate.exchange(url, HttpMethod.PUT, request, typeReference);
+        return response;
+    }
+
     public T getWithAuthorizationHeader(String url, String authHeader, ParameterizedTypeReference<T> typeReference) {
         return getResponseEntityWithAuthorizationHeader(url, authHeader, typeReference).getBody();
     }
 
     public T postWithAuthorizationHeader(String url, String authHeader, T requestEntity, ParameterizedTypeReference<T> typeReference) {
         return postResponseEntityWithAuthorizationHeader(url, authHeader, requestEntity, typeReference).getBody();
+    }
+
+    public T putWithAuthorizationHeader(String url, String authHeader, T requestEntity, ParameterizedTypeReference<T> typeReference) {
+        return putResponseEntityWithAuthorizationHeader(url, authHeader, requestEntity, typeReference).getBody();
     }
 }
