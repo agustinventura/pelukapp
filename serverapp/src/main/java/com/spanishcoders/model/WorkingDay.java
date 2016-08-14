@@ -1,6 +1,5 @@
 package com.spanishcoders.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.google.common.collect.Sets;
 
 import javax.persistence.*;
@@ -28,7 +27,6 @@ public class WorkingDay implements Comparable<WorkingDay> {
 
     @OneToMany(mappedBy = "workingDay", cascade = CascadeType.ALL)
     @OrderBy("start asc")
-    @JsonManagedReference
     private SortedSet<Block> blocks;
 
     public WorkingDay() {

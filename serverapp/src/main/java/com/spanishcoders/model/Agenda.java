@@ -1,6 +1,5 @@
 package com.spanishcoders.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.google.common.collect.Sets;
 import com.spanishcoders.model.exceptions.TimeTableNotFoundException;
 import org.hibernate.validator.constraints.NotEmpty;
@@ -25,7 +24,6 @@ public class Agenda {
 
     @NotNull
     @OneToOne
-    @JsonBackReference
     private Hairdresser hairdresser;
 
     @OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL)

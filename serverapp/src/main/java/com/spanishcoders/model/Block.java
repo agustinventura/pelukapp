@@ -1,7 +1,5 @@
 package com.spanishcoders.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -31,11 +29,9 @@ public class Block implements Comparable<Block> {
 
     @NotNull
     @ManyToOne
-    @JsonBackReference
     private WorkingDay workingDay;
 
     @ManyToOne
-    @JsonBackReference
     private Appointment appointment;
 
     public Block() {

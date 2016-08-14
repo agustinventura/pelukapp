@@ -1,6 +1,5 @@
 package com.spanishcoders.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.common.collect.Sets;
 
 import javax.persistence.*;
@@ -37,7 +36,6 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     @OrderBy(value = "date asc")
-    @JsonIgnore
     private Set<Appointment> appointments;
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

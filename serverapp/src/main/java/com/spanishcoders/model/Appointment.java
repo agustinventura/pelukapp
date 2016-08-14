@@ -1,6 +1,5 @@
 package com.spanishcoders.model;
 
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.google.common.collect.Sets;
 import org.hibernate.validator.constraints.NotEmpty;
 import org.springframework.security.access.AccessDeniedException;
@@ -31,7 +30,6 @@ public class Appointment implements Comparable<Appointment> {
 
     @NotNull
     @OneToMany(mappedBy = "appointment", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH}, fetch = FetchType.EAGER)
-    @JsonManagedReference
     private Set<Block> blocks;
 
     @NotEmpty
