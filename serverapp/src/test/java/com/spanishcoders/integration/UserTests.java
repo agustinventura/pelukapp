@@ -20,7 +20,14 @@ public class UserTests extends IntegrationTests {
 
     @Test
     public void loginWithWrongPassword() {
+        ResponseEntity<UserDTO> response = login(CLIENT_USERNAME, CLIENT_PASSWORD + "s");
+        assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
+    }
+
+    @Test
+    public void loginWithWrongUsername() {
         ResponseEntity<UserDTO> response = login(CLIENT_USERNAME + "s", CLIENT_PASSWORD);
+        assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
     }
 
     @Test
