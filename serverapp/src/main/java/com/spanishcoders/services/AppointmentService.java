@@ -1,5 +1,6 @@
 package com.spanishcoders.services;
 
+import com.google.common.collect.Sets;
 import com.spanishcoders.model.*;
 import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.repositories.AppointmentRepository;
@@ -49,12 +50,14 @@ public class AppointmentService {
     }
 
     public Appointment cancelAppointment(Authentication authentication, Appointment appointment) {
-        if (appointment.getDate().isBefore(LocalDateTime.now().plusHours(24))) {
-            Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication.getAuthorities();
-            if (!userAuthorities.stream().anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
-                throw new AccessDeniedException("To cancel an Appointment in less than 24 hours, User needs to be Worker");
-            }
-        }
+        checkUserRole(authentication, appointment);
+        checkIfUserIsProprietaryOrAdmin(authentication, appointment);
+        appointment.setBlocks(refreshBlocks(appointment.getBlocks()));
+        appointment.cancel();
+        return appointmentRepository.save(appointment);
+    }
+
+    private void checkIfUserIsProprietaryOrAdmin(Authentication authentication, Appointment appointment) {
         User requestUser = authentication != null ? userRepository.findByUsername(authentication.getName()) : null;
         if (!requestUser.equals(appointment.getUser())) {
             Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication.getAuthorities();
@@ -62,9 +65,15 @@ public class AppointmentService {
                 throw new AccessDeniedException("To cancel another User Appointments, User needs to be Worker");
             }
         }
-        appointment.setBlocks(refreshBlocks(appointment.getBlocks()));
-        appointment.cancel();
-        return appointmentRepository.save(appointment);
+    }
+
+    private void checkUserRole(Authentication authentication, Appointment appointment) {
+        if (appointment.getDate().isBefore(LocalDateTime.now().plusHours(24))) {
+            Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication.getAuthorities();
+            if (!userAuthorities.stream().anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
+                throw new AccessDeniedException("To cancel an Appointment in less than 24 hours, User needs to be Worker");
+            }
+        }
     }
 
     private Set<Block> refreshBlocks(Set<Block> requestedBlocks) {
@@ -81,5 +90,13 @@ public class AppointmentService {
             appointment = Optional.ofNullable(appointmentRepository.findOne(appointmentId));
         }
         return appointment;
+    }
+
+    public Set<Appointment> getNextAppointments(User user) {
+        Set<Appointment> nextAppointments = Sets.newHashSet();
+        if (user != null) {
+            nextAppointments = appointmentRepository.getNextAppointments(user, AppointmentStatus.VALID);
+        }
+        return nextAppointments;
     }
 }

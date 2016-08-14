@@ -5,7 +5,6 @@ import com.spanishcoders.PelukaapUnitTest;
 import com.spanishcoders.model.Appointment;
 import com.spanishcoders.model.User;
 import com.spanishcoders.services.UserService;
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -29,11 +28,6 @@ public class UserControllerTests extends PelukaapUnitTest {
 
     @Autowired
     private MockMvc mockMvc;
-
-    @Before
-    public void setUp() {
-
-    }
 
     @Test
     @WithMockUser(username = "client", roles = {"USER", "CLIENT"})

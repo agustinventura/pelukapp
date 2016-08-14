@@ -20,10 +20,12 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collection;
 import java.util.Set;
+import java.util.SortedSet;
 
+import static org.hamcrest.CoreMatchers.hasItem;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
+import static org.hamcrest.core.IsNot.not;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -220,10 +222,29 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
         User user = mock(User.class);
         given(userRepository.findByUsername(any(String.class))).willReturn(user);
         given(appointment.getUser()).willReturn(user);
-        appointment = appointmentService.cancelAppointment(authentication, appointment);
-
         given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
+        appointment = appointmentService.cancelAppointment(authentication, appointment);
         assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
     }
 
+    @Test
+    public void getNextAppointmentsForExistingUser() {
+        User user = mock(User.class);
+        Appointment appointment = mock(Appointment.class);
+        SortedSet<Appointment> appointments = Sets.newTreeSet();
+        appointments.add(appointment);
+        given(appointmentRepository.getNextAppointments(any(User.class), any(AppointmentStatus.class))).willReturn(appointments);
+        Set<Appointment> nextAppointments = appointmentService.getNextAppointments(user);
+        assertThat(nextAppointments, not(empty()));
+        assertThat(nextAppointments, hasItem(appointment));
+    }
+
+    @Test
+    public void getNextAppointmentsForNonExistingUser() {
+        User user = mock(User.class);
+        SortedSet<Appointment> appointments = Sets.newTreeSet();
+        given(appointmentRepository.getNextAppointments(any(User.class), any(AppointmentStatus.class))).willReturn(appointments);
+        Set<Appointment> nextAppointments = appointmentService.getNextAppointments(user);
+        assertThat(nextAppointments, is(empty()));
+    }
 }

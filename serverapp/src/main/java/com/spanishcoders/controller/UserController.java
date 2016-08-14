@@ -1,9 +1,7 @@
 package com.spanishcoders.controller;
 
-import com.spanishcoders.model.Appointment;
 import com.spanishcoders.model.Client;
-import com.spanishcoders.model.Hairdresser;
-import com.spanishcoders.model.Role;
+import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.model.dto.UserDTO;
 import com.spanishcoders.services.UserService;
 import org.springframework.http.MediaType;
@@ -12,6 +10,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Created by agustin on 21/06/16.
@@ -28,12 +27,8 @@ public class UserController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "appointments/next", method = RequestMethod.GET)
-    public Set<Appointment> getNextAppointments(Authentication authentication) {
-        Set<Appointment> nextAppointments = userService.getNextAppointments(authentication);
-        //TODO: This is a workaround for a lazy loading exception, we need to find a better solution
-        if (authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
-            nextAppointments.forEach(appointment -> ((Hairdresser) appointment.getUser()).setAgenda(null));
-        }
+    public Set<AppointmentDTO> getNextAppointments(Authentication authentication) {
+        Set<AppointmentDTO> nextAppointments = userService.getNextAppointments(authentication).stream().map(appointment -> new AppointmentDTO(appointment)).collect(Collectors.toSet());
         return nextAppointments;
     }
 

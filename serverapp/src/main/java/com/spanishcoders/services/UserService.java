@@ -1,6 +1,5 @@
 package com.spanishcoders.services;
 
-import com.google.common.collect.Sets;
 import com.spanishcoders.model.*;
 import com.spanishcoders.repositories.UserRepository;
 import org.springframework.security.access.AccessDeniedException;
@@ -22,10 +21,12 @@ public class UserService {
 
     private UserRepository userRepository;
     private PasswordEncoder passwordEncoder;
+    private AppointmentService appointmentService;
 
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder, AppointmentService appointmentService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.appointmentService = appointmentService;
     }
 
     public Set<Appointment> getNextAppointments(Authentication authentication) {
@@ -37,7 +38,7 @@ public class UserService {
         if (user == null) {
             throw new AccessDeniedException("User " + authentication.getName() + " does not exists");
         } else {
-            appointments = Sets.newTreeSet(user.getAppointments());
+            appointments = appointmentService.getNextAppointments(user);
         }
         return appointments;
     }

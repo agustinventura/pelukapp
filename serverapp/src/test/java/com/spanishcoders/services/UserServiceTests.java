@@ -11,7 +11,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Set;
 
@@ -25,12 +25,17 @@ public class UserServiceTests extends PelukaapUnitTest {
     @MockBean
     private UserRepository userRepository;
 
+    @MockBean
+    private AppointmentService appointmentService;
+
+    @MockBean
+    private PasswordEncoder passwordEncoder;
+
     private UserService userService;
 
     @Before
     public void setUp() {
-        //TODO check password encoder (I have no idea what I am doing)
-        userService = new UserService(userRepository, new BCryptPasswordEncoder());
+        userService = new UserService(userRepository, passwordEncoder, appointmentService);
     }
 
     @Test(expected = AccessDeniedException.class)
@@ -61,7 +66,7 @@ public class UserServiceTests extends PelukaapUnitTest {
         User user = Mockito.mock(User.class);
         Appointment mockAppointment = Mockito.mock(Appointment.class);
         Set<Appointment> userAppointments = Sets.newHashSet(mockAppointment);
-        given(user.getAppointments()).willReturn(userAppointments);
+        given(appointmentService.getNextAppointments(any(User.class))).willReturn(userAppointments);
         given(userRepository.findByUsername(any(String.class))).willReturn(user);
         Set<Appointment> appointments = userService.getNextAppointments(authentication);
         assertThat(appointments, is(userAppointments));

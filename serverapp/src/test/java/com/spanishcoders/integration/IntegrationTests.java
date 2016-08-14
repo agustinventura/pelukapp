@@ -20,7 +20,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
  * Created by agustin on 8/08/16.
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("integration")
 public abstract class IntegrationTests {
 
@@ -37,30 +37,14 @@ public abstract class IntegrationTests {
 
     protected IntegrationDataFactory integrationDataFactory;
 
-    public String loginAsClient() {
+    protected String loginAsClient() {
         ResponseEntity<UserDTO> response = login(CLIENT_USERNAME, CLIENT_PASSWORD);
         String authToken = getAuthHeader(response);
         return authToken;
     }
 
-    private String getAuthHeader(ResponseEntity<UserDTO> response) {
-        assertThat(response.getStatusCode(), is(HttpStatus.OK));
-        HttpHeaders headers = response.getHeaders();
-        assertThat(headers, notNullValue());
-        assertThat(headers.containsKey(AUTH_HEADER), is(true));
-        String authToken = headers.get(AUTH_HEADER).get(0);
-        assertThat(authToken, notNullValue());
-        return authToken;
-    }
-
-    public String loginAsAdmin() {
+    protected String loginAsAdmin() {
         ResponseEntity<UserDTO> response = login(ADMIN_USERNAME, ADMIN_PASSWORD);
-        String authToken = getAuthHeader(response);
-        return authToken;
-    }
-
-    public String loginAs(String loginJson) {
-        ResponseEntity<UserDTO> response = login(loginJson, loginJson);
         String authToken = getAuthHeader(response);
         return authToken;
     }
@@ -74,14 +58,13 @@ public abstract class IntegrationTests {
         return response;
     }
 
-    protected ResponseEntity<UserDTO> register(String username, String password, String phone, String name) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(username);
-        userDTO.setPassword(password);
-        userDTO.setName(name);
-        userDTO.setPhone(phone);
-        HttpEntity<UserDTO> request = new HttpEntity<>(userDTO);
-        ResponseEntity<UserDTO> response = testRestTemplate.postForEntity(REGISTER_URL, request, UserDTO.class);
-        return response;
+    private String getAuthHeader(ResponseEntity<UserDTO> response) {
+        assertThat(response.getStatusCode(), is(HttpStatus.OK));
+        HttpHeaders headers = response.getHeaders();
+        assertThat(headers, notNullValue());
+        assertThat(headers.containsKey(AUTH_HEADER), is(true));
+        String authToken = headers.get(AUTH_HEADER).get(0);
+        assertThat(authToken, notNullValue());
+        return authToken;
     }
 }

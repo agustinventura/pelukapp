@@ -38,7 +38,7 @@ public class DevelopmentDataBaseConfiguration {
         vendorAdapter.setDatabase(Database.H2);
         vendorAdapter.setDatabasePlatform("org.hibernate.dialect.H2Dialect");
         vendorAdapter.setGenerateDdl(true);
-        vendorAdapter.setShowSql(true);
+        vendorAdapter.setShowSql(false);
         LocalContainerEntityManagerFactoryBean factory = new LocalContainerEntityManagerFactoryBean();
         factory.setJpaProperties(getHibernateProperties());
         factory.setJpaVendorAdapter(vendorAdapter);

@@ -61,7 +61,7 @@ public class HairdresserController {
         return availableBlocks;
     }
 
-    public Set<BlockDTO> getBlockDTOs(Set<Block> blocks) {
+    private Set<BlockDTO> getBlockDTOs(Set<Block> blocks) {
         Set<BlockDTO> blockDTOs = Sets.newTreeSet();
         blocks.stream().forEach(block -> blockDTOs.add(new BlockDTO(block)));
         return blockDTOs;

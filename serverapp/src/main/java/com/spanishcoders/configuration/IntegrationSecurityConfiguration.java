@@ -35,7 +35,7 @@ public class IntegrationSecurityConfiguration extends WebSecurityConfigurerAdapt
     @Override
     protected void configure(HttpSecurity http) throws Exception {
         //Enable for access to h2-console
-        //http.headers().frameOptions().disable();
+        http.headers().frameOptions().disable();
         http
                 .csrf().disable()
                 .authorizeRequests()
@@ -44,7 +44,7 @@ public class IntegrationSecurityConfiguration extends WebSecurityConfigurerAdapt
                 .antMatchers("/favicon.ico").permitAll()
 
                 //Enable for access to h2-console
-                //.antMatchers("/h2-console/**").permitAll()
+                .antMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated().and()
 
                 // custom JSON based authentication by POST of {"username":"<name>","password":"<password>"} which sets the token header upon authentication
