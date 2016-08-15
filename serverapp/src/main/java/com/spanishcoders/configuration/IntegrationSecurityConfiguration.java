@@ -45,6 +45,10 @@ public class IntegrationSecurityConfiguration extends WebSecurityConfigurerAdapt
 
                 //Enable for access to h2-console
                 .antMatchers("/h2-console/**").permitAll()
+                .antMatchers("/v2/api-docs/**").permitAll()
+                .antMatchers("/swagger-resources/**").permitAll()
+                .antMatchers("/swagger-ui.html").permitAll()
+                .antMatchers("/webjars/**").permitAll()
                 .anyRequest().authenticated().and()
 
                 // custom JSON based authentication by POST of {"username":"<name>","password":"<password>"} which sets the token header upon authentication
