@@ -61,8 +61,8 @@ public class WorkingDayService {
     public Set<Block> getTodaysBlocks(Agenda agenda) {
         Set<Block> availableBlocks = Sets.newTreeSet();
         WorkingDay todayWorkingDay = null;
-
-        if (agenda.getWorkingDays().containsKey(LocalDate.now())) {
+        LocalDate today = LocalDate.now();
+        if (agenda.getWorkingDays().containsKey(today)) {
             todayWorkingDay = agenda.getWorkingDays().get(LocalDate.now());
         } else {
             todayWorkingDay = new WorkingDay(agenda);

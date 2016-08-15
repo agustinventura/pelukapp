@@ -24,6 +24,7 @@ import static org.hamcrest.core.IsNot.not;
 public class HairdresserTests extends IntegrationTests {
 
     public static final String FREE_BLOCKS_URL = "/hairdresser/blocks/free/";
+    public static final String TODAYS_BLOCKS_URL = "/hairdresser/schedule/today";
 
     private HeadersTestRestTemplate<List<HairdresserAvailableBlocks>> client;
     private ParameterizedTypeReference<List<HairdresserAvailableBlocks>> typeRef = new ParameterizedTypeReference<List<HairdresserAvailableBlocks>>() {
@@ -69,5 +70,12 @@ public class HairdresserTests extends IntegrationTests {
         assertThat(hairdresser, notNullValue());
         Set<BlockDTO> freeBlocks = hairdresserAvailableBlocks.getAvailableBlocks();
         assertThat(freeBlocks.size(), is(10));
+    }
+
+    @Test
+    public void getTodaysBlocks() {
+        String authHeader = loginAsAdmin();
+        List<HairdresserAvailableBlocks> todaysBlocks = client.getWithAuthorizationHeader(TODAYS_BLOCKS_URL, authHeader, typeRef);
+        List<HairdresserAvailableBlocks> todaysBlocksAgain = client.getWithAuthorizationHeader(TODAYS_BLOCKS_URL, authHeader, typeRef);
     }
 }
