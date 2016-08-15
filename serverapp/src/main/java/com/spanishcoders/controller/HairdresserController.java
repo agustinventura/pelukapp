@@ -50,6 +50,15 @@ public class HairdresserController {
         return toDTOs(freeBlocks);
     }
 
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "schedule/today", method = RequestMethod.GET)
+    public List<HairdresserAvailableBlocks> getScheduleForTheDay(Authentication authentication) {
+
+        Map<Hairdresser, Set<Block>> todaysBlocks = hairdresserService.getTodaysBlocksByHairdresser();
+
+        return toDTOs(todaysBlocks);
+    }
+
     private List<HairdresserAvailableBlocks> toDTOs(Map<Hairdresser, Set<Block>> freeBlocks) {
         List<HairdresserAvailableBlocks> availableBlocks = new ArrayList<>(freeBlocks.keySet().size());
         for (Map.Entry<Hairdresser, Set<Block>> entry : freeBlocks.entrySet()) {

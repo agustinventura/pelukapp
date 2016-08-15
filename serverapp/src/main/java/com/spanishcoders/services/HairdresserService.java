@@ -33,6 +33,10 @@ public class HairdresserService {
         return availableBlocks;
     }
 
+    public Map<Hairdresser, Set<Block>> getTodaysBlocksByHairdresser() {
+        return populateTodaysBlocks();
+    }
+
     private Map<Hairdresser, Set<Block>> populateAvailableBlocks(Set<Work> works) {
         Map<Hairdresser, Set<Block>> availableBlocks = Maps.newHashMap();
         Set<Hairdresser> hairdressers = hairdresserRepository.findByStatus(UserStatus.ACTIVE);
@@ -40,6 +44,17 @@ public class HairdresserService {
             Set<Block> hairdresserAvailableBlocks = agendaService.getFirstTenAvailableBlocks(hairdresser.getAgenda(), works);
             hairdresser.getAppointments().size();
             availableBlocks.put(hairdresser, hairdresserAvailableBlocks);
+        }
+        return availableBlocks;
+    }
+
+    private Map<Hairdresser, Set<Block>> populateTodaysBlocks() {
+        Map<Hairdresser, Set<Block>> availableBlocks = Maps.newHashMap();
+        Set<Hairdresser> hairdressers = hairdresserRepository.findByStatus(UserStatus.ACTIVE);
+        for (Hairdresser hairdresser : hairdressers) {
+            Set<Block> hairdresserBlocks = agendaService.getTodaysBlocks(hairdresser.getAgenda());
+            hairdresser.getAppointments().size();
+            availableBlocks.put(hairdresser, hairdresserBlocks);
         }
         return availableBlocks;
     }

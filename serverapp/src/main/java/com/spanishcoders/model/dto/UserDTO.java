@@ -27,7 +27,7 @@ public class UserDTO {
         this.setId(user.getId());
         this.setName(user.getName());
         this.setUsername(user.getUsername());
-        this.setPassword(user.getPassword());
+        // we don't set the password here
         this.setPhone(user.getPhone());
         this.setStatus(user.getStatus().ordinal());
         user.getAppointments().stream().forEach(appointment -> this.getAppointments().add(appointment.getId()));

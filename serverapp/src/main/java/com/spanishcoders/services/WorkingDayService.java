@@ -56,4 +56,18 @@ public class WorkingDayService {
         }
         return availableBlocks;
     }
+
+    public Set<Block> getTodaysBlocks(Agenda agenda) {
+        Set<Block> availableBlocks = Sets.newTreeSet();
+        WorkingDay todayWorkingDay = workingDayRepository.getTodaysWorkingDay(agenda);
+
+        if (todayWorkingDay == null) {
+            todayWorkingDay = new WorkingDay(agenda);
+            todayWorkingDay = this.save(todayWorkingDay);
+        }
+
+        availableBlocks.addAll(todayWorkingDay.getBlocks());
+
+        return availableBlocks;
+    }
 }

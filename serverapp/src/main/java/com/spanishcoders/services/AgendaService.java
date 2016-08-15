@@ -33,4 +33,12 @@ public class AgendaService {
         }
         return availableBlocks;
     }
+
+    public Set<Block> getTodaysBlocks(Agenda agenda) {
+        Set<Block> availableBlocks = Sets.newTreeSet();
+        if (agenda != null) {
+            availableBlocks.addAll(workingDayService.getTodaysBlocks(agenda));
+        }
+        return availableBlocks;
+    }
 }
