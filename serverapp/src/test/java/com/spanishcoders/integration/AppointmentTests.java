@@ -152,7 +152,7 @@ public class AppointmentTests extends IntegrationTests {
     }
 
     @Test
-    public void cancelAppointmentWithLessThan24HoursAsClient() {
+    public void cancelAppointmentWithPeriodExpiredAsClient() {
         String auth = loginAsClient();
         AppointmentDTO appointmentDTO = this.getAppointmentForToday(auth);
         appointmentDTO = confirmAppointment(auth, appointmentDTO);
@@ -161,7 +161,7 @@ public class AppointmentTests extends IntegrationTests {
     }
 
     @Test
-    public void cancelAppointmentWithLessThan24HoursAsAdmin() {
+    public void cancelAppointmentWithPeriodExpiredAsAdmin() {
         String auth = loginAsAdmin();
         AppointmentDTO appointmentDTO = this.getAppointmentForToday(auth);
         appointmentDTO = confirmAppointment(auth, appointmentDTO);
@@ -176,7 +176,7 @@ public class AppointmentTests extends IntegrationTests {
 
     private void getAppointmentWithManyWorks(String auth) {
         Set<Work> works = integrationDataFactory.getWorks(auth);
-        Set<BlockDTO> blocks = integrationDataFactory.getBlocks(auth, works).stream().limit(works.size()).collect(Collectors.toSet());
+        Set<BlockDTO> blocks = integrationDataFactory.getBlocks(auth, works).stream().skip(5).limit(works.size()).collect(Collectors.toSet());
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().addAll(works.stream().map(work -> work.getId()).collect(Collectors.toSet()));
         appointmentDTO.getBlocks().addAll(blocks.stream().map(blockDTO -> blockDTO.getId()).collect(Collectors.toSet()));
@@ -208,7 +208,6 @@ public class AppointmentTests extends IntegrationTests {
         appointmentDTO.getWorks().add(work.getId());
         appointmentDTO.getBlocks().add(block.getId());
         LocalDate today = LocalDate.now();
-        appointmentDTO.setDate(today.toString());
         return appointmentDTO;
     }
 }

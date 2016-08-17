@@ -3,10 +3,7 @@ package com.spanishcoders.controller;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spanishcoders.PelukaapUnitTest;
-import com.spanishcoders.model.Appointment;
-import com.spanishcoders.model.AppointmentStatus;
-import com.spanishcoders.model.Block;
-import com.spanishcoders.model.Work;
+import com.spanishcoders.model.*;
 import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.services.AppointmentService;
 import com.spanishcoders.services.BlockService;
@@ -24,6 +21,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Set;
@@ -33,6 +31,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -127,6 +126,9 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             appointment.setBlocks(appointmentDTO.getBlocks().stream().map(blockId -> {
                 Block block = new Block();
                 block.setId(blockId);
+                WorkingDay workingDay = mock(WorkingDay.class);
+                given(workingDay.getDate()).willReturn(LocalDate.now());
+                block.setWorkingDay(workingDay);
                 return block;
             }).collect(Collectors.toSet()));
             appointment.setWorks(appointmentDTO.getWorks().stream().map(workId -> {

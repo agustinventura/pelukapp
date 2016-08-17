@@ -6,6 +6,7 @@ import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.repositories.AppointmentRepository;
 import com.spanishcoders.repositories.UserRepository;
 import io.jsonwebtoken.lang.Collections;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
@@ -31,6 +32,9 @@ public class AppointmentService {
     private WorkService workService;
 
     private UserRepository userRepository;
+
+    @Value("${max_hours_to_cancel_as_client:24}")
+    private int maxHoursToCancelAsClient;
 
     public AppointmentService(AppointmentRepository appointmentRepository, BlockService blockService, WorkService workService, UserRepository userRepository) {
         this.appointmentRepository = appointmentRepository;
@@ -68,7 +72,7 @@ public class AppointmentService {
     }
 
     private void checkUserRole(Authentication authentication, Appointment appointment) {
-        if (appointment.getDate().isBefore(LocalDateTime.now().plusHours(24))) {
+        if (appointment.getDate().isBefore(LocalDateTime.now().plusHours(maxHoursToCancelAsClient))) {
             Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication.getAuthorities();
             if (!userAuthorities.stream().anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
                 throw new AccessDeniedException("To cancel an Appointment in less than 24 hours, User needs to be Worker");

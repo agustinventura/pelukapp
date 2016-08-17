@@ -106,16 +106,8 @@ public class Appointment implements Comparable<Appointment> {
         return date;
     }
 
-    public void setDate(LocalDateTime date) {
-        this.date = date;
-    }
-
     public Duration getDuration() {
         return duration;
-    }
-
-    public void setDuration(Duration duration) {
-        this.duration = duration;
     }
 
     public AppointmentStatus getStatus() {

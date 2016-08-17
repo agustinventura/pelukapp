@@ -3,6 +3,8 @@ package com.spanishcoders.model.dto;
 import com.google.common.collect.Sets;
 import com.spanishcoders.model.Appointment;
 
+import java.time.Duration;
+import java.time.temporal.ChronoUnit;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -28,14 +30,14 @@ public class AppointmentDTO {
         this();
         this.id = appointment.getId();
         this.user = appointment.getUser() != null ? appointment.getUser().getId() : null;
-        this.date = appointment.getDate() != null ? appointment.getDate().toString() : null;
-        this.duration = appointment.getDuration() != null ? appointment.getDuration().toString() : null;
         this.status = appointment.getStatus() != null ? appointment.getStatus().ordinal() : null;
-        if (appointment.getBlocks() != null) {
+        if (appointment.getBlocks() != null && !appointment.getBlocks().isEmpty()) {
             this.blocks.addAll(appointment.getBlocks().stream().map(block -> block.getId()).collect(Collectors.toSet()));
+            this.date = appointment.getBlocks().stream().findFirst().get().getWorkingDay().getDate().toString();
         }
-        if (appointment.getWorks() != null) {
+        if (appointment.getWorks() != null && !appointment.getWorks().isEmpty()) {
             this.works.addAll(appointment.getWorks().stream().map(work -> work.getId()).collect(Collectors.toSet()));
+            this.duration = Duration.of(appointment.getWorks().stream().mapToInt(work -> work.getDuration()).sum(), ChronoUnit.MINUTES).toString();
         }
     }
 
@@ -75,16 +77,8 @@ public class AppointmentDTO {
         return date;
     }
 
-    public void setDate(String date) {
-        this.date = date;
-    }
-
     public String getDuration() {
         return duration;
-    }
-
-    public void setDuration(String duration) {
-        this.duration = duration;
     }
 
     public Integer getStatus() {

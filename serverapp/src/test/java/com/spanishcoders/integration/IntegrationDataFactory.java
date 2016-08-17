@@ -8,7 +8,6 @@ import com.spanishcoders.model.dto.HairdresserAvailableBlocks;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -54,12 +53,10 @@ public class IntegrationDataFactory {
         TreeSet<Work> works = (TreeSet<Work>) this.getWorks(auth);
         Work work = works.first();
         TreeSet<BlockDTO> blocks = (TreeSet<BlockDTO>) this.getBlocks(auth, works);
-        BlockDTO block = blocks.first();
+        BlockDTO block = blocks.last();
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(work.getId());
         appointmentDTO.getBlocks().add(block.getId());
-        LocalDate twoDaysFromNow = LocalDate.now().plusDays(2);
-        appointmentDTO.setDate(twoDaysFromNow.toString());
         HeadersTestRestTemplate<AppointmentDTO> appointmentsClient = new HeadersTestRestTemplate<>(testRestTemplate);
         ParameterizedTypeReference<AppointmentDTO> appointmentsTypeRef = new ParameterizedTypeReference<AppointmentDTO>() {
         };

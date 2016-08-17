@@ -38,13 +38,13 @@ public class AppointmentController {
     @RequestMapping(method = RequestMethod.PUT)
     public AppointmentDTO updateAppointment(Authentication authentication, @RequestBody AppointmentDTO appointment) {
         Optional<Appointment> maybeAppointment = appointmentService.get(appointment.getId());
-        AppointmentDTO cancelled = null;
+        Appointment cancelled = null;
         if (maybeAppointment.isPresent()) {
-            cancelled = new AppointmentDTO(appointmentService.cancelAppointment(authentication, maybeAppointment.get()));
+            cancelled = appointmentService.cancelAppointment(authentication, maybeAppointment.get());
         } else {
             throw new IllegalArgumentException("There's no Appointment which matches " + appointment);
         }
-        return cancelled;
+        return new AppointmentDTO(cancelled);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
