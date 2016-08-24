@@ -77,8 +77,8 @@ public class ProductionDataBaseConfiguration {
     @Bean
     public Properties getHibernateProperties() {
         Properties hibernateProperties = new Properties();
-        hibernateProperties.setProperty("hibernate.show_sql", "false");
-        hibernateProperties.setProperty("hibernate.format_sql", "false");
+        hibernateProperties.setProperty("hibernate.show_sql", "true");
+        hibernateProperties.setProperty("hibernate.format_sql", "true");
         hibernateProperties
                 .setProperty("hibernate.hbm2ddl.auto", "create-drop");
         return hibernateProperties;
