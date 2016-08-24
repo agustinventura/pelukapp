@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupp
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 @Configuration
-@Profile(value = {"development", "integration"})
+@Profile(value = {"development", "integration", "production"})
 public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     @Override
@@ -22,9 +22,6 @@ public class WebMvcConfiguration extends WebMvcConfigurationSupport {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        /**
-         * Setup Swagger UI
-         */
         registry.addResourceHandler("swagger-ui.html")
                 .addResourceLocations("classpath:/META-INF/resources/");
         registry.addResourceHandler("/webjars/**")
