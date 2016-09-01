@@ -20,7 +20,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
  * Created by agustin on 8/08/16.
  */
 @RunWith(SpringRunner.class)
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.DEFINED_PORT)
 @ActiveProfiles("integration")
 public abstract class IntegrationTests {
 

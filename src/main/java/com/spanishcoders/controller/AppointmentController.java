@@ -17,7 +17,7 @@ import java.util.Optional;
  * Created by agustin on 21/06/16.
  */
 @RestController
-@RequestMapping(value = "/appointment", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/appointment", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class AppointmentController {
 
     private AppointmentService appointmentService;
@@ -28,7 +28,7 @@ public class AppointmentController {
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+    @RequestMapping(method = RequestMethod.POST)
     public AppointmentDTO createAppointment(Authentication authentication, @RequestBody AppointmentDTO appointment) {
         Appointment confirmed = appointmentService.confirmAppointment(authentication, appointment);
         return new AppointmentDTO(confirmed);
@@ -36,7 +36,7 @@ public class AppointmentController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(method = RequestMethod.PUT)
-    public AppointmentDTO updateAppointment(Authentication authentication, @RequestBody AppointmentDTO appointment) {
+    public AppointmentDTO cancelAppointment(Authentication authentication, @RequestBody AppointmentDTO appointment) {
         Optional<Appointment> maybeAppointment = appointmentService.get(appointment.getId());
         Appointment cancelled = null;
         if (maybeAppointment.isPresent()) {
@@ -48,12 +48,12 @@ public class AppointmentController {
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity illegalArgumentExceptionHandler() {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    public ResponseEntity illegalArgumentExceptionHandler(Exception ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity accessDeniedExceptionExceptionHandler() {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+    public ResponseEntity accessDeniedExceptionExceptionHandler(Exception ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 }

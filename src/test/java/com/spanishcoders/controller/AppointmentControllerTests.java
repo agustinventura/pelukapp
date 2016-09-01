@@ -96,11 +96,6 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
                 .andExpect(jsonPath("$.works", hasSize(1)));
     }
 
-    private String toJSON(AppointmentDTO appointmentDTO) throws JsonProcessingException {
-        ObjectMapper objectMapper = new ObjectMapper();
-        return objectMapper.writeValueAsString(appointmentDTO);
-    }
-
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithTwoWorks() throws Exception {
@@ -117,27 +112,6 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
                 .andExpect(jsonPath("$.*", hasSize(7)))
                 .andExpect(jsonPath("$.blocks", hasSize(2)))
                 .andExpect(jsonPath("$.works", hasSize(2)));
-    }
-
-    private void answerAppointmentFromDTO() {
-        given(appointmentService.confirmAppointment(any(Authentication.class), any(AppointmentDTO.class))).willAnswer(invocation -> {
-            AppointmentDTO appointmentDTO = (AppointmentDTO) invocation.getArguments()[1];
-            Appointment appointment = new Appointment();
-            appointment.setBlocks(appointmentDTO.getBlocks().stream().map(blockId -> {
-                Block block = new Block();
-                block.setId(blockId);
-                WorkingDay workingDay = mock(WorkingDay.class);
-                given(workingDay.getDate()).willReturn(LocalDate.now());
-                block.setWorkingDay(workingDay);
-                return block;
-            }).collect(Collectors.toSet()));
-            appointment.setWorks(appointmentDTO.getWorks().stream().map(workId -> {
-                Work work = new Work();
-                work.setId(workId);
-                return work;
-            }).collect(Collectors.toSet()));
-            return appointment;
-        });
     }
 
     @Test
@@ -171,7 +145,11 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             Optional<Appointment> appointment = Optional.empty();
             return appointment;
         });
-        this.mockMvc.perform(put(APPOINTMENT_URL).accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+        AppointmentDTO appointmentDTO = new AppointmentDTO();
+        this.mockMvc.perform(put(APPOINTMENT_URL)
+                .content(toJSON(appointmentDTO))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isBadRequest());
     }
 
@@ -258,5 +236,31 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.*", hasSize(7)))
                 .andExpect(jsonPath("$.status", is(1)));
+    }
+
+    private String toJSON(AppointmentDTO appointmentDTO) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(appointmentDTO);
+    }
+
+    private void answerAppointmentFromDTO() {
+        given(appointmentService.confirmAppointment(any(Authentication.class), any(AppointmentDTO.class))).willAnswer(invocation -> {
+            AppointmentDTO appointmentDTO = (AppointmentDTO) invocation.getArguments()[1];
+            Appointment appointment = new Appointment();
+            appointment.setBlocks(appointmentDTO.getBlocks().stream().map(blockId -> {
+                Block block = new Block();
+                block.setId(blockId);
+                WorkingDay workingDay = mock(WorkingDay.class);
+                given(workingDay.getDate()).willReturn(LocalDate.now());
+                block.setWorkingDay(workingDay);
+                return block;
+            }).collect(Collectors.toSet()));
+            appointment.setWorks(appointmentDTO.getWorks().stream().map(workId -> {
+                Work work = new Work();
+                work.setId(workId);
+                return work;
+            }).collect(Collectors.toSet()));
+            return appointment;
+        });
     }
 }

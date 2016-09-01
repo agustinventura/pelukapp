@@ -1,5 +1,7 @@
 package com.spanishcoders.integration;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spanishcoders.model.Work;
 import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.model.dto.BlockDTO;
@@ -28,10 +30,14 @@ public class AppointmentTests extends IntegrationTests {
     private HeadersTestRestTemplate<AppointmentDTO> client;
     private ParameterizedTypeReference<AppointmentDTO> typeRef = new ParameterizedTypeReference<AppointmentDTO>() {
     };
+    private HeadersTestRestTemplate<String> errorClient;
+    private ParameterizedTypeReference<String> errorTypeRef = new ParameterizedTypeReference<String>() {
+    };
 
     @Before
     public void setUp() {
         client = new HeadersTestRestTemplate<>(testRestTemplate);
+        errorClient = new HeadersTestRestTemplate<>(testRestTemplate);
         integrationDataFactory = new IntegrationDataFactory(testRestTemplate);
     }
 
@@ -42,49 +48,54 @@ public class AppointmentTests extends IntegrationTests {
     }
 
     @Test
-    public void getAppointmentWithInvalidWork() {
+    public void getAppointmentWithInvalidWork() throws JsonProcessingException {
         String auth = loginAsClient();
         TreeSet<Work> works = (TreeSet<Work>) integrationDataFactory.getWorks(auth);
         Work work = works.last();
         work.setId(work.getId() + 1);
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().addAll(works.stream().map(workId -> workId.getId()).collect(Collectors.toSet()));
-        ResponseEntity<AppointmentDTO> response = client.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        ResponseEntity<String> response = errorClient.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, toJSON(appointmentDTO), errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
 
     @Test
-    public void getAppointmentWithInvalidBlock() {
+    public void getAppointmentWithInvalidBlock() throws JsonProcessingException {
         String auth = loginAsClient();
         TreeSet<Work> works = (TreeSet<Work>) integrationDataFactory.getWorks(auth);
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(works.first().getId());
         appointmentDTO.getBlocks().add(-1);
-        ResponseEntity<AppointmentDTO> response = client.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        ResponseEntity<String> response = errorClient.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, toJSON(appointmentDTO), errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
 
     @Test
-    public void getAppointmentWithoutEnoughBlocks() {
+    public void getAppointmentWithoutEnoughBlocks() throws JsonProcessingException {
         String auth = loginAsClient();
         Set<Work> works = integrationDataFactory.getWorks(auth);
         TreeSet<BlockDTO> blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works);
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().addAll(works.stream().map(work -> work.getId()).collect(Collectors.toSet()));
         appointmentDTO.getBlocks().add(blocks.first().getId());
-        ResponseEntity<AppointmentDTO> response = client.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        ResponseEntity<String> response = errorClient.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, toJSON(appointmentDTO), errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
 
+    private String toJSON(AppointmentDTO appointmentDTO) throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
+        return objectMapper.writeValueAsString(appointmentDTO);
+    }
+
     @Test
-    public void getAppointmentWithTooManyBlocks() {
+    public void getAppointmentWithTooManyBlocks() throws JsonProcessingException {
         String auth = loginAsClient();
         TreeSet<Work> works = (TreeSet<Work>) integrationDataFactory.getWorks(auth);
         Set<BlockDTO> blocks = integrationDataFactory.getBlocks(auth, works);
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(works.first().getId());
         appointmentDTO.getBlocks().addAll(blocks.stream().map(blockDTO -> blockDTO.getId()).collect(Collectors.toSet()));
-        ResponseEntity<AppointmentDTO> response = client.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        ResponseEntity<String> response = errorClient.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, toJSON(appointmentDTO), errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
 
@@ -113,10 +124,10 @@ public class AppointmentTests extends IntegrationTests {
     }
 
     @Test
-    public void cancelInvalidAppointment() {
+    public void cancelInvalidAppointment() throws JsonProcessingException {
         String auth = loginAsClient();
         AppointmentDTO appointmentDTO = new AppointmentDTO();
-        ResponseEntity<AppointmentDTO> response = client.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        ResponseEntity<String> response = errorClient.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, toJSON(appointmentDTO), errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
 
@@ -127,11 +138,11 @@ public class AppointmentTests extends IntegrationTests {
     }
 
     @Test
-    public void cancelAdminAppointmentAsClient() {
+    public void cancelAdminAppointmentAsClient() throws JsonProcessingException {
         String adminAuth = loginAsAdmin();
         AppointmentDTO toBeCancelled = confirmAppointmentWithOneWork(adminAuth);
         String clientAuth = loginAsClient();
-        ResponseEntity<AppointmentDTO> response = client.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, clientAuth, toBeCancelled, typeRef);
+        ResponseEntity<String> response = errorClient.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, clientAuth, toJSON(toBeCancelled), errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
     }
 
@@ -152,11 +163,11 @@ public class AppointmentTests extends IntegrationTests {
     }
 
     @Test
-    public void cancelAppointmentWithPeriodExpiredAsClient() {
+    public void cancelAppointmentWithPeriodExpiredAsClient() throws JsonProcessingException {
         String auth = loginAsClient();
         AppointmentDTO appointmentDTO = this.getAppointmentForToday(auth);
         appointmentDTO = confirmAppointment(auth, appointmentDTO);
-        ResponseEntity<AppointmentDTO> response = client.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        ResponseEntity<String> response = errorClient.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, toJSON(appointmentDTO), errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
     }
 
@@ -203,7 +214,7 @@ public class AppointmentTests extends IntegrationTests {
         TreeSet<Work> works = (TreeSet<Work>) integrationDataFactory.getWorks(auth);
         Work work = works.first();
         TreeSet<BlockDTO> blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works);
-        BlockDTO block = blocks.first();
+        BlockDTO block = blocks.last();
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(work.getId());
         appointmentDTO.getBlocks().add(block.getId());

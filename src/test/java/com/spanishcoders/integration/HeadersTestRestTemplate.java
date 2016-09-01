@@ -2,10 +2,7 @@ package com.spanishcoders.integration;
 
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 
 import static com.spanishcoders.integration.IntegrationTests.AUTH_HEADER;
 
@@ -30,6 +27,7 @@ public class HeadersTestRestTemplate<T> {
         HttpEntity<T> result = null;
         HttpHeaders headers = new HttpHeaders();
         headers.add(AUTH_HEADER, authHeader);
+        headers.setContentType(MediaType.APPLICATION_JSON_UTF8);
         if (requestEntity != null) {
             result = new HttpEntity<>(requestEntity, headers);
         } else {
