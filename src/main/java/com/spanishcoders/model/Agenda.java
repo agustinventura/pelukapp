@@ -156,4 +156,20 @@ public class Agenda {
     public void addNonWorkingDay(LocalDate nonWorkingDay) {
         this.nonWorkingDays.add(nonWorkingDay);
     }
+
+    public boolean isNonWorkingDay(LocalDate today) {
+        return nonWorkingDays.contains(today);
+    }
+
+    public boolean hasWorkingDay(LocalDate today) {
+        return workingDays.containsKey(today);
+    }
+
+    public Set<Block> getWorkingDayBlocks(LocalDate day) {
+        Set<Block> blocks = Sets.newHashSet();
+        if (workingDays.containsKey(day)) {
+            blocks = workingDays.get(day).getBlocks();
+        }
+        return blocks;
+    }
 }

@@ -7,7 +7,6 @@ import com.spanishcoders.model.Work;
 import com.spanishcoders.model.dto.BlockDTO;
 import com.spanishcoders.model.dto.HairdresserAvailableBlocks;
 import com.spanishcoders.model.dto.HairdresserDTO;
-import com.spanishcoders.services.BlockService;
 import com.spanishcoders.services.HairdresserService;
 import com.spanishcoders.services.WorkService;
 import org.springframework.http.MediaType;
@@ -34,12 +33,9 @@ public class HairdresserController {
 
     private WorkService workService;
 
-    private BlockService blockService;
-
-    public HairdresserController(HairdresserService hairdresserService, WorkService workService, BlockService blockService) {
+    public HairdresserController(HairdresserService hairdresserService, WorkService workService) {
         this.hairdresserService = hairdresserService;
         this.workService = workService;
-        this.blockService = blockService;
     }
 
     @PreAuthorize("authenticated")
@@ -53,9 +49,7 @@ public class HairdresserController {
     @PreAuthorize("authenticated")
     @RequestMapping(value = "schedule/today", method = RequestMethod.GET)
     public List<HairdresserAvailableBlocks> getScheduleForTheDay(Authentication authentication) {
-
         Map<Hairdresser, Set<Block>> todaysBlocks = hairdresserService.getTodaysBlocksByHairdresser();
-
         return toDTOs(todaysBlocks);
     }
 

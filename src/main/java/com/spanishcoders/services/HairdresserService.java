@@ -34,7 +34,17 @@ public class HairdresserService {
     }
 
     public Map<Hairdresser, Set<Block>> getTodaysBlocksByHairdresser() {
-        return populateTodaysBlocks();
+        Set<Hairdresser> hairdressers = hairdresserRepository.findByStatus(UserStatus.ACTIVE);
+        return getTodayHairdresserBlocks(hairdressers);
+    }
+
+    private Map<Hairdresser, Set<Block>> getTodayHairdresserBlocks(Set<Hairdresser> hairdressers) {
+        Map<Hairdresser, Set<Block>> availableBlocks = Maps.newHashMap();
+        for (Hairdresser hairdresser : hairdressers) {
+            Set<Block> hairdresserBlocks = agendaService.getTodaysBlocks(hairdresser.getAgenda());
+            availableBlocks.put(hairdresser, hairdresserBlocks);
+        }
+        return availableBlocks;
     }
 
     private Map<Hairdresser, Set<Block>> populateAvailableBlocks(Set<Work> works) {
@@ -42,20 +52,9 @@ public class HairdresserService {
         Set<Hairdresser> hairdressers = hairdresserRepository.findByStatus(UserStatus.ACTIVE);
         for (Hairdresser hairdresser : hairdressers) {
             Set<Block> hairdresserAvailableBlocks = agendaService.getFirstTenAvailableBlocks(hairdresser.getAgenda(), works);
-            hairdresser.getAppointments().size();
             availableBlocks.put(hairdresser, hairdresserAvailableBlocks);
         }
         return availableBlocks;
     }
 
-    private Map<Hairdresser, Set<Block>> populateTodaysBlocks() {
-        Map<Hairdresser, Set<Block>> availableBlocks = Maps.newHashMap();
-        Set<Hairdresser> hairdressers = hairdresserRepository.findByStatus(UserStatus.ACTIVE);
-        for (Hairdresser hairdresser : hairdressers) {
-            Set<Block> hairdresserBlocks = agendaService.getTodaysBlocks(hairdresser.getAgenda());
-            hairdresser.getAppointments().size();
-            availableBlocks.put(hairdresser, hairdresserBlocks);
-        }
-        return availableBlocks;
-    }
 }

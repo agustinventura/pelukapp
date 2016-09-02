@@ -1,13 +1,18 @@
 package com.spanishcoders.model;
 
+import com.google.common.collect.Sets;
 import org.junit.Test;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Set;
+import java.util.SortedSet;
 
 import static com.spanishcoders.TestDataFactory.mockTimetable;
 import static com.spanishcoders.TestDataFactory.mockWorkingDay;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.assertThat;
 
 /**
@@ -64,5 +69,28 @@ public class AgendaTests {
         Timetable past = new Timetable(agenda, pastYearStartDate, pastYearEndDate);
         Timetable currentTimetable = agenda.getCurrentTimetable();
         assertThat(currentTimetable, is(current));
+    }
+
+    @Test
+    public void getWorkingDayBlocksExistingWorkingDay() {
+        Agenda agenda = new Agenda();
+        WorkingDay workingDay = new WorkingDay();
+        workingDay.setDate(LocalDate.now());
+        Block block = new Block();
+        block.setStart(LocalTime.now());
+        block.setWorkingDay(workingDay);
+        SortedSet<Block> blocks = Sets.newTreeSet();
+        blocks.add(block);
+        workingDay.setBlocks(blocks);
+        agenda.getWorkingDays().put(LocalDate.now(), workingDay);
+        Set<Block> workingDayBlocks = agenda.getWorkingDayBlocks(LocalDate.now());
+        assertThat(workingDayBlocks, is(blocks));
+    }
+
+    @Test
+    public void getWorkingDayBlocksNonExistingWorkingDay() {
+        Agenda agenda = new Agenda();
+        Set<Block> workingDayBlocks = agenda.getWorkingDayBlocks(LocalDate.now());
+        assertThat(workingDayBlocks, is(empty()));
     }
 }

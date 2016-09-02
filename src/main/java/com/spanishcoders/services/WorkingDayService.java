@@ -9,7 +9,6 @@ import com.spanishcoders.repositories.WorkingDayRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDate;
 import java.util.Set;
 import java.util.SortedSet;
 import java.util.stream.Collectors;
@@ -55,22 +54,6 @@ public class WorkingDayService {
                 }
             }
         }
-        return availableBlocks;
-    }
-
-    public Set<Block> getTodaysBlocks(Agenda agenda) {
-        Set<Block> availableBlocks = Sets.newTreeSet();
-        WorkingDay todayWorkingDay = null;
-        LocalDate today = LocalDate.now();
-        if (agenda.getWorkingDays().containsKey(today)) {
-            todayWorkingDay = agenda.getWorkingDays().get(LocalDate.now());
-        } else {
-            todayWorkingDay = new WorkingDay(agenda);
-            todayWorkingDay = this.save(todayWorkingDay);
-        }
-
-        availableBlocks.addAll(todayWorkingDay.getBlocks());
-
         return availableBlocks;
     }
 }

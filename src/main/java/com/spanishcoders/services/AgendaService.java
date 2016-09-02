@@ -4,10 +4,12 @@ import com.google.common.collect.Sets;
 import com.spanishcoders.model.Agenda;
 import com.spanishcoders.model.Block;
 import com.spanishcoders.model.Work;
+import com.spanishcoders.model.WorkingDay;
 import com.spanishcoders.repositories.AgendaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Set;
 
 /**
@@ -35,10 +37,19 @@ public class AgendaService {
     }
 
     public Set<Block> getTodaysBlocks(Agenda agenda) {
-        Set<Block> availableBlocks = Sets.newTreeSet();
+        Set<Block> dayBlocks = Sets.newTreeSet();
         if (agenda != null) {
-            availableBlocks.addAll(workingDayService.getTodaysBlocks(agenda));
+            LocalDate today = LocalDate.now();
+            if (agenda.hasWorkingDay(today)) {
+                dayBlocks = agenda.getWorkingDayBlocks(today);
+            } else {
+                if (!agenda.isNonWorkingDay(today)) {
+                    new WorkingDay(agenda, today);
+                    agendaRepository.save(agenda);
+                    dayBlocks = agenda.getWorkingDayBlocks(today);
+                }
+            }
         }
-        return availableBlocks;
+        return dayBlocks;
     }
 }

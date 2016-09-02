@@ -21,6 +21,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 
 public class HairdresserServiceTests extends PelukaapUnitTest {
 
@@ -57,5 +58,16 @@ public class HairdresserServiceTests extends PelukaapUnitTest {
         Map<Hairdresser, Set<Block>> availableBlocks = hairdresserService.getFirstTenAvailableBlocksByHairdresser(mockPublicWorks());
         assertThat(availableBlocks.entrySet(), not((empty())));
         assertThat(availableBlocks.get(hairdresser).size(), is((10)));
+    }
+
+    @Test
+    public void getTodaysBlocks() {
+        Hairdresser hairdresser = mock(Hairdresser.class);
+        given(hairdresserRepository.findByStatus(any(UserStatus.class))).willReturn(Sets.newHashSet(hairdresser));
+        Set<Block> todaysBlocks = Sets.newHashSet(mock(Block.class));
+        given(agendaService.getTodaysBlocks(any(Agenda.class))).willReturn(todaysBlocks);
+        Map<Hairdresser, Set<Block>> availableBlocks = hairdresserService.getTodaysBlocksByHairdresser();
+        assertThat(availableBlocks.entrySet(), not((empty())));
+        assertThat(availableBlocks.get(hairdresser).size(), is((todaysBlocks.size())));
     }
 }

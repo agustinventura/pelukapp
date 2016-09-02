@@ -44,7 +44,7 @@ public class WorkingDay implements Comparable<WorkingDay> {
 
     public WorkingDay(Agenda agenda, LocalDate date) {
         this();
-        if (agenda.getNonWorkingDays().contains(date)) {
+        if (agenda.isNonWorkingDay(date)) {
             throw new IllegalArgumentException("Can't create working day on agenda " + agenda + " non working day: " + date);
         }
         this.agenda = agenda;
