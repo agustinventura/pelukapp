@@ -168,6 +168,7 @@ public class AppointmentTests extends IntegrationTests {
         AppointmentDTO appointmentDTO = this.getAppointmentForToday(auth);
         appointmentDTO = confirmAppointment(auth, appointmentDTO);
         ResponseEntity<String> response = errorClient.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, toJSON(appointmentDTO), errorTypeRef);
+        System.out.println(response);
         assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
     }
 
@@ -214,7 +215,7 @@ public class AppointmentTests extends IntegrationTests {
         TreeSet<Work> works = (TreeSet<Work>) integrationDataFactory.getWorks(auth);
         Work work = works.first();
         TreeSet<BlockDTO> blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works);
-        BlockDTO block = blocks.last();
+        BlockDTO block = blocks.first();
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(work.getId());
         appointmentDTO.getBlocks().add(block.getId());
