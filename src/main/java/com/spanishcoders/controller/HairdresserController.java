@@ -9,14 +9,13 @@ import com.spanishcoders.model.dto.HairdresserAvailableBlocks;
 import com.spanishcoders.model.dto.HairdresserDTO;
 import com.spanishcoders.services.HairdresserService;
 import com.spanishcoders.services.WorkService;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.MatrixVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,8 +46,17 @@ public class HairdresserController {
     }
 
     @PreAuthorize("authenticated")
+    @RequestMapping(value = "blocks/free/{day}/{works}", method = RequestMethod.GET)
+    public List<HairdresserAvailableBlocks> getFreeBlocksByDay(Authentication authentication, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
+                                                               @MatrixVariable Set<Integer> works) {
+        Set<Work> requestedWorks = workService.get(works);
+        Map<Hairdresser, Set<Block>> freeBlocks = hairdresserService.getAvailableBlocksForDayByHairdresser(requestedWorks, day);
+        return toDTOs(freeBlocks);
+    }
+
+    @PreAuthorize("authenticated")
     @RequestMapping(value = "schedule/today", method = RequestMethod.GET)
-    public List<HairdresserAvailableBlocks> getScheduleForTheDay(Authentication authentication) {
+    public List<HairdresserAvailableBlocks> getDaySchedule(Authentication authentication) {
         Map<Hairdresser, Set<Block>> todaysBlocks = hairdresserService.getTodaysBlocksByHairdresser();
         return toDTOs(todaysBlocks);
     }

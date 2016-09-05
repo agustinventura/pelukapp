@@ -127,7 +127,7 @@ public class WorkingDay implements Comparable<WorkingDay> {
         if (works != null && !works.isEmpty()) {
             int worksLength = getWorksTotalLength(works);
             for (Block block : blocks) {
-                if (isAvailable(block, worksLength)) {
+                if (block.getStart().isAfter(LocalTime.now()) && isAvailable(block, worksLength)) {
                     availableBlocks.add(block);
                 }
             }

@@ -9,6 +9,7 @@ import com.spanishcoders.repositories.HairdresserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.Map;
 import java.util.Set;
 
@@ -57,4 +58,7 @@ public class HairdresserService {
         return availableBlocks;
     }
 
+    public Map<Hairdresser, Set<Block>> getAvailableBlocksForDayByHairdresser(Set<Work> requestedWorks, LocalDate day) {
+        return null;
+    }
 }
