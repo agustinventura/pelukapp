@@ -117,4 +117,14 @@ public class AgendaServiceTests extends PelukaapUnitTest {
         Set<Block> todaysBlocks = agendaService.getTodaysBlocks(agenda);
         assertThat(todaysBlocks, is(empty()));
     }
+
+    @Test
+    public void getBlocksForDay() {
+
+    }
+
+    @Test
+    public void getBlocksForNonWorkingDay() {
+
+    }
 }

@@ -52,4 +52,22 @@ public class AgendaService {
         }
         return dayBlocks;
     }
+
+    public Set<Block> getAvailableBlocks(Agenda agenda, Set<Work> works, LocalDate day) {
+        Set<Block> availableBlocks = Sets.newTreeSet();
+        if (agenda != null && works != null && !works.isEmpty() && day != null) {
+            if (agenda.hasWorkingDay(day)) {
+                WorkingDay workingDay = agenda.getWorkingDays().get(day);
+                availableBlocks = workingDay.getAvailableBlocks(works);
+            } else {
+                if (!agenda.isNonWorkingDay(day)) {
+                    new WorkingDay(agenda, day);
+                    agendaRepository.save(agenda);
+                    WorkingDay workingDay = agenda.getWorkingDays().get(day);
+                    availableBlocks = workingDay.getAvailableBlocks(works);
+                }
+            }
+        }
+        return availableBlocks;
+    }
 }

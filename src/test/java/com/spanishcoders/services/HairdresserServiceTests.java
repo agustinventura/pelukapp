@@ -70,4 +70,9 @@ public class HairdresserServiceTests extends PelukaapUnitTest {
         assertThat(availableBlocks.entrySet(), not((empty())));
         assertThat(availableBlocks.get(hairdresser).size(), is((todaysBlocks.size())));
     }
+
+    @Test
+    public void getAvailableBlocksForDay() {
+
+    }
 }

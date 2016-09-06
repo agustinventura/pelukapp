@@ -127,12 +127,20 @@ public class WorkingDay implements Comparable<WorkingDay> {
         if (works != null && !works.isEmpty()) {
             int worksLength = getWorksTotalLength(works);
             for (Block block : blocks) {
-                if (block.getStart().isAfter(LocalTime.now()) && isAvailable(block, worksLength)) {
+                if (isAfterNow(block) && isAvailable(block, worksLength)) {
                     availableBlocks.add(block);
                 }
             }
         }
         return availableBlocks;
+    }
+
+    private boolean isAfterNow(Block block) {
+        if (block.getWorkingDay().getDate().isEqual(LocalDate.now())) {
+            return block.getStart().isAfter(LocalTime.now());
+        } else {
+            return true;
+        }
     }
 
     private LocalDate getNewWorkingDayDate(Set<LocalDate> nonWorkingDays, SortedMap<LocalDate, WorkingDay> workingDays) {
