@@ -1,5 +1,7 @@
 package com.spanishcoders.model;
 
+import com.spanishcoders.model.dto.ClientDTO;
+
 import javax.persistence.Entity;
 
 /**
@@ -9,6 +11,15 @@ import javax.persistence.Entity;
 public class Client extends User {
 
     private String distance;
+
+    public Client() {
+
+    }
+
+    public Client(ClientDTO clientDTO) {
+        super(clientDTO);
+        this.distance = clientDTO.getDistance();
+    }
 
     public String getDistance() {
         return distance;

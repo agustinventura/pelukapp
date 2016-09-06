@@ -1,5 +1,7 @@
 package com.spanishcoders.model;
 
+import com.spanishcoders.model.dto.UserDTO;
+
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
@@ -18,6 +20,10 @@ public class Hairdresser extends User {
 
     public Hairdresser(String username, String password, String phone) {
         super(username, password, phone);
+    }
+
+    public Hairdresser(UserDTO userDTO) {
+        super(userDTO);
     }
 
     public Agenda getAgenda() {

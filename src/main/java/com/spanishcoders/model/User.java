@@ -1,6 +1,7 @@
 package com.spanishcoders.model;
 
 import com.google.common.collect.Sets;
+import com.spanishcoders.model.dto.UserDTO;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
@@ -59,6 +60,14 @@ public class User {
         this();
         this.username = username;
         this.password = password;
+    }
+
+    public User(UserDTO userDTO) {
+        this();
+        this.username = userDTO.getUsername();
+        this.password = userDTO.getPassword();
+        this.phone = userDTO.getPhone();
+        this.name = userDTO.getName();
     }
 
     public String getUsername() {
