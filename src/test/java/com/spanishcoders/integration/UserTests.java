@@ -1,6 +1,7 @@
 package com.spanishcoders.integration;
 
 import com.spanishcoders.model.dto.AppointmentDTO;
+import com.spanishcoders.model.dto.ClientDTO;
 import com.spanishcoders.model.dto.UserDTO;
 import org.junit.Before;
 import org.junit.Test;
@@ -59,21 +60,21 @@ public class UserTests extends IntegrationTests {
         String name = "usuario";
         String phone = "666666666";
 
-        ResponseEntity<UserDTO> registrationResponse = register(username, password, phone, name);
+        ResponseEntity<ClientDTO> registrationResponse = register(username, password, phone, name);
         assertThat(registrationResponse.getStatusCode(), is(HttpStatus.OK));
 
         ResponseEntity<UserDTO> loginResponse = login(username, password);
         assertThat(loginResponse.getStatusCode(), is(HttpStatus.OK));
     }
 
-    private ResponseEntity<UserDTO> register(String username, String password, String phone, String name) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(username);
-        userDTO.setPassword(password);
-        userDTO.setName(name);
-        userDTO.setPhone(phone);
-        HttpEntity<UserDTO> request = new HttpEntity<>(userDTO);
-        ResponseEntity<UserDTO> response = testRestTemplate.postForEntity(REGISTER_URL, request, UserDTO.class);
+    private ResponseEntity<ClientDTO> register(String username, String password, String phone, String name) {
+        ClientDTO clientDTO = new ClientDTO();
+        clientDTO.setUsername(username);
+        clientDTO.setPassword(password);
+        clientDTO.setName(name);
+        clientDTO.setPhone(phone);
+        HttpEntity<ClientDTO> request = new HttpEntity<>(clientDTO);
+        ResponseEntity<ClientDTO> response = testRestTemplate.postForEntity(REGISTER_CLIENT_URL, request, ClientDTO.class);
         return response;
     }
 

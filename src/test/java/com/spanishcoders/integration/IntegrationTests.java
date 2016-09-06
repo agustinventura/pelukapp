@@ -25,7 +25,7 @@ import static org.hamcrest.core.IsNull.notNullValue;
 public abstract class IntegrationTests {
 
     public static final String LOGIN_URL = "/login";
-    public static final String REGISTER_URL = "/user/register";
+    public static final String REGISTER_CLIENT_URL = "/user/client";
     public static final String AUTH_HEADER = "X-AUTH-TOKEN";
     public static final String CLIENT_USERNAME = "client";
     public static final String CLIENT_PASSWORD = "client";

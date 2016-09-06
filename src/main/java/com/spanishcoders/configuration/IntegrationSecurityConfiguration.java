@@ -43,7 +43,7 @@ public class IntegrationSecurityConfiguration extends WebSecurityConfigurerAdapt
                 .antMatchers(HttpMethod.GET, "/*.html").permitAll()
                 .antMatchers(HttpMethod.GET, "/static/index.html").permitAll()
                 .antMatchers(HttpMethod.POST, "/login").permitAll()
-                .antMatchers(HttpMethod.POST, "/user/register").permitAll()
+                .antMatchers(HttpMethod.POST, "/user/client").permitAll()
                 .antMatchers("/favicon.ico").permitAll()
 
                 //Enable for access to h2-console
