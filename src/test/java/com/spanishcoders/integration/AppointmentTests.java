@@ -103,7 +103,8 @@ public class AppointmentTests extends IntegrationTests {
     public void getAppointmentWithOneWorkAsClient() {
         String auth = loginAsClient();
         AppointmentDTO appointmentDTO = confirmAppointmentWithOneWork(auth);
-        cancelAppointment(auth, appointmentDTO);
+        String adminAuth = loginAsAdmin();
+        cancelAppointment(adminAuth, appointmentDTO);
     }
 
     @Test
@@ -154,7 +155,8 @@ public class AppointmentTests extends IntegrationTests {
     @Test
     public void cancelClientAppointmentAsClient() {
         String auth = loginAsClient();
-        cancelAppointment(auth);
+        AppointmentDTO appointmentInTwoDays = integrationDataFactory.getAppointment(auth, LocalDate.now().plusDays(2));
+        cancelAppointment(auth, appointmentInTwoDays);
     }
 
 

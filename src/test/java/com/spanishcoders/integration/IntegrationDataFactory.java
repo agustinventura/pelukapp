@@ -8,6 +8,8 @@ import com.spanishcoders.model.dto.HairdresserAvailableBlocks;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -41,18 +43,35 @@ public class IntegrationDataFactory {
     }
 
     public Set<BlockDTO> getBlocks(String auth, Set<Work> works) {
+        return this.getBlocks(auth, works, null);
+    }
+
+    public Set<BlockDTO> getBlocks(String auth, Set<Work> works, LocalDate date) {
         HeadersTestRestTemplate<List<HairdresserAvailableBlocks>> blocksClient = new HeadersTestRestTemplate<>(testRestTemplate);
         ParameterizedTypeReference<List<HairdresserAvailableBlocks>> blocksTypeRef = new ParameterizedTypeReference<List<HairdresserAvailableBlocks>>() {
         };
-        String blocksUrl = HairdresserTests.FREE_BLOCKS_URL + works.stream().map(work -> work.getId().toString()).collect(Collectors.joining(";works=", "works=", ""));
+        String blocksUrl = HairdresserTests.FREE_BLOCKS_URL;
+        if (date != null) {
+            blocksUrl += date.format(DateTimeFormatter.ISO_LOCAL_DATE) + "/";
+        }
+        blocksUrl += works.stream().map(work -> work.getId().toString()).collect(Collectors.joining(";works=", "works=", ""));
         List<HairdresserAvailableBlocks> hairdresserAvailableBlocks = blocksClient.getWithAuthorizationHeader(blocksUrl, auth, blocksTypeRef);
         return Sets.newTreeSet(hairdresserAvailableBlocks.get(0).getAvailableBlocks());
     }
 
     public AppointmentDTO getAppointment(String auth) {
+        return getAppointment(auth, null);
+    }
+
+    public AppointmentDTO getAppointment(String auth, LocalDate date) {
         TreeSet<Work> works = (TreeSet<Work>) this.getWorks(auth);
         Work work = works.first();
-        TreeSet<BlockDTO> blocks = (TreeSet<BlockDTO>) this.getBlocks(auth, works);
+        TreeSet<BlockDTO> blocks = null;
+        if (date != null) {
+            blocks = (TreeSet<BlockDTO>) this.getBlocks(auth, works, date);
+        } else {
+            blocks = (TreeSet<BlockDTO>) this.getBlocks(auth, works);
+        }
         BlockDTO block = blocks.last();
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(work.getId());
