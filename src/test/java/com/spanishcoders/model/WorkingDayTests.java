@@ -49,7 +49,6 @@ public class WorkingDayTests {
         WorkingDay workingDay = mockWorkingDay();
         Set<Block> availableBlocks = workingDay.getAvailableBlocks(mockPublicWork());
         assertThat(availableBlocks, is(not(empty())));
-        assertThat(availableBlocks.size(), is(16));
     }
 
     @Test
@@ -57,14 +56,14 @@ public class WorkingDayTests {
         WorkingDay workingDay = mockWorkingDay();
         Set<Block> availableBlocks = workingDay.getAvailableBlocks(mockPublicWorks());
         assertThat(availableBlocks, is(not(empty())));
-        assertThat(availableBlocks.size(), is(14));
     }
 
     @Test
     public void getAvailableBlocksRandomFillDayOneWork() {
         WorkingDay workingDay = mockRandomFillWorkingDay();
         Set<Block> availableBlocks = workingDay.getAvailableBlocks(mockPublicWork());
-        int blocksWithoutAppointments = (int) workingDay.getBlocks().stream().filter(b -> b.getAppointment() == null).count();
+        int blocksWithoutAppointments = (int) workingDay.getBlocks().stream().filter(b -> b.getAppointment() == null
+                && b.getStart().isAfter(LocalTime.now())).count();
         assertThat(availableBlocks.size(), is(blocksWithoutAppointments));
     }
 
@@ -75,7 +74,7 @@ public class WorkingDayTests {
         workingDay.getBlocks().first().setAppointment(new Appointment());
         workingDay.getBlocks().last().setAppointment(new Appointment());
         Set<Block> availableBlocks = workingDay.getAvailableBlocks(mockPublicWorks());
-        assertThat(availableBlocks.size(), is(12));
+        assertThat(availableBlocks, is(not(empty())));
     }
 
 }

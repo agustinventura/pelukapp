@@ -102,25 +102,30 @@ public class AppointmentTests extends IntegrationTests {
     @Test
     public void getAppointmentWithOneWorkAsClient() {
         String auth = loginAsClient();
-        confirmAppointmentWithOneWork(auth);
+        AppointmentDTO appointmentDTO = confirmAppointmentWithOneWork(auth);
+        cancelAppointment(auth, appointmentDTO);
     }
 
     @Test
     public void getAppointmentWithManyWorksAsClient() {
         String auth = loginAsClient();
-        getAppointmentWithManyWorks(auth);
+        AppointmentDTO appointmentDTO = getAppointmentWithManyWorks(auth);
+        String adminAuth = loginAsAdmin();
+        cancelAppointment(adminAuth, appointmentDTO);
     }
 
     @Test
     public void getAppointmentWithOneWorkAsAdmin() {
         String auth = loginAsAdmin();
-        confirmAppointmentWithOneWork(auth);
+        AppointmentDTO appointmentDTO = confirmAppointmentWithOneWork(auth);
+        cancelAppointment(auth, appointmentDTO);
     }
 
     @Test
     public void getAppointmentWithManyWorksAsAdmin() {
         String auth = loginAsAdmin();
-        getAppointmentWithManyWorks(auth);
+        AppointmentDTO appointmentDTO = getAppointmentWithManyWorks(auth);
+        cancelAppointment(auth, appointmentDTO);
     }
 
     @Test
@@ -152,6 +157,7 @@ public class AppointmentTests extends IntegrationTests {
         cancelAppointment(auth);
     }
 
+
     @Test
     public void cancelClientAppointmentAsAdmin() {
         String clientAuth = loginAsClient();
@@ -168,7 +174,6 @@ public class AppointmentTests extends IntegrationTests {
         AppointmentDTO appointmentDTO = this.getAppointmentForToday(auth);
         appointmentDTO = confirmAppointment(auth, appointmentDTO);
         ResponseEntity<String> response = errorClient.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, toJSON(appointmentDTO), errorTypeRef);
-        System.out.println(response);
         assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
     }
 
@@ -186,13 +191,13 @@ public class AppointmentTests extends IntegrationTests {
         return integrationDataFactory.getAppointment(auth);
     }
 
-    private void getAppointmentWithManyWorks(String auth) {
+    private AppointmentDTO getAppointmentWithManyWorks(String auth) {
         Set<Work> works = integrationDataFactory.getWorks(auth);
-        Set<BlockDTO> blocks = integrationDataFactory.getBlocks(auth, works).stream().skip(5).limit(works.size()).collect(Collectors.toSet());
+        Set<BlockDTO> blocks = integrationDataFactory.getBlocks(auth, works).stream().limit(works.size()).collect(Collectors.toSet());
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().addAll(works.stream().map(work -> work.getId()).collect(Collectors.toSet()));
         appointmentDTO.getBlocks().addAll(blocks.stream().map(blockDTO -> blockDTO.getId()).collect(Collectors.toSet()));
-        confirmAppointment(auth, appointmentDTO);
+        return confirmAppointment(auth, appointmentDTO);
     }
 
     private AppointmentDTO confirmAppointment(String auth, AppointmentDTO appointmentDTO) {
@@ -204,11 +209,15 @@ public class AppointmentTests extends IntegrationTests {
         return appointment;
     }
 
-    private void cancelAppointment(String auth) {
-        AppointmentDTO toBeCancelled = confirmAppointmentWithOneWork(auth);
-        AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth, toBeCancelled, typeRef);
+    private void cancelAppointment(String auth, AppointmentDTO appointmentDTO) {
+        AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
         assertThat(cancelled, notNullValue());
         assertThat(cancelled.getStatus(), is(1));
+    }
+
+    private void cancelAppointment(String auth) {
+        AppointmentDTO toBeCancelled = confirmAppointmentWithOneWork(auth);
+        cancelAppointment(auth, toBeCancelled);
     }
 
     private AppointmentDTO getAppointmentForToday(String auth) {
