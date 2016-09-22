@@ -24,9 +24,8 @@ public class Timetable {
     @NotNull
     private LocalDate endDay;
 
-    @NotEmpty
-    @ManyToMany
-    private Set<Agenda> agendas;
+    @ManyToOne
+    private Agenda agendas;
 
     @NotEmpty
     @ManyToMany(mappedBy = "timetables", cascade = CascadeType.ALL)
@@ -34,7 +33,7 @@ public class Timetable {
 
     public Timetable() {
         this.stretches = Sets.newHashSet();
-        this.agendas = Sets.newHashSet();
+        this.agendas = null;
     }
 
     public Timetable(LocalDate startDay, LocalDate endDay) {
@@ -45,7 +44,7 @@ public class Timetable {
 
     public Timetable(Agenda agenda, LocalDate startDay, LocalDate endDay) {
         this(startDay, endDay);
-        this.agendas.add(agenda);
+        this.agendas = agenda;
         agenda.addTimetable(this);
     }
 
@@ -73,11 +72,11 @@ public class Timetable {
         this.endDay = endDay;
     }
 
-    public Set<Agenda> getAgendas() {
+    public Agenda getAgendas() {
         return agendas;
     }
 
-    public void setAgendas(Set<Agenda> agendas) {
+    public void setAgendas(Agenda agendas) {
         this.agendas = agendas;
     }
 
