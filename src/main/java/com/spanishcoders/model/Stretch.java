@@ -1,12 +1,8 @@
 package com.spanishcoders.model;
 
-import com.google.common.collect.Sets;
-import org.hibernate.validator.constraints.NotEmpty;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalTime;
-import java.util.Set;
 
 /**
  * Created by agustin on 16/06/16.
@@ -25,19 +21,18 @@ public class Stretch {
     @Column(name = "`end`")
     private LocalTime end;
 
-    @NotEmpty
-    @ManyToMany
-    private Set<Timetable> timetables;
+    @ManyToOne
+    private Timetable timetables;
 
     public Stretch() {
-        this.timetables = Sets.newHashSet();
+        this.timetables = null;
     }
 
     public Stretch(Timetable timetable, LocalTime start, LocalTime end) {
         this();
         this.start = start;
         this.end = end;
-        timetables.add(timetable);
+        timetables = timetable;
         timetable.addStretch(this);
     }
 
@@ -65,11 +60,11 @@ public class Stretch {
         this.end = end;
     }
 
-    public Set<Timetable> getTimetables() {
+    public Timetable getTimetables() {
         return timetables;
     }
 
-    public void setTimetables(Set<Timetable> timetables) {
+    public void setTimetables(Timetable timetables) {
         this.timetables = timetables;
     }
 

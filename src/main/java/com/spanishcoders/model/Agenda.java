@@ -35,7 +35,7 @@ public class Agenda {
     private Set<LocalDate> nonWorkingDays;
 
     @NotEmpty
-    @ManyToMany(mappedBy = "agendas", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "agendas", cascade = CascadeType.ALL)
     private Set<Timetable> timetables;
 
     public Agenda() {

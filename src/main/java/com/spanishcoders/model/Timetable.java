@@ -28,7 +28,7 @@ public class Timetable {
     private Agenda agendas;
 
     @NotEmpty
-    @ManyToMany(mappedBy = "timetables", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "timetables", cascade = CascadeType.ALL)
     private Set<Stretch> stretches;
 
     public Timetable() {
