@@ -6,6 +6,9 @@ import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.model.dto.ClientDTO;
 import com.spanishcoders.model.dto.UserDTO;
 import com.spanishcoders.services.UserService;
+import org.apache.catalina.servlet4preview.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +27,8 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
 public class UserController {
 
+    private final static Logger logger = LoggerFactory.getLogger(UserController.class);
+
     private UserService userService;
 
     public UserController(UserService userService) {
@@ -33,8 +38,7 @@ public class UserController {
     @PreAuthorize("authenticated")
     @RequestMapping(value = "appointments/next", method = RequestMethod.GET)
     public Set<AppointmentDTO> getNextAppointments(Authentication authentication) {
-        Set<AppointmentDTO> nextAppointments = userService.getNextAppointments(authentication).stream().map(appointment -> new AppointmentDTO(appointment)).collect(Collectors.toSet());
-        return nextAppointments;
+        return userService.getNextAppointments(authentication).stream().map(appointment -> new AppointmentDTO(appointment)).collect(Collectors.toSet());
     }
 
     @RequestMapping(value = "client"
@@ -44,25 +48,24 @@ public class UserController {
     Client registerClient(Authentication authentication
             , @RequestBody ClientDTO clientDTO) {
 
-        Client client = userService.createClient(authentication, clientDTO);
-
-        return client;
+        return userService.createClient(authentication, clientDTO);
     }
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "hairdresser", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
     public Hairdresser registerHairdresser(Authentication authentication, @RequestBody UserDTO userDTO) {
-        Hairdresser hairdresser = userService.registerHairdresser(authentication, userDTO);
-        return hairdresser;
+        return userService.registerHairdresser(authentication, userDTO);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity illegalArgumentExceptionHandler(Exception ex) {
+    public ResponseEntity illegalArgumentExceptionHandler(HttpServletRequest req, Exception ex) {
+        logger.error("Caught IllegalArgumentException processing User request " + req.getRequestURL() + ": " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public ResponseEntity accessDeniedExceptionExceptionHandler(Exception ex) {
+    public ResponseEntity accessDeniedExceptionExceptionHandler(HttpServletRequest req, Exception ex) {
+        logger.error("Caught AccessDeniedException processing User request " + req.getRequestURL() + ": " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 

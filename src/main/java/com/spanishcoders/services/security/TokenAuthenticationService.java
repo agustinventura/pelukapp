@@ -1,30 +1,51 @@
 package com.spanishcoders.services.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Sets;
+import com.spanishcoders.model.User;
+import com.spanishcoders.model.dto.UserDTO;
 import com.spanishcoders.model.security.UserAuthentication;
+import com.spanishcoders.repositories.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 /**
  * Created by agustin on 31/05/16.
  */
 public class TokenAuthenticationService {
 
+    private static final Logger logger = LoggerFactory.getLogger(TokenAuthenticationService.class);
+
     private static final String AUTH_HEADER_NAME = "X-AUTH-TOKEN";
 
     private final TokenHandler tokenHandler;
 
-    public TokenAuthenticationService(String secret, UserDetailsService userService) {
+    private final UserRepository userRepository;
+
+    public TokenAuthenticationService(String secret, UserDetailsService userService, UserRepository userRepository) {
         tokenHandler = new TokenHandler(secret, userService);
+        this.userRepository = userRepository;
     }
 
-    public void addAuthentication(HttpServletResponse response, UserAuthentication authentication) {
+    public void addAuthentication(HttpServletResponse response, UserAuthentication authentication) throws IOException {
+        //TODO: WTF ARE WE DOING MODIFYING RESPONSE IN A SERVICE??
         final UserDetails user = authentication.getDetails();
         response.addHeader(AUTH_HEADER_NAME, tokenHandler.createTokenForUser(user));
+        User applicationUser = userRepository.findByUsername(authentication.getName());
+        //TODO: "NICE" WORKAROUND FOR NOT LOADING APPOINTMENTS
+        applicationUser.setAppointments(Sets.newHashSet());
+        response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
+        new ObjectMapper().writeValue(response.getWriter(), new UserDTO(applicationUser));
     }
+
 
     public Authentication getAuthentication(HttpServletRequest request) {
         final String token = request.getHeader(AUTH_HEADER_NAME);
@@ -34,6 +55,8 @@ public class TokenAuthenticationService {
             if (user != null) {
                 userAuthentication = new UserAuthentication(user);
             }
+        } else {
+            logger.error("Tried to authenticate request without auth_header");
         }
         return userAuthentication;
     }

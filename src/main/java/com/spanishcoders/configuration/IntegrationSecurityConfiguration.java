@@ -2,6 +2,7 @@ package com.spanishcoders.configuration;
 
 import com.spanishcoders.controller.security.StatelessAuthenticationFilter;
 import com.spanishcoders.controller.security.StatelessLoginFilter;
+import com.spanishcoders.repositories.UserRepository;
 import com.spanishcoders.services.security.TokenAuthenticationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,9 +29,15 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Profile({"integration", "production"})
 public class IntegrationSecurityConfiguration extends WebSecurityConfigurerAdapter {
 
+    private final UserDetailsService userDetailsService;
+
+    private final UserRepository userRepository;
+
     @Autowired
-    @Qualifier("pelukappUserDetailsService")
-    UserDetailsService userDetailsService;
+    public IntegrationSecurityConfiguration(@Qualifier("pelukappUserDetailsService") UserDetailsService userDetailsService, UserRepository userRepository) {
+        this.userDetailsService = userDetailsService;
+        this.userRepository = userRepository;
+    }
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -95,6 +102,6 @@ public class IntegrationSecurityConfiguration extends WebSecurityConfigurerAdapt
 
     @Bean
     public TokenAuthenticationService tokenAuthenticationService() {
-        return new TokenAuthenticationService("tooManySecrets", userDetailsService);
+        return new TokenAuthenticationService("tooManySecrets", userDetailsService, userRepository);
     }
 }

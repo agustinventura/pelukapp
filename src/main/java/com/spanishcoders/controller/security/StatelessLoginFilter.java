@@ -4,6 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spanishcoders.model.dto.UserDTO;
 import com.spanishcoders.model.security.UserAuthentication;
 import com.spanishcoders.services.security.TokenAuthenticationService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -24,6 +26,8 @@ import java.io.IOException;
  */
 public class StatelessLoginFilter extends AbstractAuthenticationProcessingFilter {
 
+    private static final Logger logger = LoggerFactory.getLogger(StatelessLoginFilter.class);
+
     private final TokenAuthenticationService tokenAuthenticationService;
     private final UserDetailsService userDetailsService;
 
@@ -43,6 +47,7 @@ public class StatelessLoginFilter extends AbstractAuthenticationProcessingFilter
             loginToken = new UsernamePasswordAuthenticationToken(
                     user.getUsername(), user.getPassword());
         } catch (IOException ioe) {
+            logger.error("Error reading user from request : " + ioe.getLocalizedMessage());
             ioe.printStackTrace();
         }
         return getAuthenticationManager().authenticate(loginToken);

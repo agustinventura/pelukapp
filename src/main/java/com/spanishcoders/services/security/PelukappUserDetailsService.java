@@ -4,6 +4,8 @@ import com.spanishcoders.model.Role;
 import com.spanishcoders.model.User;
 import com.spanishcoders.model.UserStatus;
 import com.spanishcoders.repositories.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -21,6 +23,8 @@ import java.util.Set;
 @Service("pelukappUserDetailsService")
 public class PelukappUserDetailsService implements UserDetailsService {
 
+    private static final Logger logger = LoggerFactory.getLogger(PelukappUserDetailsService.class);
+
     private UserRepository userRepository;
 
     @Autowired
@@ -32,6 +36,7 @@ public class PelukappUserDetailsService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         User user = userRepository.findByUsername(username);
         if (user == null) {
+            logger.error("Couldn't find logging user " + username);
             throw new UsernameNotFoundException("Username " + username + " not found");
         }
         return new org.springframework.security.core.userdetails.User(user.getUsername(), user.getPassword(),
