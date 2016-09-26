@@ -12,6 +12,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -91,7 +92,12 @@ public class AppointmentTests extends IntegrationTests {
     public void getAppointmentWithTooManyBlocks() throws JsonProcessingException {
         String auth = loginAsClient();
         TreeSet<Work> works = (TreeSet<Work>) integrationDataFactory.getWorks(auth);
-        Set<BlockDTO> blocks = integrationDataFactory.getBlocks(auth, works);
+        Set<BlockDTO> blocks = integrationDataFactory.getBlocks(auth, works, LocalDate.now());
+        int dayOffset = 1;
+        while (blocks.size() <= works.size()) {
+            blocks = integrationDataFactory.getBlocks(auth, works, LocalDate.now().plusDays(dayOffset));
+            dayOffset++;
+        }
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(works.first().getId());
         appointmentDTO.getBlocks().addAll(blocks.stream().map(blockDTO -> blockDTO.getId()).collect(Collectors.toSet()));
@@ -195,10 +201,13 @@ public class AppointmentTests extends IntegrationTests {
 
     private AppointmentDTO getAppointmentWithManyWorks(String auth) {
         Set<Work> works = integrationDataFactory.getWorks(auth);
-        Set<BlockDTO> blocks = integrationDataFactory.getBlocks(auth, works).stream().limit(works.size()).collect(Collectors.toSet());
+        List<BlockDTO> blocks = integrationDataFactory.getBlocks(auth, works).stream().sorted().limit(1).collect(Collectors.toList());
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().addAll(works.stream().map(work -> work.getId()).collect(Collectors.toSet()));
-        appointmentDTO.getBlocks().addAll(blocks.stream().map(blockDTO -> blockDTO.getId()).collect(Collectors.toSet()));
+        int firstBlockId = blocks.get(0).getId();
+        for (int i = 0; i < works.size(); i++) {
+            appointmentDTO.getBlocks().add(firstBlockId + i);
+        }
         return confirmAppointment(auth, appointmentDTO);
     }
 

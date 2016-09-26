@@ -8,7 +8,7 @@ import javax.persistence.Entity;
  * Created by pep on 12/05/2016.
  */
 @Entity
-public class Client extends User {
+public class Client extends AppUser {
 
     private String distance;
 

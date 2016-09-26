@@ -38,7 +38,7 @@ public class Appointment implements Comparable<Appointment> {
 
     @NotNull
     @ManyToOne
-    private User user;
+    private AppUser user;
 
     @NotNull
     private LocalDateTime date;
@@ -55,7 +55,7 @@ public class Appointment implements Comparable<Appointment> {
         status = AppointmentStatus.VALID;
     }
 
-    public Appointment(User user, Set<Work> works, Set<Block> blocks) {
+    public Appointment(AppUser user, Set<Work> works, Set<Block> blocks) {
         this();
         checkAuthentication(user);
         checkWorks(works);
@@ -94,11 +94,11 @@ public class Appointment implements Comparable<Appointment> {
         this.works = works;
     }
 
-    public User getUser() {
+    public AppUser getUser() {
         return user;
     }
 
-    public void setUser(User user) {
+    public void setUser(AppUser user) {
         this.user = user;
     }
 
@@ -154,12 +154,20 @@ public class Appointment implements Comparable<Appointment> {
     private void checkWorkLength(Set<Work> requestedWorks, Set<Block> requestedBlocks) {
         int worksLength = requestedWorks.stream().mapToInt(work -> work.getDuration()).sum();
         long blocksLength = requestedBlocks.stream().mapToLong(block -> block.getLength().toMinutes()).sum();
-        if (blocksLength < worksLength) {
+        if (notEnoughBlocks(worksLength, blocksLength) && !tooManyblocks(worksLength, blocksLength)) {
             throw new IllegalArgumentException("Can't create an Appointment without enough Blocks for the Works");
         }
     }
 
-    private void checkAuthorization(User user, Set<Work> requestedWorks) {
+    private boolean tooManyblocks(int worksLength, long blocksLength) {
+        return (blocksLength - worksLength) > Block.DEFAULT_BLOCK_LENGTH.toMinutes();
+    }
+
+    private boolean notEnoughBlocks(int worksLength, long blocksLength) {
+        return blocksLength < worksLength;
+    }
+
+    private void checkAuthorization(AppUser user, Set<Work> requestedWorks) {
         if (requestedWorks.stream().anyMatch(work -> work.getKind() == WorkKind.PRIVATE)) {
             if (Role.getRole(user) != Role.WORKER) {
                 throw new AccessDeniedException("A Client can't create an Appointment with private Works");
@@ -203,9 +211,9 @@ public class Appointment implements Comparable<Appointment> {
         }
     }
 
-    private void checkAuthentication(User user) {
+    private void checkAuthentication(AppUser user) {
         if (user == null) {
-            throw new AccessDeniedException("Can't create an Appointment without User");
+            throw new AccessDeniedException("Can't create an Appointment without AppUser");
         }
     }
 

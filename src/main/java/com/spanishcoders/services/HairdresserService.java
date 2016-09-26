@@ -26,14 +26,6 @@ public class HairdresserService {
         this.agendaService = agendaService;
     }
 
-    public Map<Hairdresser, Set<Block>> getFirstTenAvailableBlocksByHairdresser(Set<Work> works) {
-        Map<Hairdresser, Set<Block>> availableBlocks = Maps.newHashMap();
-        if (works != null && !works.isEmpty()) {
-            availableBlocks = populateAvailableBlocks(works);
-        }
-        return availableBlocks;
-    }
-
     public Map<Hairdresser, Set<Block>> getTodaysBlocksByHairdresser() {
         Set<Hairdresser> hairdressers = hairdresserRepository.findByStatus(UserStatus.ACTIVE);
         return getTodayHairdresserBlocks(hairdressers);
@@ -44,16 +36,6 @@ public class HairdresserService {
         for (Hairdresser hairdresser : hairdressers) {
             Set<Block> hairdresserBlocks = agendaService.getTodaysBlocks(hairdresser.getAgenda());
             availableBlocks.put(hairdresser, hairdresserBlocks);
-        }
-        return availableBlocks;
-    }
-
-    private Map<Hairdresser, Set<Block>> populateAvailableBlocks(Set<Work> works) {
-        Map<Hairdresser, Set<Block>> availableBlocks = Maps.newHashMap();
-        Set<Hairdresser> hairdressers = hairdresserRepository.findByStatus(UserStatus.ACTIVE);
-        for (Hairdresser hairdresser : hairdressers) {
-            Set<Block> hairdresserAvailableBlocks = agendaService.getFirstTenAvailableBlocks(hairdresser.getAgenda(), works);
-            availableBlocks.put(hairdresser, hairdresserAvailableBlocks);
         }
         return availableBlocks;
     }

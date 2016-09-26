@@ -59,13 +59,13 @@ public class UserController {
 
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity illegalArgumentExceptionHandler(HttpServletRequest req, Exception ex) {
-        logger.error("Caught IllegalArgumentException processing User request " + req.getRequestURL() + ": " + ex.getMessage());
+        logger.error("Caught IllegalArgumentException processing AppUser request " + req.getRequestURL() + ": " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
     }
 
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity accessDeniedExceptionExceptionHandler(HttpServletRequest req, Exception ex) {
-        logger.error("Caught AccessDeniedException processing User request " + req.getRequestURL() + ": " + ex.getMessage());
+        logger.error("Caught AccessDeniedException processing AppUser request " + req.getRequestURL() + ": " + ex.getMessage());
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
     }
 

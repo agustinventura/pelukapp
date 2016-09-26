@@ -38,14 +38,6 @@ public class HairdresserController {
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "blocks/free/{works}", method = RequestMethod.GET)
-    public List<HairdresserAvailableBlocks> getFreeBlocks(Authentication authentication, @MatrixVariable Set<Integer> works) {
-        Set<Work> requestedWorks = workService.get(works);
-        Map<Hairdresser, Set<Block>> freeBlocks = hairdresserService.getFirstTenAvailableBlocksByHairdresser(requestedWorks);
-        return toDTOs(freeBlocks);
-    }
-
-    @PreAuthorize("authenticated")
     @RequestMapping(value = "blocks/free/{day}/{works}", method = RequestMethod.GET)
     public List<HairdresserAvailableBlocks> getFreeBlocksByDay(Authentication authentication, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
                                                                @MatrixVariable Set<Integer> works) {

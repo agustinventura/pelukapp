@@ -46,7 +46,7 @@ public class AppointmentController {
         if (maybeAppointment.isPresent()) {
             cancelled = appointmentService.cancelAppointment(authentication, maybeAppointment.get());
         } else {
-            logger.error("User " + authentication.getName() + " tried to cancel non-existing appointment " + appointment);
+            logger.error("AppUser " + authentication.getName() + " tried to cancel non-existing appointment " + appointment);
             throw new IllegalArgumentException("There's no Appointment which matches " + appointment);
         }
         return new AppointmentDTO(cancelled);

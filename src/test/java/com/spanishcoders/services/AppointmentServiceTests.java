@@ -219,7 +219,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
             requestedAppointment.setStatus(AppointmentStatus.CANCELLED);
             return requestedAppointment;
         });
-        User user = mock(User.class);
+        AppUser user = mock(AppUser.class);
         given(userRepository.findByUsername(any(String.class))).willReturn(user);
         given(appointment.getUser()).willReturn(user);
         given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
@@ -229,11 +229,11 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 
     @Test
     public void getNextAppointmentsForExistingUser() {
-        User user = mock(User.class);
+        AppUser user = mock(AppUser.class);
         Appointment appointment = mock(Appointment.class);
         SortedSet<Appointment> appointments = Sets.newTreeSet();
         appointments.add(appointment);
-        given(appointmentRepository.getNextAppointments(any(User.class), any(AppointmentStatus.class))).willReturn(appointments);
+        given(appointmentRepository.getNextAppointments(any(AppUser.class), any(AppointmentStatus.class))).willReturn(appointments);
         Set<Appointment> nextAppointments = appointmentService.getNextAppointments(user);
         assertThat(nextAppointments, not(empty()));
         assertThat(nextAppointments, hasItem(appointment));
@@ -241,9 +241,9 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 
     @Test
     public void getNextAppointmentsForNonExistingUser() {
-        User user = mock(User.class);
+        AppUser user = mock(AppUser.class);
         SortedSet<Appointment> appointments = Sets.newTreeSet();
-        given(appointmentRepository.getNextAppointments(any(User.class), any(AppointmentStatus.class))).willReturn(appointments);
+        given(appointmentRepository.getNextAppointments(any(AppUser.class), any(AppointmentStatus.class))).willReturn(appointments);
         Set<Appointment> nextAppointments = appointmentService.getNextAppointments(user);
         assertThat(nextAppointments, is(empty()));
     }

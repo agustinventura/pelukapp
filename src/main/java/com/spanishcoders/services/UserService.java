@@ -36,9 +36,9 @@ public class UserService {
         if (authentication == null) {
             throw new AccessDeniedException("Can't get next appointments without Authentication");
         }
-        User user = userRepository.findByUsername(authentication.getName());
+        AppUser user = userRepository.findByUsername(authentication.getName());
         if (user == null) {
-            throw new AccessDeniedException("User " + authentication.getName() + " does not exists");
+            throw new AccessDeniedException("AppUser " + authentication.getName() + " does not exists");
         } else {
             appointments = appointmentService.getNextAppointments(user);
         }
@@ -75,7 +75,7 @@ public class UserService {
 
     public Hairdresser registerHairdresser(Authentication authentication, UserDTO userDTO) {
         if (authentication == null) {
-            throw new AccessDeniedException("User needs to be logged to register a hairdresser");
+            throw new AccessDeniedException("AppUser needs to be logged to register a hairdresser");
         } else {
             if (userDTO == null) {
                 throw new IllegalArgumentException("Can't create a hairdresser from null data");
@@ -94,7 +94,7 @@ public class UserService {
 
     private void checkUsername(UserDTO userDTO) {
         String username = userDTO.getUsername();
-        User existingUser = userRepository.findByUsername(username);
+        AppUser existingUser = userRepository.findByUsername(username);
         if (existingUser != null) {
             throw new IllegalArgumentException("There's an user with username " + username);
         }

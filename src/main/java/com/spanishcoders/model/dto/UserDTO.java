@@ -1,7 +1,7 @@
 package com.spanishcoders.model.dto;
 
 import com.google.common.collect.Sets;
-import com.spanishcoders.model.User;
+import com.spanishcoders.model.AppUser;
 
 import java.util.Set;
 
@@ -22,7 +22,7 @@ public class UserDTO {
         appointments = Sets.newTreeSet();
     }
 
-    public UserDTO(User user) {
+    public UserDTO(AppUser user) {
         this();
         this.setId(user.getId());
         this.setName(user.getName());

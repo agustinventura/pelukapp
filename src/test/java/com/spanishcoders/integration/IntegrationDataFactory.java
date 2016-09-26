@@ -43,7 +43,7 @@ public class IntegrationDataFactory {
     }
 
     public Set<BlockDTO> getBlocks(String auth, Set<Work> works) {
-        return this.getBlocks(auth, works, null);
+        return this.getBlocks(auth, works, LocalDate.now());
     }
 
     public Set<BlockDTO> getBlocks(String auth, Set<Work> works, LocalDate date) {
@@ -60,17 +60,16 @@ public class IntegrationDataFactory {
     }
 
     public AppointmentDTO getAppointment(String auth) {
-        return getAppointment(auth, null);
+        return getAppointment(auth, LocalDate.now());
     }
 
     public AppointmentDTO getAppointment(String auth, LocalDate date) {
         TreeSet<Work> works = (TreeSet<Work>) this.getWorks(auth);
         Work work = works.first();
         TreeSet<BlockDTO> blocks = null;
-        if (date != null) {
-            blocks = (TreeSet<BlockDTO>) this.getBlocks(auth, works, date);
-        } else {
-            blocks = (TreeSet<BlockDTO>) this.getBlocks(auth, works);
+        blocks = (TreeSet<BlockDTO>) this.getBlocks(auth, works, date);
+        if (blocks.size() == 0) {
+            blocks = (TreeSet<BlockDTO>) this.getBlocks(auth, works, date.plusDays(1));
         }
         BlockDTO block = blocks.last();
         AppointmentDTO appointmentDTO = new AppointmentDTO();

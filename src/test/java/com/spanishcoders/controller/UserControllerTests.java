@@ -2,8 +2,8 @@ package com.spanishcoders.controller;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
+import com.spanishcoders.model.AppUser;
 import com.spanishcoders.model.Appointment;
-import com.spanishcoders.model.User;
 import com.spanishcoders.services.UserService;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,7 +34,7 @@ public class UserControllerTests extends PelukaapUnitTest {
     public void getNextAppointments() throws Exception {
         given(userService.getNextAppointments(any(Authentication.class))).will(invocation -> {
             Authentication authentication = (Authentication) invocation.getArguments()[0];
-            User mockUser = new User();
+            AppUser mockUser = new AppUser();
             mockUser.setUsername(authentication.getName());
             Appointment appointment = new Appointment();
             appointment.setUser(mockUser);

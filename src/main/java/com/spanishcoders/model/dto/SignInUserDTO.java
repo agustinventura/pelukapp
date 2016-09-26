@@ -1,7 +1,7 @@
 package com.spanishcoders.model.dto;
 
+import com.spanishcoders.model.AppUser;
 import com.spanishcoders.model.Role;
-import com.spanishcoders.model.User;
 import com.spanishcoders.model.UserStatus;
 
 /**
@@ -23,7 +23,7 @@ public class SignInUserDTO {
         this.status = UserStatus.DELETED;
     }
 
-    public SignInUserDTO(User user) {
+    public SignInUserDTO(AppUser user) {
         this.id = user.getId();
         this.name = user.getName();
         this.username = user.getUsername();

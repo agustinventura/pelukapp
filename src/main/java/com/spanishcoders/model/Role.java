@@ -16,7 +16,7 @@ public enum Role {
         this.grantedAuthority = new SimpleGrantedAuthority(name);
     }
 
-    public static Role getRole(User user) {
+    public static Role getRole(AppUser user) {
         if (user instanceof Client) {
             return Role.CLIENT;
         } else if (user instanceof Hairdresser) {

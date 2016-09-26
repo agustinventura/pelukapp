@@ -68,15 +68,4 @@ public class WorkingDayTests {
         assertThat(availableBlocks.size(), is(blocksWithoutAppointments));
     }
 
-    @Test
-    public void getAvailableBlocksRandomFillDayTwoWorks() {
-        //TODO: this test seems a little fragile, but couldn't find a fast way to implement it without reimplementing code from WorkingDay
-        //TODO: MOCK, OTHERWISE THE TEST IS DEPENDENT ON DAY AND HOUR
-        WorkingDay workingDay = mockWorkingDay();
-        workingDay.getBlocks().first().setAppointment(new Appointment());
-        workingDay.getBlocks().last().setAppointment(new Appointment());
-        Set<Block> availableBlocks = workingDay.getAvailableBlocks(mockPublicWorks());
-        assertThat(availableBlocks, is(not(empty())));
-    }
-
 }

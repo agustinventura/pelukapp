@@ -10,7 +10,7 @@ import javax.persistence.OneToOne;
  * Created by pep on 12/05/2016.
  */
 @Entity
-public class Hairdresser extends User {
+public class Hairdresser extends AppUser {
 
     @OneToOne(mappedBy = "hairdresser", cascade = CascadeType.ALL)
     private Agenda agenda;

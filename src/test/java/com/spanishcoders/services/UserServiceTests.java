@@ -2,8 +2,8 @@ package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
+import com.spanishcoders.model.AppUser;
 import com.spanishcoders.model.Appointment;
-import com.spanishcoders.model.User;
 import com.spanishcoders.repositories.UserRepository;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +52,7 @@ public class UserServiceTests extends PelukaapUnitTest {
     @Test
     public void getNextAppointmentsUserWithoutAppointments() {
         Authentication authentication = Mockito.mock(Authentication.class);
-        User user = Mockito.mock(User.class);
+        AppUser user = Mockito.mock(AppUser.class);
         Set<Appointment> userAppointmnets = Sets.newHashSet();
         given(user.getAppointments()).willReturn(userAppointmnets);
         given(userRepository.findByUsername(any(String.class))).willReturn(user);
@@ -63,10 +63,10 @@ public class UserServiceTests extends PelukaapUnitTest {
     @Test
     public void getNextAppointmentsUserWithAppointments() {
         Authentication authentication = Mockito.mock(Authentication.class);
-        User user = Mockito.mock(User.class);
+        AppUser user = Mockito.mock(AppUser.class);
         Appointment mockAppointment = Mockito.mock(Appointment.class);
         Set<Appointment> userAppointments = Sets.newHashSet(mockAppointment);
-        given(appointmentService.getNextAppointments(any(User.class))).willReturn(userAppointments);
+        given(appointmentService.getNextAppointments(any(AppUser.class))).willReturn(userAppointments);
         given(userRepository.findByUsername(any(String.class))).willReturn(user);
         Set<Appointment> appointments = userService.getNextAppointments(authentication);
         assertThat(appointments, is(userAppointments));

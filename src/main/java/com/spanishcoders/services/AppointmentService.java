@@ -47,7 +47,7 @@ public class AppointmentService {
         Appointment confirmed = null;
         Set<Block> blocks = blockService.get(appointmentDTO.getBlocks());
         Set<Work> works = workService.get(appointmentDTO.getWorks());
-        User requestUser = authentication != null ? userRepository.findByUsername(authentication.getName()) : null;
+        AppUser requestUser = authentication != null ? userRepository.findByUsername(authentication.getName()) : null;
         confirmed = new Appointment(requestUser, works, blocks);
         confirmed = appointmentRepository.save(confirmed);
         return confirmed;
@@ -62,11 +62,11 @@ public class AppointmentService {
     }
 
     private void checkIfUserIsProprietaryOrAdmin(Authentication authentication, Appointment appointment) {
-        User requestUser = authentication != null ? userRepository.findByUsername(authentication.getName()) : null;
+        AppUser requestUser = authentication != null ? userRepository.findByUsername(authentication.getName()) : null;
         if (!requestUser.equals(appointment.getUser())) {
             Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication.getAuthorities();
             if (!userAuthorities.stream().anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
-                throw new AccessDeniedException("To cancel another User Appointments, User needs to be Worker");
+                throw new AccessDeniedException("To cancel another AppUser Appointments, AppUser needs to be Worker");
             }
         }
     }
@@ -75,7 +75,7 @@ public class AppointmentService {
         if (appointment.getDate().isBefore(LocalDateTime.now().plusHours(maxHoursToCancelAsClient))) {
             Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication.getAuthorities();
             if (!userAuthorities.stream().anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
-                throw new AccessDeniedException("To cancel an Appointment in less than 24 hours, User needs to be Worker");
+                throw new AccessDeniedException("To cancel an Appointment in less than 24 hours, AppUser needs to be Worker");
             }
         }
     }
@@ -96,7 +96,7 @@ public class AppointmentService {
         return appointment;
     }
 
-    public Set<Appointment> getNextAppointments(User user) {
+    public Set<Appointment> getNextAppointments(AppUser user) {
         Set<Appointment> nextAppointments = Sets.newHashSet();
         if (user != null) {
             nextAppointments = appointmentRepository.getNextAppointments(user, AppointmentStatus.VALID);

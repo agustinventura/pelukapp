@@ -1,6 +1,9 @@
 package com.spanishcoders.model;
 
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 import java.time.LocalTime;
 
@@ -18,7 +21,6 @@ public class Stretch {
     private LocalTime start;
 
     @NotNull
-    @Column(name = "`end`")
     private LocalTime end;
 
     @ManyToOne

@@ -28,14 +28,6 @@ public class AgendaService {
         this.workingDayService = workingDayService;
     }
 
-    public Set<Block> getFirstTenAvailableBlocks(Agenda agenda, Set<Work> works) {
-        Set<Block> availableBlocks = Sets.newTreeSet();
-        if (agenda != null && works != null && !works.isEmpty()) {
-            availableBlocks.addAll(workingDayService.getFirstTenAvailableBlocks(agenda, works));
-        }
-        return availableBlocks;
-    }
-
     public Set<Block> getTodaysBlocks(Agenda agenda) {
         Set<Block> dayBlocks = Sets.newTreeSet();
         if (agenda != null) {

@@ -57,7 +57,7 @@ public class StatelessLoginFilter extends AbstractAuthenticationProcessingFilter
     public void successfulAuthentication(HttpServletRequest request, HttpServletResponse response,
                                          FilterChain chain, Authentication authentication) throws IOException, ServletException {
 
-        // Lookup the complete User object from the database and create an Authentication for it
+        // Lookup the complete AppUser object from the database and create an Authentication for it
         final UserDetails authenticatedUser = userDetailsService.loadUserByUsername(authentication.getName());
         final UserAuthentication userAuthentication = new UserAuthentication(authenticatedUser);
 

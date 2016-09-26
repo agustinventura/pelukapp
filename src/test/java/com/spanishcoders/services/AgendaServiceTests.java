@@ -13,7 +13,7 @@ import java.time.LocalTime;
 import java.util.Set;
 import java.util.SortedMap;
 
-import static com.spanishcoders.TestDataFactory.*;
+import static com.spanishcoders.TestDataFactory.mockAgenda;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.assertThat;
@@ -37,46 +37,6 @@ public class AgendaServiceTests extends PelukaapUnitTest {
     @Before
     public void setUp() {
         agendaService = new AgendaService(agendaRepository, workingDayService);
-    }
-
-    @Test
-    public void getFirstTenAvailableBlocksWithoutAgenda() {
-        Set<Block> blocks = agendaService.getFirstTenAvailableBlocks(null, null);
-        assertThat(blocks.size(), is(0));
-    }
-
-    @Test
-    public void getFirstTenAvailableBlocksWithoutWorks() {
-        Set<Block> blocks = agendaService.getFirstTenAvailableBlocks(mockAgenda(), null);
-        assertThat(blocks.size(), is(0));
-    }
-
-    @Test
-    public void getFirstTenAvailableBlocksWithEmptyAgenda() {
-        Set<Block> blocks = agendaService.getFirstTenAvailableBlocks(mockAgenda(), null);
-        assertThat(blocks.size(), is(0));
-    }
-
-    @Test
-    public void getFirstTenAvailableBlocksWithEmptyWorks() {
-        Set<Block> blocks = agendaService.getFirstTenAvailableBlocks(mockAgenda(), Sets.newHashSet());
-        assertThat(blocks.size(), is(0));
-    }
-
-    @Test
-    public void getFirstTenAvailableBlocksForOneWork() {
-        Agenda agenda = mock(Agenda.class);
-        given(workingDayService.getFirstTenAvailableBlocks(any(Agenda.class), any(Set.class))).willReturn(mockTenBlocks());
-        Set<Block> blocks = agendaService.getFirstTenAvailableBlocks(agenda, mockPublicWork());
-        assertThat(blocks.size(), is(10));
-    }
-
-    @Test
-    public void getFirstTenAvailableBlocksForAllPublicWorks() {
-        Agenda agenda = mock(Agenda.class);
-        given(workingDayService.getFirstTenAvailableBlocks(any(Agenda.class), any(Set.class))).willReturn(mockTenBlocks());
-        Set<Block> blocks = agendaService.getFirstTenAvailableBlocks(agenda, mockPublicWorks());
-        assertThat(blocks.size(), is(10));
     }
 
     @Test

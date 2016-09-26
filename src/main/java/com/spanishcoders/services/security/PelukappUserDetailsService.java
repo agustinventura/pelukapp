@@ -1,7 +1,7 @@
 package com.spanishcoders.services.security;
 
+import com.spanishcoders.model.AppUser;
 import com.spanishcoders.model.Role;
-import com.spanishcoders.model.User;
 import com.spanishcoders.model.UserStatus;
 import com.spanishcoders.repositories.UserRepository;
 import org.slf4j.Logger;
@@ -34,7 +34,7 @@ public class PelukappUserDetailsService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findByUsername(username);
+        AppUser user = userRepository.findByUsername(username);
         if (user == null) {
             logger.error("Couldn't find logging user " + username);
             throw new UsernameNotFoundException("Username " + username + " not found");
@@ -43,7 +43,7 @@ public class PelukappUserDetailsService implements UserDetailsService {
                 user.getStatus() == UserStatus.ACTIVE, true, true, true, getAuthorities(user));
     }
 
-    private Collection<? extends GrantedAuthority> getAuthorities(User user) {
+    private Collection<? extends GrantedAuthority> getAuthorities(AppUser user) {
         Set<GrantedAuthority> authorities = new HashSet<>();
         authorities.add(Role.getRole(user).getGrantedAuthority());
         return authorities;

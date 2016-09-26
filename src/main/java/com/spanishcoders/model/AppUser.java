@@ -12,9 +12,8 @@ import java.util.Set;
  */
 
 @Entity
-@Table(name = "`User`")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public class User {
+public class AppUser {
 
     @Id
     @GeneratedValue
@@ -44,25 +43,25 @@ public class User {
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
-    public User() {
+    public AppUser() {
         this.status = UserStatus.ACTIVE;
         this.appointments = Sets.newTreeSet();
     }
 
-    public User(String username, String password, String phone) {
+    public AppUser(String username, String password, String phone) {
         this();
         this.username = username;
         this.password = password;
         this.phone = phone;
     }
 
-    public User(String username, String password) {
+    public AppUser(String username, String password) {
         this();
         this.username = username;
         this.password = password;
     }
 
-    public User(UserDTO userDTO) {
+    public AppUser(UserDTO userDTO) {
         this();
         this.username = userDTO.getUsername();
         this.password = userDTO.getPassword();
@@ -124,7 +123,7 @@ public class User {
 
     @Override
     public String toString() {
-        return "User{" +
+        return "AppUser{" +
                 "name='" + name + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
@@ -138,7 +137,7 @@ public class User {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        User user = (User) o;
+        AppUser user = (AppUser) o;
 
         return id != null ? id.equals(user.id) : user.id == null;
 
