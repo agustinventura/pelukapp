@@ -1,5 +1,6 @@
 package com.spanishcoders.integration;
 
+import com.spanishcoders.model.dto.SignInUserDTO;
 import com.spanishcoders.model.dto.UserDTO;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,27 +39,37 @@ public abstract class IntegrationTests {
     protected IntegrationDataFactory integrationDataFactory;
 
     protected String loginAsClient() {
-        ResponseEntity<UserDTO> response = login(CLIENT_USERNAME, CLIENT_PASSWORD);
+        ResponseEntity<SignInUserDTO> response = login(CLIENT_USERNAME, CLIENT_PASSWORD);
         String authToken = getAuthHeader(response);
         return authToken;
     }
 
     protected String loginAsAdmin() {
-        ResponseEntity<UserDTO> response = login(ADMIN_USERNAME, ADMIN_PASSWORD);
+        ResponseEntity<SignInUserDTO> response = login(ADMIN_USERNAME, ADMIN_PASSWORD);
         String authToken = getAuthHeader(response);
         return authToken;
     }
 
-    protected ResponseEntity<UserDTO> login(String username, String password) {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername(username);
-        userDTO.setPassword(password);
-        HttpEntity<UserDTO> request = new HttpEntity<>(userDTO);
-        ResponseEntity<UserDTO> response = testRestTemplate.postForEntity(LOGIN_URL, request, UserDTO.class);
+    protected ResponseEntity<SignInUserDTO> login(String username, String password) {
+        HttpEntity<UserDTO> request = getRequestWithUserDTO(username, password);
+        ResponseEntity<SignInUserDTO> response = testRestTemplate.postForEntity(LOGIN_URL, request, SignInUserDTO.class);
         return response;
     }
 
-    private String getAuthHeader(ResponseEntity<UserDTO> response) {
+    protected ResponseEntity<String> loginForError(String username, String password) {
+        HttpEntity<UserDTO> request = getRequestWithUserDTO(username, password);
+        ResponseEntity<String> response = testRestTemplate.postForEntity(LOGIN_URL, request, String.class);
+        return response;
+    }
+
+    private HttpEntity<UserDTO> getRequestWithUserDTO(String username, String password) {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername(username);
+        userDTO.setPassword(password);
+        return new HttpEntity<>(userDTO);
+    }
+
+    private String getAuthHeader(ResponseEntity<SignInUserDTO> response) {
         assertThat(response.getStatusCode(), is(HttpStatus.OK));
         HttpHeaders headers = response.getHeaders();
         assertThat(headers, notNullValue());

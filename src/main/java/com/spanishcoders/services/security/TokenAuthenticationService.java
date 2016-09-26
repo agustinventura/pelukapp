@@ -1,9 +1,8 @@
 package com.spanishcoders.services.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Sets;
 import com.spanishcoders.model.User;
-import com.spanishcoders.model.dto.UserDTO;
+import com.spanishcoders.model.dto.SignInUserDTO;
 import com.spanishcoders.model.security.UserAuthentication;
 import com.spanishcoders.repositories.UserRepository;
 import org.slf4j.Logger;
@@ -40,10 +39,8 @@ public class TokenAuthenticationService {
         final UserDetails user = authentication.getDetails();
         response.addHeader(AUTH_HEADER_NAME, tokenHandler.createTokenForUser(user));
         User applicationUser = userRepository.findByUsername(authentication.getName());
-        //TODO: "NICE" WORKAROUND FOR NOT LOADING APPOINTMENTS
-        applicationUser.setAppointments(Sets.newHashSet());
         response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-        new ObjectMapper().writeValue(response.getWriter(), new UserDTO(applicationUser));
+        new ObjectMapper().writeValue(response.getWriter(), new SignInUserDTO(applicationUser));
     }
 
 

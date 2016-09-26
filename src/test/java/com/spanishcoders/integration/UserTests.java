@@ -2,7 +2,7 @@ package com.spanishcoders.integration;
 
 import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.model.dto.ClientDTO;
-import com.spanishcoders.model.dto.UserDTO;
+import com.spanishcoders.model.dto.SignInUserDTO;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
@@ -32,25 +32,25 @@ public class UserTests extends IntegrationTests {
 
     @Test
     public void clientLogin() {
-        UserDTO client = login(CLIENT_USERNAME, CLIENT_PASSWORD).getBody();
+        SignInUserDTO client = login(CLIENT_USERNAME, CLIENT_PASSWORD).getBody();
         assertThat(client.getUsername(), is(CLIENT_USERNAME));
     }
 
     @Test
     public void loginWithWrongPassword() {
-        ResponseEntity<UserDTO> response = login(CLIENT_USERNAME, CLIENT_PASSWORD + "s");
+        ResponseEntity<String> response = loginForError(CLIENT_USERNAME, CLIENT_PASSWORD + "s");
         assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
     }
 
     @Test
     public void loginWithWrongUsername() {
-        ResponseEntity<UserDTO> response = login(CLIENT_USERNAME + "s", CLIENT_PASSWORD);
+        ResponseEntity<String> response = loginForError(CLIENT_USERNAME + "s", CLIENT_PASSWORD);
         assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
     }
 
     @Test
     public void adminLogin() {
-        UserDTO admin = login(ADMIN_USERNAME, ADMIN_PASSWORD).getBody();
+        SignInUserDTO admin = login(ADMIN_USERNAME, ADMIN_PASSWORD).getBody();
         assertThat(admin.getUsername(), is(ADMIN_USERNAME));
     }
 
@@ -65,7 +65,7 @@ public class UserTests extends IntegrationTests {
         ResponseEntity<ClientDTO> registrationResponse = register(username, password, phone, name);
         assertThat(registrationResponse.getStatusCode(), is(HttpStatus.OK));
 
-        ResponseEntity<UserDTO> loginResponse = login(username, password);
+        ResponseEntity<SignInUserDTO> loginResponse = login(username, password);
         assertThat(loginResponse.getStatusCode(), is(HttpStatus.OK));
     }
 
