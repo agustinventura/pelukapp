@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 
@@ -22,6 +23,9 @@ public final class TokenHandler {
     private final String secret;
 
     private final UserDetailsService userDetailsService;
+
+    @Value("${token_duration:1}")
+    private int tokenDuration;
 
     public TokenHandler(String secret, UserDetailsService userService) {
         this.secret = Base64.getEncoder().encodeToString(secret.getBytes());
@@ -45,7 +49,7 @@ public final class TokenHandler {
 
     public String createTokenForUser(UserDetails user) {
         Date now = new Date();
-        Date expiration = new Date(now.getTime() + TimeUnit.HOURS.toMillis(1l));
+        Date expiration = new Date(now.getTime() + TimeUnit.HOURS.toMillis(tokenDuration));
         return Jwts.builder()
                 .setId(UUID.randomUUID().toString())
                 .setSubject(user.getUsername())

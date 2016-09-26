@@ -1,6 +1,7 @@
 package com.spanishcoders.model;
 
 import com.google.common.collect.Sets;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.LocalTime;
@@ -44,6 +45,7 @@ public class WorkingDayTests {
         assertThat(availableBlocks, is(empty()));
     }
 
+    @Ignore
     @Test
     public void getAvailableBlocksEmptyDayOneWork() throws Exception {
         WorkingDay workingDay = mockWorkingDay();
@@ -51,6 +53,7 @@ public class WorkingDayTests {
         assertThat(availableBlocks, is(not(empty())));
     }
 
+    @Ignore
     @Test
     public void getAvailableBlocksEmptyTwoWorks() throws Exception {
         //TODO: MOCK, OTHERWISE THE TEST IS DEPENDENT ON DAY AND HOUR

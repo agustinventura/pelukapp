@@ -4,6 +4,7 @@ import com.spanishcoders.controller.security.StatelessAuthenticationFilter;
 import com.spanishcoders.controller.security.StatelessLoginFilter;
 import com.spanishcoders.repositories.UserRepository;
 import com.spanishcoders.services.security.TokenAuthenticationService;
+import com.spanishcoders.services.security.TokenHandler;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -102,6 +103,11 @@ public class IntegrationSecurityConfiguration extends WebSecurityConfigurerAdapt
 
     @Bean
     public TokenAuthenticationService tokenAuthenticationService() {
-        return new TokenAuthenticationService("tooManySecrets", userDetailsService, userRepository);
+        return new TokenAuthenticationService(tokenHandler(), userRepository);
+    }
+
+    @Bean
+    public TokenHandler tokenHandler() {
+        return new TokenHandler("tooManySecrets", userDetailsService);
     }
 }

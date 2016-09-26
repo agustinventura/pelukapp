@@ -76,6 +76,11 @@ public class AppointmentTests extends IntegrationTests {
         String auth = loginAsClient();
         Set<Work> works = integrationDataFactory.getWorks(auth);
         TreeSet<BlockDTO> blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works);
+        int dayOffset = 1;
+        while (blocks.size() < 1) {
+            blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works, LocalDate.now().plusDays(dayOffset));
+            dayOffset++;
+        }
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().addAll(works.stream().map(work -> work.getId()).collect(Collectors.toSet()));
         appointmentDTO.getBlocks().add(blocks.first().getId());
@@ -179,7 +184,7 @@ public class AppointmentTests extends IntegrationTests {
     @Test
     public void cancelAppointmentWithPeriodExpiredAsClient() throws JsonProcessingException {
         String auth = loginAsClient();
-        AppointmentDTO appointmentDTO = this.getAppointmentForToday(auth);
+        AppointmentDTO appointmentDTO = this.getAppointment(auth);
         appointmentDTO = confirmAppointment(auth, appointmentDTO);
         ResponseEntity<String> response = errorClient.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, toJSON(appointmentDTO), errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
@@ -188,7 +193,7 @@ public class AppointmentTests extends IntegrationTests {
     @Test
     public void cancelAppointmentWithPeriodExpiredAsAdmin() {
         String auth = loginAsAdmin();
-        AppointmentDTO appointmentDTO = this.getAppointmentForToday(auth);
+        AppointmentDTO appointmentDTO = this.getAppointment(auth);
         appointmentDTO = confirmAppointment(auth, appointmentDTO);
         AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
         assertThat(cancelled, notNullValue());
@@ -201,10 +206,16 @@ public class AppointmentTests extends IntegrationTests {
 
     private AppointmentDTO getAppointmentWithManyWorks(String auth) {
         Set<Work> works = integrationDataFactory.getWorks(auth);
-        List<BlockDTO> blocks = integrationDataFactory.getBlocks(auth, works).stream().sorted().limit(1).collect(Collectors.toList());
+        Set<BlockDTO> blocks = integrationDataFactory.getBlocks(auth, works, LocalDate.now());
+        int dayOffset = 1;
+        while (blocks.size() <= works.size()) {
+            blocks = integrationDataFactory.getBlocks(auth, works, LocalDate.now().plusDays(dayOffset));
+            dayOffset++;
+        }
+        List<BlockDTO> selectedBlock = blocks.stream().sorted().limit(1).collect(Collectors.toList());
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().addAll(works.stream().map(work -> work.getId()).collect(Collectors.toSet()));
-        int firstBlockId = blocks.get(0).getId();
+        int firstBlockId = selectedBlock.get(0).getId();
         for (int i = 0; i < works.size(); i++) {
             appointmentDTO.getBlocks().add(firstBlockId + i);
         }
@@ -231,10 +242,15 @@ public class AppointmentTests extends IntegrationTests {
         cancelAppointment(auth, toBeCancelled);
     }
 
-    private AppointmentDTO getAppointmentForToday(String auth) {
+    private AppointmentDTO getAppointment(String auth) {
         TreeSet<Work> works = (TreeSet<Work>) integrationDataFactory.getWorks(auth);
         Work work = works.first();
-        TreeSet<BlockDTO> blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works);
+        TreeSet<BlockDTO> blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works, LocalDate.now());
+        int dayOffset = 1;
+        while (blocks.size() <= works.size()) {
+            blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works, LocalDate.now().plusDays(dayOffset));
+            dayOffset++;
+        }
         BlockDTO block = blocks.first();
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(work.getId());

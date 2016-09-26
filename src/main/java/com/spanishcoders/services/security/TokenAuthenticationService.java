@@ -10,7 +10,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,8 +28,8 @@ public class TokenAuthenticationService {
 
     private final UserRepository userRepository;
 
-    public TokenAuthenticationService(String secret, UserDetailsService userService, UserRepository userRepository) {
-        tokenHandler = new TokenHandler(secret, userService);
+    public TokenAuthenticationService(TokenHandler tokenHandler, UserRepository userRepository) {
+        this.tokenHandler = tokenHandler;
         this.userRepository = userRepository;
     }
 
