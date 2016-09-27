@@ -10,6 +10,7 @@ import java.util.Set;
 import static com.spanishcoders.TestDataFactory.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by agustin on 4/07/16.
@@ -45,20 +46,14 @@ public class WorkingDayTests {
         assertThat(availableBlocks, is(empty()));
     }
 
-    @Ignore
     @Test
+    @Ignore
     public void getAvailableBlocksEmptyDayOneWork() throws Exception {
-        WorkingDay workingDay = mockWorkingDay();
-        Set<Block> availableBlocks = workingDay.getAvailableBlocks(mockPublicWork());
-        assertThat(availableBlocks, is(not(empty())));
-    }
+        //TODO: TERMINAR
+        WorkingDay workingDay = new WorkingDay(mock(Agenda.class));
 
-    @Ignore
-    @Test
-    public void getAvailableBlocksEmptyTwoWorks() throws Exception {
-        //TODO: MOCK, OTHERWISE THE TEST IS DEPENDENT ON DAY AND HOUR
-        WorkingDay workingDay = mockWorkingDay();
-        Set<Block> availableBlocks = workingDay.getAvailableBlocks(mockPublicWorks());
+        Set<Work> publicWork = Sets.newHashSet(mock(Work.class));
+        Set<Block> availableBlocks = workingDay.getAvailableBlocks(publicWork);
         assertThat(availableBlocks, is(not(empty())));
     }
 

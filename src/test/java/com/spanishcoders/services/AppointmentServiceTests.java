@@ -71,7 +71,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
     public void confirmAppointmentNullWorks() throws Exception {
         Authentication authentication = mock(Authentication.class);
         AppointmentDTO appointmentDTO = new AppointmentDTO();
-        appointmentDTO.setWorks(null);
+        appointmentDTO.getWorks().clear();
         appointmentService.confirmAppointment(authentication, appointmentDTO);
     }
 
@@ -88,7 +88,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
         Authentication authentication = mock(Authentication.class);
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(1);
-        appointmentDTO.setBlocks(null);
+        appointmentDTO.getBlocks().clear();
         appointmentService.confirmAppointment(authentication, appointmentDTO);
     }
 

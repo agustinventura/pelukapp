@@ -49,6 +49,8 @@ public class Appointment implements Comparable<Appointment> {
     @NotNull
     private AppointmentStatus status;
 
+    private String notes;
+
     public Appointment() {
         blocks = Sets.newTreeSet();
         works = Sets.newTreeSet();
@@ -116,6 +118,14 @@ public class Appointment implements Comparable<Appointment> {
 
     public void setStatus(AppointmentStatus status) {
         this.status = status;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     @Override
