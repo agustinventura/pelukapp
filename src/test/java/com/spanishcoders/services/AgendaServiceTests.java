@@ -55,8 +55,8 @@ public class AgendaServiceTests extends PelukaapUnitTest {
         given(agenda.hasWorkingDay(any(LocalDate.class))).willReturn(false);
         given(agenda.isNonWorkingDay(any(LocalDate.class))).willReturn(false);
         Stretch stretch = mock(Stretch.class);
-        given(stretch.getStart()).willReturn(LocalTime.now());
-        given(stretch.getEnd()).willReturn(LocalTime.now().plusHours(2));
+        given(stretch.getStartTime()).willReturn(LocalTime.now());
+        given(stretch.getEndTime()).willReturn(LocalTime.now().plusHours(2));
         Timetable timetable = mock(Timetable.class);
         given(timetable.getStretches()).willReturn(Sets.newHashSet(stretch));
         given(agenda.getCurrentTimetable()).willReturn(timetable);
@@ -129,8 +129,8 @@ public class AgendaServiceTests extends PelukaapUnitTest {
         given(agenda.hasWorkingDay(any(LocalDate.class))).willReturn(false);
         given(agenda.isNonWorkingDay(any(LocalDate.class))).willReturn(false);
         Stretch stretch = mock(Stretch.class);
-        given(stretch.getStart()).willReturn(LocalTime.now().minusHours(1));
-        given(stretch.getEnd()).willReturn(LocalTime.now().plusHours(1));
+        given(stretch.getStartTime()).willReturn(LocalTime.now().minusHours(1));
+        given(stretch.getEndTime()).willReturn(LocalTime.now().plusHours(1));
         Set<Stretch> stretches = Sets.newHashSet(stretch);
         Timetable timetable = mock(Timetable.class);
         given(agenda.getCurrentTimetable()).willReturn(timetable);

@@ -161,8 +161,8 @@ public class WorkingDay implements Comparable<WorkingDay> {
     private NavigableSet<Block> createBlocksForDay(Timetable timetable) {
         NavigableSet<Block> newBlocks = new TreeSet<>();
         for (Stretch stretch : timetable.getStretches()) {
-            LocalTime startTime = stretch.getStart();
-            while (startTime.isBefore(stretch.getEnd())) {
+            LocalTime startTime = stretch.getStartTime();
+            while (startTime.isBefore(stretch.getEndTime())) {
                 Block newBlock = new Block(startTime, this);
                 newBlocks.add(newBlock);
                 startTime = startTime.plus(Block.DEFAULT_BLOCK_LENGTH);

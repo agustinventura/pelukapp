@@ -18,10 +18,10 @@ public class Stretch {
     protected Integer id;
 
     @NotNull
-    private LocalTime start;
+    private LocalTime startTime;
 
     @NotNull
-    private LocalTime end;
+    private LocalTime endTime;
 
     @ManyToOne
     private Timetable timetables;
@@ -30,10 +30,10 @@ public class Stretch {
         this.timetables = null;
     }
 
-    public Stretch(Timetable timetable, LocalTime start, LocalTime end) {
+    public Stretch(Timetable timetable, LocalTime startTime, LocalTime endTime) {
         this();
-        this.start = start;
-        this.end = end;
+        this.startTime = startTime;
+        this.endTime = endTime;
         timetables = timetable;
         timetable.addStretch(this);
     }
@@ -46,20 +46,20 @@ public class Stretch {
         this.id = id;
     }
 
-    public LocalTime getStart() {
-        return start;
+    public LocalTime getStartTime() {
+        return startTime;
     }
 
-    public void setStart(LocalTime start) {
-        this.start = start;
+    public void setStartTime(LocalTime startTime) {
+        this.startTime = startTime;
     }
 
-    public LocalTime getEnd() {
-        return end;
+    public LocalTime getEndTime() {
+        return endTime;
     }
 
-    public void setEnd(LocalTime end) {
-        this.end = end;
+    public void setEndTime(LocalTime endTime) {
+        this.endTime = endTime;
     }
 
     public Timetable getTimetables() {
@@ -74,8 +74,8 @@ public class Stretch {
     public String toString() {
         return "Stretch{" +
                 "id=" + id +
-                ", start=" + start +
-                ", end=" + end +
+                ", startTime=" + startTime +
+                ", endTime=" + endTime +
                 '}';
     }
 
@@ -87,16 +87,16 @@ public class Stretch {
         Stretch stretch = (Stretch) o;
 
         if (id != null ? !id.equals(stretch.id) : stretch.id != null) return false;
-        if (start != null ? !start.equals(stretch.start) : stretch.start != null) return false;
-        return end != null ? end.equals(stretch.end) : stretch.end == null;
+        if (startTime != null ? !startTime.equals(stretch.startTime) : stretch.startTime != null) return false;
+        return endTime != null ? endTime.equals(stretch.endTime) : stretch.endTime == null;
 
     }
 
     @Override
     public int hashCode() {
         int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (start != null ? start.hashCode() : 0);
-        result = 31 * result + (end != null ? end.hashCode() : 0);
+        result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
+        result = 31 * result + (endTime != null ? endTime.hashCode() : 0);
         return result;
     }
 }
