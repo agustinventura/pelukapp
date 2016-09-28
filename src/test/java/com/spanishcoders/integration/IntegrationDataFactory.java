@@ -4,7 +4,7 @@ import com.google.common.collect.Sets;
 import com.spanishcoders.model.Work;
 import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.model.dto.BlockDTO;
-import com.spanishcoders.model.dto.HairdresserAvailableBlocks;
+import com.spanishcoders.model.dto.HairdresserBlocks;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 
@@ -47,16 +47,16 @@ public class IntegrationDataFactory {
     }
 
     public Set<BlockDTO> getBlocks(String auth, Set<Work> works, LocalDate date) {
-        HeadersTestRestTemplate<List<HairdresserAvailableBlocks>> blocksClient = new HeadersTestRestTemplate<>(testRestTemplate);
-        ParameterizedTypeReference<List<HairdresserAvailableBlocks>> blocksTypeRef = new ParameterizedTypeReference<List<HairdresserAvailableBlocks>>() {
+        HeadersTestRestTemplate<List<HairdresserBlocks>> blocksClient = new HeadersTestRestTemplate<>(testRestTemplate);
+        ParameterizedTypeReference<List<HairdresserBlocks>> blocksTypeRef = new ParameterizedTypeReference<List<HairdresserBlocks>>() {
         };
         String blocksUrl = HairdresserTests.FREE_BLOCKS_URL;
         if (date != null) {
             blocksUrl += date.format(DateTimeFormatter.ISO_LOCAL_DATE) + "/";
         }
         blocksUrl += works.stream().map(work -> work.getId().toString()).collect(Collectors.joining(";works=", "works=", ""));
-        List<HairdresserAvailableBlocks> hairdresserAvailableBlocks = blocksClient.getWithAuthorizationHeader(blocksUrl, auth, blocksTypeRef);
-        return Sets.newTreeSet(hairdresserAvailableBlocks.get(0).getAvailableBlocks());
+        List<HairdresserBlocks> hairdresserAvailableBlocks = blocksClient.getWithAuthorizationHeader(blocksUrl, auth, blocksTypeRef);
+        return Sets.newTreeSet(hairdresserAvailableBlocks.get(0).getBlocks());
     }
 
     public AppointmentDTO getAppointment(String auth) {

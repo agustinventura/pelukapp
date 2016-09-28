@@ -1,12 +1,11 @@
 package com.spanishcoders.controller;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.spanishcoders.model.Block;
 import com.spanishcoders.model.Hairdresser;
 import com.spanishcoders.model.Work;
-import com.spanishcoders.model.dto.BlockDTO;
-import com.spanishcoders.model.dto.HairdresserAvailableBlocks;
-import com.spanishcoders.model.dto.HairdresserDTO;
+import com.spanishcoders.model.dto.*;
 import com.spanishcoders.services.HairdresserService;
 import com.spanishcoders.services.WorkService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -16,7 +15,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -39,8 +37,8 @@ public class HairdresserController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "blocks/free/{day}/{works}", method = RequestMethod.GET)
-    public List<HairdresserAvailableBlocks> getFreeBlocksByDay(Authentication authentication, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
-                                                               @MatrixVariable Set<Integer> works) {
+    public List<HairdresserBlocks> getFreeBlocksByDay(Authentication authentication, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
+                                                      @MatrixVariable Set<Integer> works) {
         Set<Work> requestedWorks = workService.get(works);
         Map<Hairdresser, Set<Block>> freeBlocks = hairdresserService.getAvailableBlocksForDayByHairdresser(requestedWorks, day);
         return toDTOs(freeBlocks);
@@ -48,18 +46,34 @@ public class HairdresserController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "schedule/today", method = RequestMethod.GET)
-    public List<HairdresserAvailableBlocks> getDaySchedule(Authentication authentication) {
+    public List<HairdresserSchedule> getDaySchedule(Authentication authentication) {
         Map<Hairdresser, Set<Block>> todaysBlocks = hairdresserService.getTodaysBlocksByHairdresser();
-        return toDTOs(todaysBlocks);
+        return toScheduleDTOs(todaysBlocks);
     }
 
-    private List<HairdresserAvailableBlocks> toDTOs(Map<Hairdresser, Set<Block>> freeBlocks) {
-        List<HairdresserAvailableBlocks> availableBlocks = new ArrayList<>(freeBlocks.keySet().size());
+    private List<HairdresserSchedule> toScheduleDTOs(Map<Hairdresser, Set<Block>> todaysBlocks) {
+        List<HairdresserSchedule> schedule = Lists.newArrayList();
+        for (Map.Entry<Hairdresser, Set<Block>> entry : todaysBlocks.entrySet()) {
+            HairdresserDTO hairdresser = new HairdresserDTO(entry.getKey());
+            Set<ScheduleDTO> scheduleDTO = getScheduleDTOs(entry.getValue());
+            schedule.add(new HairdresserSchedule(hairdresser, scheduleDTO));
+        }
+        return schedule;
+    }
+
+    private Set<ScheduleDTO> getScheduleDTOs(Set<Block> blocks) {
+        Set<ScheduleDTO> scheduleDTOs = Sets.newTreeSet();
+        blocks.stream().forEach(block -> scheduleDTOs.add(new ScheduleDTO(block)));
+        return scheduleDTOs;
+    }
+
+    private List<HairdresserBlocks> toDTOs(Map<Hairdresser, Set<Block>> freeBlocks) {
+        List<HairdresserBlocks> availableBlocks = Lists.newArrayList();
         for (Map.Entry<Hairdresser, Set<Block>> entry : freeBlocks.entrySet()) {
             HairdresserDTO hairdresser = new HairdresserDTO(entry.getKey());
             Set<BlockDTO> blocks = getBlockDTOs(entry.getValue());
-            HairdresserAvailableBlocks hairdresserAvailableBlocks = new HairdresserAvailableBlocks(hairdresser, blocks);
-            availableBlocks.add(hairdresserAvailableBlocks);
+            HairdresserBlocks hairdresserBlocks = new HairdresserBlocks(hairdresser, blocks);
+            availableBlocks.add(hairdresserBlocks);
         }
         return availableBlocks;
     }

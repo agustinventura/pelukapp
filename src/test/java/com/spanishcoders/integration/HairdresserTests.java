@@ -1,7 +1,7 @@
 package com.spanishcoders.integration;
 
 import com.spanishcoders.model.dto.BlockDTO;
-import com.spanishcoders.model.dto.HairdresserAvailableBlocks;
+import com.spanishcoders.model.dto.HairdresserBlocks;
 import com.spanishcoders.model.dto.HairdresserDTO;
 import org.junit.Before;
 import org.junit.Test;
@@ -28,8 +28,8 @@ public class HairdresserTests extends IntegrationTests {
     public static final String FREE_BLOCKS_URL = "/hairdresser/blocks/free/";
     public static final String TODAYS_BLOCKS_URL = "/hairdresser/schedule/today";
 
-    private HeadersTestRestTemplate<List<HairdresserAvailableBlocks>> client;
-    private ParameterizedTypeReference<List<HairdresserAvailableBlocks>> typeRef = new ParameterizedTypeReference<List<HairdresserAvailableBlocks>>() {
+    private HeadersTestRestTemplate<List<HairdresserBlocks>> client;
+    private ParameterizedTypeReference<List<HairdresserBlocks>> typeRef = new ParameterizedTypeReference<List<HairdresserBlocks>>() {
     };
 
     @Before
@@ -41,10 +41,10 @@ public class HairdresserTests extends IntegrationTests {
     @Test
     public void getAvailableBlocksWithoutAuthorization() {
         String worksUrl = integrationDataFactory.getWorksUrl(loginAsClient());
-        HeadersTestRestTemplate<HairdresserAvailableBlocks> client = new HeadersTestRestTemplate<>(testRestTemplate);
-        ParameterizedTypeReference<HairdresserAvailableBlocks> typeRef = new ParameterizedTypeReference<HairdresserAvailableBlocks>() {
+        HeadersTestRestTemplate<HairdresserBlocks> client = new HeadersTestRestTemplate<>(testRestTemplate);
+        ParameterizedTypeReference<HairdresserBlocks> typeRef = new ParameterizedTypeReference<HairdresserBlocks>() {
         };
-        ResponseEntity<HairdresserAvailableBlocks> response = client.getResponseEntityWithAuthorizationHeader(FREE_BLOCKS_URL + worksUrl, "", typeRef);
+        ResponseEntity<HairdresserBlocks> response = client.getResponseEntityWithAuthorizationHeader(FREE_BLOCKS_URL + worksUrl, "", typeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
     }
 
@@ -52,12 +52,12 @@ public class HairdresserTests extends IntegrationTests {
     public void getAvailableBlocksAsClient() {
         String authHeader = loginAsClient();
         String worksUrl = integrationDataFactory.getWorksUrl(authHeader);
-        List<HairdresserAvailableBlocks> availableBlocks = client.getWithAuthorizationHeader(FREE_BLOCKS_URL + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/" + worksUrl, authHeader, typeRef);
+        List<HairdresserBlocks> availableBlocks = client.getWithAuthorizationHeader(FREE_BLOCKS_URL + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/" + worksUrl, authHeader, typeRef);
         assertThat(availableBlocks, is(not(empty())));
-        HairdresserAvailableBlocks hairdresserAvailableBlocks = availableBlocks.get(0);
+        HairdresserBlocks hairdresserAvailableBlocks = availableBlocks.get(0);
         HairdresserDTO hairdresser = hairdresserAvailableBlocks.getHairdresser();
         assertThat(hairdresser, notNullValue());
-        Set<BlockDTO> freeBlocks = hairdresserAvailableBlocks.getAvailableBlocks();
+        Set<BlockDTO> freeBlocks = hairdresserAvailableBlocks.getBlocks();
         assertThat(freeBlocks.size(), is(notNullValue()));
     }
 
@@ -65,19 +65,19 @@ public class HairdresserTests extends IntegrationTests {
     public void getAvailableBlocksAsHairdresser() {
         String authHeader = loginAsAdmin();
         String worksUrl = integrationDataFactory.getWorksUrl(authHeader);
-        List<HairdresserAvailableBlocks> availableBlocks = client.getWithAuthorizationHeader(FREE_BLOCKS_URL + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/" + worksUrl, authHeader, typeRef);
+        List<HairdresserBlocks> availableBlocks = client.getWithAuthorizationHeader(FREE_BLOCKS_URL + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/" + worksUrl, authHeader, typeRef);
         assertThat(availableBlocks, is(not(empty())));
-        HairdresserAvailableBlocks hairdresserAvailableBlocks = availableBlocks.get(0);
+        HairdresserBlocks hairdresserAvailableBlocks = availableBlocks.get(0);
         HairdresserDTO hairdresser = hairdresserAvailableBlocks.getHairdresser();
         assertThat(hairdresser, notNullValue());
-        Set<BlockDTO> freeBlocks = hairdresserAvailableBlocks.getAvailableBlocks();
+        Set<BlockDTO> freeBlocks = hairdresserAvailableBlocks.getBlocks();
         assertThat(freeBlocks.size(), is(notNullValue()));
     }
 
     @Test
     public void getTodaysBlocks() {
         String authHeader = loginAsAdmin();
-        List<HairdresserAvailableBlocks> todaysBlocks = client.getWithAuthorizationHeader(TODAYS_BLOCKS_URL, authHeader, typeRef);
-        List<HairdresserAvailableBlocks> todaysBlocksAgain = client.getWithAuthorizationHeader(TODAYS_BLOCKS_URL, authHeader, typeRef);
+        List<HairdresserBlocks> todaysBlocks = client.getWithAuthorizationHeader(TODAYS_BLOCKS_URL, authHeader, typeRef);
+        List<HairdresserBlocks> todaysBlocksAgain = client.getWithAuthorizationHeader(TODAYS_BLOCKS_URL, authHeader, typeRef);
     }
 }

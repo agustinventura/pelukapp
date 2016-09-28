@@ -3,10 +3,7 @@ package com.spanishcoders.controller;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
-import com.spanishcoders.model.Block;
-import com.spanishcoders.model.Hairdresser;
-import com.spanishcoders.model.UserStatus;
-import com.spanishcoders.model.WorkingDay;
+import com.spanishcoders.model.*;
 import com.spanishcoders.services.HairdresserService;
 import com.spanishcoders.services.WorkService;
 import org.junit.Before;
@@ -85,12 +82,18 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
         given(hairdresserService.getTodaysBlocksByHairdresser()).willAnswer(invocation -> {
             Map<Hairdresser, Set<Block>> answer = Maps.newHashMap();
             Block block = mock(Block.class);
+            WorkingDay workingDay = mock(WorkingDay.class);
+            Agenda agenda = mock(Agenda.class);
+            Hairdresser hairdresser = mock(Hairdresser.class);
+            given(hairdresser.getId()).willReturn(1);
+            given(hairdresser.getStatus()).willReturn(UserStatus.ACTIVE);
+            given(agenda.getHairdresser()).willReturn(hairdresser);
+            given(workingDay.getAgenda()).willReturn(agenda);
+            given(workingDay.getDate()).willReturn(LocalDate.now());
             given(block.getStart()).willReturn(LocalTime.now());
             given(block.getLength()).willReturn(Block.DEFAULT_BLOCK_LENGTH);
-            given(block.getWorkingDay()).willReturn(mock(WorkingDay.class));
+            given(block.getWorkingDay()).willReturn(workingDay);
             Set<Block> blocks = Sets.newHashSet(block);
-            Hairdresser hairdresser = mock(Hairdresser.class);
-            given(hairdresser.getStatus()).willReturn(UserStatus.ACTIVE);
             answer.put(hairdresser, blocks);
             return answer;
         });
@@ -98,6 +101,6 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
                 .andExpect(jsonPath("$.*", hasSize(1)))
-                .andExpect(jsonPath("$[0].availableBlocks.*", hasSize(1)));
+                .andExpect(jsonPath("$[0].schedule.*", hasSize(1)));
     }
 }

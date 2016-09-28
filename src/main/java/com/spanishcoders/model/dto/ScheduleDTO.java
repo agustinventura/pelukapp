@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 /**
  * Created by agustin on 27/09/16.
  */
-public class ScheduleDTO {
+public class ScheduleDTO implements Comparable<ScheduleDTO> {
 
     private final Integer blockId;
 
@@ -20,6 +20,8 @@ public class ScheduleDTO {
     private final String workingDay;
 
     private final Integer hairdresserId;
+
+    private final Integer appointmentId;
 
     private final String client;
 
@@ -33,6 +35,7 @@ public class ScheduleDTO {
         length = "";
         workingDay = "";
         hairdresserId = 0;
+        appointmentId = 0;
         client = "";
         worksIds = Sets.newHashSet();
         notes = "";
@@ -42,8 +45,9 @@ public class ScheduleDTO {
         blockId = block.getId();
         start = block.getStart().toString();
         length = block.getLength().toString();
-        workingDay = block.getWorkingDay().getDate().toString();
+        workingDay = block.getWorkingDay() != null ? block.getWorkingDay().getDate().toString() : "";
         hairdresserId = block.getWorkingDay().getAgenda().getHairdresser().getId();
+        appointmentId = block.getAppointment() != null ? block.getAppointment().getId() : 0;
         client = block.getAppointment() != null ? block.getAppointment().getUser().getName() : "";
         worksIds = Sets.newHashSet();
         if (block.getAppointment() != null) {
@@ -112,5 +116,14 @@ public class ScheduleDTO {
                 ", worksIds=" + worksIds +
                 ", notes='" + notes + '\'' +
                 '}';
+    }
+
+    @Override
+    public int compareTo(ScheduleDTO o) {
+        if (start.equals(o.getStart())) {
+            return workingDay.compareTo(o.getWorkingDay());
+        } else {
+            return start.compareTo(o.getStart());
+        }
     }
 }
