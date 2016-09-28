@@ -69,7 +69,7 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getScheduleForTheDayWithoutWorks() throws Exception {
-        given(hairdresserService.getTodaysBlocksByHairdresser()).willReturn(Maps.newHashMap());
+        given(hairdresserService.getDayBlocks(any(LocalDate.class))).willReturn(Maps.newHashMap());
         this.mockMvc.perform(get("/hairdresser/schedule/today").accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
@@ -79,7 +79,7 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getScheduleForTheDayWithOneWork() throws Exception {
-        given(hairdresserService.getTodaysBlocksByHairdresser()).willAnswer(invocation -> {
+        given(hairdresserService.getDayBlocks(any(LocalDate.class))).willAnswer(invocation -> {
             Map<Hairdresser, Set<Block>> answer = Maps.newHashMap();
             Block block = mock(Block.class);
             WorkingDay workingDay = mock(WorkingDay.class);

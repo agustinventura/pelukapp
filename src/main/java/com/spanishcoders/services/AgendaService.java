@@ -28,17 +28,16 @@ public class AgendaService {
         this.workingDayService = workingDayService;
     }
 
-    public Set<Block> getTodaysBlocks(Agenda agenda) {
+    public Set<Block> getDayBlocks(Agenda agenda, LocalDate day) {
         Set<Block> dayBlocks = Sets.newTreeSet();
         if (agenda != null) {
-            LocalDate today = LocalDate.now();
-            if (agenda.hasWorkingDay(today)) {
-                dayBlocks = agenda.getWorkingDayBlocks(today);
+            if (agenda.hasWorkingDay(day)) {
+                dayBlocks = agenda.getWorkingDayBlocks(day);
             } else {
-                if (!agenda.isNonWorkingDay(today)) {
-                    new WorkingDay(agenda, today);
+                if (!agenda.isNonWorkingDay(day)) {
+                    new WorkingDay(agenda, day);
                     agendaRepository.save(agenda);
-                    dayBlocks = agenda.getWorkingDayBlocks(today);
+                    dayBlocks = agenda.getWorkingDayBlocks(day);
                 }
             }
         }

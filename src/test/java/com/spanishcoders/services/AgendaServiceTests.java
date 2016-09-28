@@ -45,7 +45,7 @@ public class AgendaServiceTests extends PelukaapUnitTest {
         given(agenda.hasWorkingDay(any(LocalDate.class))).willReturn(true);
         Set<Block> blocks = Sets.newHashSet(mock(Block.class));
         given(agenda.getWorkingDayBlocks(any(LocalDate.class))).willReturn(blocks);
-        Set<Block> todaysBlocks = agendaService.getTodaysBlocks(agenda);
+        Set<Block> todaysBlocks = agendaService.getDayBlocks(agenda, LocalDate.now());
         assertThat(todaysBlocks, is(blocks));
     }
 
@@ -63,7 +63,7 @@ public class AgendaServiceTests extends PelukaapUnitTest {
         given(agendaRepository.save(any(Agenda.class))).willAnswer(invocation -> invocation.getArguments()[0]);
         Set<Block> blocks = Sets.newHashSet(mock(Block.class));
         given(agenda.getWorkingDayBlocks(any(LocalDate.class))).willReturn(blocks);
-        Set<Block> todaysBlocks = agendaService.getTodaysBlocks(agenda);
+        Set<Block> todaysBlocks = agendaService.getDayBlocks(agenda, LocalDate.now());
         assertThat(todaysBlocks, is(blocks));
     }
 
@@ -72,7 +72,7 @@ public class AgendaServiceTests extends PelukaapUnitTest {
         Agenda agenda = mock(Agenda.class);
         given(agenda.hasWorkingDay(any(LocalDate.class))).willReturn(false);
         given(agenda.isNonWorkingDay(any(LocalDate.class))).willReturn(true);
-        Set<Block> todaysBlocks = agendaService.getTodaysBlocks(agenda);
+        Set<Block> todaysBlocks = agendaService.getDayBlocks(agenda, LocalDate.now());
         assertThat(todaysBlocks, is(empty()));
     }
 

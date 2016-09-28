@@ -46,8 +46,16 @@ public class HairdresserController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "schedule/today", method = RequestMethod.GET)
-    public List<HairdresserSchedule> getDaySchedule(Authentication authentication) {
-        Map<Hairdresser, Set<Block>> todaysBlocks = hairdresserService.getTodaysBlocksByHairdresser();
+    public List<HairdresserSchedule> getTodaySchedule(Authentication authentication) {
+        Map<Hairdresser, Set<Block>> todaysBlocks = hairdresserService.getDayBlocks(LocalDate.now());
+        return toScheduleDTOs(todaysBlocks);
+    }
+
+    @PreAuthorize("authenticated")
+    @RequestMapping(value = "schedule/{day}", method = RequestMethod.GET)
+    public List<HairdresserSchedule> getDaySchedule(Authentication authentication,
+                                                    @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day) {
+        Map<Hairdresser, Set<Block>> todaysBlocks = hairdresserService.getDayBlocks(day);
         return toScheduleDTOs(todaysBlocks);
     }
 

@@ -26,15 +26,15 @@ public class HairdresserService {
         this.agendaService = agendaService;
     }
 
-    public Map<Hairdresser, Set<Block>> getTodaysBlocksByHairdresser() {
+    public Map<Hairdresser, Set<Block>> getDayBlocks(LocalDate day) {
         Set<Hairdresser> hairdressers = hairdresserRepository.findByStatus(UserStatus.ACTIVE);
-        return getTodayHairdresserBlocks(hairdressers);
+        return getDayBlocks(hairdressers, day);
     }
 
-    private Map<Hairdresser, Set<Block>> getTodayHairdresserBlocks(Set<Hairdresser> hairdressers) {
+    private Map<Hairdresser, Set<Block>> getDayBlocks(Set<Hairdresser> hairdressers, LocalDate day) {
         Map<Hairdresser, Set<Block>> availableBlocks = Maps.newHashMap();
         for (Hairdresser hairdresser : hairdressers) {
-            Set<Block> hairdresserBlocks = agendaService.getTodaysBlocks(hairdresser.getAgenda());
+            Set<Block> hairdresserBlocks = agendaService.getDayBlocks(hairdresser.getAgenda(), day);
             availableBlocks.put(hairdresser, hairdresserBlocks);
         }
         return availableBlocks;
