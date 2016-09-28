@@ -1,7 +1,7 @@
 package com.spanishcoders.model;
 
+import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.time.LocalTime;
@@ -10,6 +10,7 @@ import java.util.Set;
 import static com.spanishcoders.TestDataFactory.*;
 import static org.hamcrest.Matchers.*;
 import static org.junit.Assert.assertThat;
+import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.mock;
 
 /**
@@ -47,14 +48,25 @@ public class WorkingDayTests {
     }
 
     @Test
-    @Ignore
     public void getAvailableBlocksEmptyDayOneWork() throws Exception {
-        //TODO: TERMINAR
-        WorkingDay workingDay = new WorkingDay(mock(Agenda.class));
-
-        Set<Work> publicWork = Sets.newHashSet(mock(Work.class));
-        Set<Block> availableBlocks = workingDay.getAvailableBlocks(publicWork);
-        assertThat(availableBlocks, is(not(empty())));
+        Agenda agenda = mock(Agenda.class);
+        given(agenda.getNonWorkingDays()).willReturn(Sets.newHashSet());
+        given(agenda.getWorkingDays()).willReturn(Maps.newTreeMap());
+        Stretch stretch = mock(Stretch.class);
+        int startHour = LocalTime.now().getHour() + 1;
+        int endHour = LocalTime.now().getHour() + 6;
+        given(stretch.getStartTime()).willReturn(LocalTime.of(startHour, 00));
+        given(stretch.getEndTime()).willReturn(LocalTime.of(endHour, 00));
+        Timetable timetable = mock(Timetable.class);
+        given(timetable.getStretches()).willReturn(Sets.newHashSet(stretch));
+        given(agenda.getCurrentTimetable()).willReturn(timetable);
+        WorkingDay workingDay = new WorkingDay(agenda);
+        Work publicWork = mock(Work.class);
+        given(publicWork.getDuration()).willReturn(30);
+        given(publicWork.getKind()).willReturn(WorkKind.PUBLIC);
+        Set<Work> publicWorks = Sets.newHashSet(publicWork);
+        Set<Block> availableBlocks = workingDay.getAvailableBlocks(publicWorks);
+        assertThat(availableBlocks.size(), is(10));
     }
 
     @Test
