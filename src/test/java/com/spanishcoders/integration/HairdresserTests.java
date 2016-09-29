@@ -3,6 +3,7 @@ package com.spanishcoders.integration;
 import com.spanishcoders.model.dto.BlockDTO;
 import com.spanishcoders.model.dto.HairdresserBlocks;
 import com.spanishcoders.model.dto.HairdresserDTO;
+import com.spanishcoders.model.dto.HairdresserSchedule;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
@@ -26,33 +27,75 @@ import static org.hamcrest.core.IsNot.not;
 public class HairdresserTests extends IntegrationTests {
 
     public static final String FREE_BLOCKS_URL = "/hairdresser/blocks/available/";
-    public static final String TODAYS_BLOCKS_URL = "/hairdresser/schedule/today";
-
-    private HeadersTestRestTemplate<List<HairdresserBlocks>> client;
-    private ParameterizedTypeReference<List<HairdresserBlocks>> typeRef = new ParameterizedTypeReference<List<HairdresserBlocks>>() {
+    public static final String TODAY_SCHEDULE_URL = "/hairdresser/schedule/today";
+    public static final String DAY_SCHEDULE_URL = "/hairdresser/schedule/";
+    ParameterizedTypeReference<Object> errorTypeRef = new ParameterizedTypeReference<Object>() {
     };
+    private HeadersTestRestTemplate<List<HairdresserBlocks>> hairdresserBlocksClient;
+    private ParameterizedTypeReference<List<HairdresserBlocks>> hairdresserBlocksTypeRef = new ParameterizedTypeReference<List<HairdresserBlocks>>() {
+    };
+    private HeadersTestRestTemplate<List<HairdresserSchedule>> hairdresserScheduleClient;
+    private ParameterizedTypeReference<List<HairdresserSchedule>> hairdresserScheduleTypeRef = new ParameterizedTypeReference<List<HairdresserSchedule>>() {
+    };
+    private HeadersTestRestTemplate<Object> errorClient;
 
     @Before
     public void setUp() {
-        client = new HeadersTestRestTemplate<>(testRestTemplate);
+        hairdresserBlocksClient = new HeadersTestRestTemplate<>(testRestTemplate);
+        hairdresserScheduleClient = new HeadersTestRestTemplate<>(testRestTemplate);
+        errorClient = new HeadersTestRestTemplate<>(testRestTemplate);
         integrationDataFactory = new IntegrationDataFactory(testRestTemplate);
     }
 
     @Test
     public void getAvailableBlocksWithoutAuthorization() {
         String worksUrl = integrationDataFactory.getWorksUrl(loginAsClient());
-        HeadersTestRestTemplate<HairdresserBlocks> client = new HeadersTestRestTemplate<>(testRestTemplate);
-        ParameterizedTypeReference<HairdresserBlocks> typeRef = new ParameterizedTypeReference<HairdresserBlocks>() {
-        };
-        ResponseEntity<HairdresserBlocks> response = client.getResponseEntityWithAuthorizationHeader(FREE_BLOCKS_URL + worksUrl, "", typeRef);
+        ResponseEntity<Object> response = errorClient.getResponseEntityWithAuthorizationHeader(FREE_BLOCKS_URL + worksUrl, "", errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
+    }
+
+    @Test
+    public void getAvailableBlocksInvalidDay() {
+        String clientAuth = loginAsClient();
+        String worksUrl = integrationDataFactory.getWorksUrl(clientAuth);
+        ResponseEntity<Object> response = errorClient.getResponseEntityWithAuthorizationHeader(FREE_BLOCKS_URL + "/2016-xx-01" + worksUrl, clientAuth, errorTypeRef);
+        assertThat(response.getStatusCode(), is(HttpStatus.NOT_FOUND));
+    }
+
+    @Test
+    public void getAvailableBlocksWithoutWorks() {
+        String clientAuth = loginAsClient();
+        ResponseEntity<Object> response = errorClient.getResponseEntityWithAuthorizationHeader(FREE_BLOCKS_URL +
+                LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/works", clientAuth, errorTypeRef);
+        assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+    }
+
+    @Test
+    public void getAvailableBlocksInvalidWorks() {
+        String clientAuth = loginAsClient();
+        ResponseEntity<Object> response = errorClient.getResponseEntityWithAuthorizationHeader(FREE_BLOCKS_URL +
+                LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/works=a", clientAuth, errorTypeRef);
+        assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+    }
+
+    @Test
+    public void getAvailableBlocksNonWorkingDay() {
+        String authHeader = loginAsClient();
+        String worksUrl = integrationDataFactory.getWorksUrl(authHeader);
+        List<HairdresserBlocks> availableBlocks = hairdresserBlocksClient.getWithAuthorizationHeader(FREE_BLOCKS_URL + LocalDate.of(2016, 01, 01).format(DateTimeFormatter.ISO_LOCAL_DATE) + "/" + worksUrl, authHeader, hairdresserBlocksTypeRef);
+        assertThat(availableBlocks, is(not(empty())));
+        HairdresserBlocks hairdresserAvailableBlocks = availableBlocks.get(0);
+        HairdresserDTO hairdresser = hairdresserAvailableBlocks.getHairdresser();
+        assertThat(hairdresser, notNullValue());
+        Set<BlockDTO> freeBlocks = hairdresserAvailableBlocks.getBlocks();
+        assertThat(freeBlocks.size(), is(0));
     }
 
     @Test
     public void getAvailableBlocksAsClient() {
         String authHeader = loginAsClient();
         String worksUrl = integrationDataFactory.getWorksUrl(authHeader);
-        List<HairdresserBlocks> availableBlocks = client.getWithAuthorizationHeader(FREE_BLOCKS_URL + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/" + worksUrl, authHeader, typeRef);
+        List<HairdresserBlocks> availableBlocks = hairdresserBlocksClient.getWithAuthorizationHeader(FREE_BLOCKS_URL + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/" + worksUrl, authHeader, hairdresserBlocksTypeRef);
         assertThat(availableBlocks, is(not(empty())));
         HairdresserBlocks hairdresserAvailableBlocks = availableBlocks.get(0);
         HairdresserDTO hairdresser = hairdresserAvailableBlocks.getHairdresser();
@@ -65,7 +108,7 @@ public class HairdresserTests extends IntegrationTests {
     public void getAvailableBlocksAsHairdresser() {
         String authHeader = loginAsAdmin();
         String worksUrl = integrationDataFactory.getWorksUrl(authHeader);
-        List<HairdresserBlocks> availableBlocks = client.getWithAuthorizationHeader(FREE_BLOCKS_URL + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/" + worksUrl, authHeader, typeRef);
+        List<HairdresserBlocks> availableBlocks = hairdresserBlocksClient.getWithAuthorizationHeader(FREE_BLOCKS_URL + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/" + worksUrl, authHeader, hairdresserBlocksTypeRef);
         assertThat(availableBlocks, is(not(empty())));
         HairdresserBlocks hairdresserAvailableBlocks = availableBlocks.get(0);
         HairdresserDTO hairdresser = hairdresserAvailableBlocks.getHairdresser();
@@ -75,9 +118,52 @@ public class HairdresserTests extends IntegrationTests {
     }
 
     @Test
-    public void getTodaysBlocks() {
-        String authHeader = loginAsAdmin();
-        List<HairdresserBlocks> todaysBlocks = client.getWithAuthorizationHeader(TODAYS_BLOCKS_URL, authHeader, typeRef);
-        List<HairdresserBlocks> todaysBlocksAgain = client.getWithAuthorizationHeader(TODAYS_BLOCKS_URL, authHeader, typeRef);
+    public void getTodayScheduleWithoutAuthorization() {
+        ResponseEntity<Object> response = errorClient.getResponseEntityWithAuthorizationHeader(TODAY_SCHEDULE_URL, "", errorTypeRef);
+        assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
+    }
+
+    @Test
+    public void getTodayScheduleAsClient() {
+        String clientAuth = loginAsClient();
+        ResponseEntity<Object> response = errorClient.getResponseEntityWithAuthorizationHeader(TODAY_SCHEDULE_URL, clientAuth, errorTypeRef);
+        assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
+    }
+
+    @Test
+    public void getTodayScheduleAsAdmin() {
+        String adminAuth = loginAsAdmin();
+        List<HairdresserSchedule> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(TODAY_SCHEDULE_URL, adminAuth, hairdresserScheduleTypeRef);
+        assertThat(schedule, is(not(empty())));
+    }
+
+    @Test
+    public void getDayScheduleWithoutAuthorization() {
+        ResponseEntity<Object> response = errorClient.getResponseEntityWithAuthorizationHeader(DAY_SCHEDULE_URL, "", errorTypeRef);
+        assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
+    }
+
+    @Test
+    public void getDayScheduleInvalidDay() {
+        String adminAuth = loginAsAdmin();
+        ResponseEntity<Object> response = errorClient.getResponseEntityWithAuthorizationHeader(DAY_SCHEDULE_URL +
+                "2016-xy-01", adminAuth, errorTypeRef);
+        assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
+    }
+
+    @Test
+    public void getDayScheduleAsClient() {
+        String clientAuth = loginAsClient();
+        ResponseEntity<Object> response = errorClient.getResponseEntityWithAuthorizationHeader(DAY_SCHEDULE_URL +
+                LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), clientAuth, errorTypeRef);
+        assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
+    }
+
+    @Test
+    public void getDayScheduleAsAdmin() {
+        String adminAuth = loginAsAdmin();
+        List<HairdresserSchedule> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL +
+                LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), adminAuth, hairdresserScheduleTypeRef);
+        assertThat(schedule, is(not(empty())));
     }
 }

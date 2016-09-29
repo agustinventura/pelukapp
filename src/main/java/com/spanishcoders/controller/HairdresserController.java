@@ -37,21 +37,20 @@ public class HairdresserController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(value = "blocks/available/{day}/{works}", method = RequestMethod.GET)
-    public List<HairdresserBlocks> getFreeBlocksByDay(Authentication authentication, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
-                                                      @MatrixVariable Set<Integer> works) {
+    public List<HairdresserBlocks> getAvailableBlocksByDay(Authentication authentication, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
+                                                           @MatrixVariable Set<Integer> works) {
         Set<Work> requestedWorks = workService.get(works);
         Map<Hairdresser, Set<Block>> freeBlocks = hairdresserService.getAvailableBlocksForDayByHairdresser(requestedWorks, day);
         return toDTOs(freeBlocks);
     }
 
-    @PreAuthorize("authenticated")
+    @PreAuthorize("hasRole('ROLE_WORKER')")
     @RequestMapping(value = "schedule/today", method = RequestMethod.GET)
     public List<HairdresserSchedule> getTodaySchedule(Authentication authentication) {
-        Map<Hairdresser, Set<Block>> todaysBlocks = hairdresserService.getDayBlocks(LocalDate.now());
-        return toScheduleDTOs(todaysBlocks);
+        return getDaySchedule(authentication, LocalDate.now());
     }
 
-    @PreAuthorize("authenticated")
+    @PreAuthorize("hasRole('ROLE_WORKER')")
     @RequestMapping(value = "schedule/{day}", method = RequestMethod.GET)
     public List<HairdresserSchedule> getDaySchedule(Authentication authentication,
                                                     @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day) {
