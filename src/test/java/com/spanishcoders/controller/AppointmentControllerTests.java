@@ -91,7 +91,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.*", hasSize(7)))
+                .andExpect(jsonPath("$.*", hasSize(8)))
                 .andExpect(jsonPath("$.blocks", hasSize(1)))
                 .andExpect(jsonPath("$.works", hasSize(1)));
     }
@@ -109,7 +109,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.*", hasSize(7)))
+                .andExpect(jsonPath("$.*", hasSize(8)))
                 .andExpect(jsonPath("$.blocks", hasSize(2)))
                 .andExpect(jsonPath("$.works", hasSize(2)));
     }
@@ -172,7 +172,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.*", hasSize(7)))
+                .andExpect(jsonPath("$.*", hasSize(8)))
                 .andExpect(jsonPath("$.status", is(1)));
     }
 
@@ -195,7 +195,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.*", hasSize(7)))
+                .andExpect(jsonPath("$.*", hasSize(8)))
                 .andExpect(jsonPath("$.status", is(1)));
     }
 
@@ -234,7 +234,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
                 .accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.*", hasSize(7)))
+                .andExpect(jsonPath("$.*", hasSize(8)))
                 .andExpect(jsonPath("$.status", is(1)));
     }
 

@@ -25,7 +25,7 @@ import static org.hamcrest.core.IsNot.not;
  */
 public class HairdresserTests extends IntegrationTests {
 
-    public static final String FREE_BLOCKS_URL = "/hairdresser/blocks/free/";
+    public static final String FREE_BLOCKS_URL = "/hairdresser/blocks/available/";
     public static final String TODAYS_BLOCKS_URL = "/hairdresser/schedule/today";
 
     private HeadersTestRestTemplate<List<HairdresserBlocks>> client;

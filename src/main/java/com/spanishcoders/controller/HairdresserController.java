@@ -36,7 +36,7 @@ public class HairdresserController {
     }
 
     @PreAuthorize("authenticated")
-    @RequestMapping(value = "blocks/free/{day}/{works}", method = RequestMethod.GET)
+    @RequestMapping(value = "blocks/available/{day}/{works}", method = RequestMethod.GET)
     public List<HairdresserBlocks> getFreeBlocksByDay(Authentication authentication, @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day,
                                                       @MatrixVariable Set<Integer> works) {
         Set<Work> requestedWorks = workService.get(works);

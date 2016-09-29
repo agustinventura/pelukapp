@@ -59,7 +59,7 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
         given(hairdresserService.getAvailableBlocksForDayByHairdresser(any(Set.class), any(LocalDate.class))).willReturn(Maps.newHashMap());
         LocalDate fiveDaysFromNow = LocalDate.now().plusDays(5);
         String isoDate = fiveDaysFromNow.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        String requestUrl = "/hairdresser/blocks/free/" + isoDate + "/works=1;works=2";
+        String requestUrl = "/hairdresser/blocks/available/" + isoDate + "/works=1;works=2";
         this.mockMvc.perform(get(requestUrl).accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("application/json;charset=UTF-8"))
