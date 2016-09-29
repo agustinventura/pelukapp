@@ -76,6 +76,10 @@ public class ScheduleDTO implements Comparable<ScheduleDTO> {
         return hairdresserId;
     }
 
+    public Integer getAppointmentId() {
+        return appointmentId;
+    }
+
     public String getClient() {
         return client;
     }
