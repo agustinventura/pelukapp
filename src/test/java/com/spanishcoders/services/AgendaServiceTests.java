@@ -13,7 +13,6 @@ import java.time.LocalTime;
 import java.util.Set;
 import java.util.SortedMap;
 
-import static com.spanishcoders.TestDataFactory.mockAgenda;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.assertThat;
@@ -40,7 +39,19 @@ public class AgendaServiceTests extends PelukaapUnitTest {
     }
 
     @Test
-    public void getTodaysBlocksForExistingWorkingDay() {
+    public void getDayBlocksWithoutAgenda() {
+        Set<Block> dayBlocks = agendaService.getDayBlocks(null, LocalDate.now());
+        assertThat(dayBlocks, is(empty()));
+    }
+
+    @Test
+    public void getDayBlocksWithoutDay() {
+        Set<Block> dayBlocks = agendaService.getDayBlocks(mock(Agenda.class), null);
+        assertThat(dayBlocks, is(empty()));
+    }
+
+    @Test
+    public void getDayBlocksForExistingWorkingDay() {
         Agenda agenda = mock(Agenda.class);
         given(agenda.hasWorkingDay(any(LocalDate.class))).willReturn(true);
         Set<Block> blocks = Sets.newHashSet(mock(Block.class));
@@ -50,7 +61,7 @@ public class AgendaServiceTests extends PelukaapUnitTest {
     }
 
     @Test
-    public void getTodaysBlocksForNonExistingWorkingDay() {
+    public void getDayBlocksForNonExistingWorkingDay() {
         Agenda agenda = mock(Agenda.class);
         given(agenda.hasWorkingDay(any(LocalDate.class))).willReturn(false);
         given(agenda.isNonWorkingDay(any(LocalDate.class))).willReturn(false);
@@ -68,7 +79,7 @@ public class AgendaServiceTests extends PelukaapUnitTest {
     }
 
     @Test
-    public void getTodaysBlocksForNonWorkingDay() {
+    public void getDayBlocksForNonWorkingDay() {
         Agenda agenda = mock(Agenda.class);
         given(agenda.hasWorkingDay(any(LocalDate.class))).willReturn(false);
         given(agenda.isNonWorkingDay(any(LocalDate.class))).willReturn(true);
@@ -79,25 +90,25 @@ public class AgendaServiceTests extends PelukaapUnitTest {
     @Test
     public void getAvailableBlocksWithoutAgenda() {
         Set<Block> blocks = agendaService.getAvailableBlocks(null, null, null);
-        assertThat(blocks.size(), is(0));
+        assertThat(blocks, is(empty()));
     }
 
     @Test
     public void getAvailableBlocksWithoutWorks() {
         Set<Block> blocks = agendaService.getAvailableBlocks(mock(Agenda.class), null, null);
-        assertThat(blocks.size(), is(0));
+        assertThat(blocks, is(empty()));
     }
 
     @Test
     public void getAvailableBlocksWithEmptyWorks() {
-        Set<Block> blocks = agendaService.getAvailableBlocks(mockAgenda(), Sets.newHashSet(), null);
-        assertThat(blocks.size(), is(0));
+        Set<Block> blocks = agendaService.getAvailableBlocks(mock(Agenda.class), Sets.newHashSet(), null);
+        assertThat(blocks, is(empty()));
     }
 
     @Test
     public void getAvailableBlocksWithoutDate() {
-        Set<Block> blocks = agendaService.getAvailableBlocks(mockAgenda(), Sets.newHashSet(mock(Work.class)), null);
-        assertThat(blocks.size(), is(0));
+        Set<Block> blocks = agendaService.getAvailableBlocks(mock(Agenda.class), Sets.newHashSet(mock(Work.class)), null);
+        assertThat(blocks, is(empty()));
     }
 
     @Test
@@ -106,7 +117,7 @@ public class AgendaServiceTests extends PelukaapUnitTest {
         given(agenda.hasWorkingDay(any(LocalDate.class))).willReturn(false);
         given(agenda.isNonWorkingDay(any(LocalDate.class))).willReturn(true);
         Set<Block> blocks = agendaService.getAvailableBlocks(agenda, Sets.newHashSet(mock(Work.class)), LocalDate.now());
-        assertThat(blocks.size(), is(0));
+        assertThat(blocks, is(empty()));
     }
 
     @Test

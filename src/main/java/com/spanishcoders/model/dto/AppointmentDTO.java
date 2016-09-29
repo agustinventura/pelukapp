@@ -82,6 +82,10 @@ public class AppointmentDTO {
         return status;
     }
 
+    public String getNotes() {
+        return notes;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -108,6 +112,7 @@ public class AppointmentDTO {
                 ", date='" + date + '\'' +
                 ", duration='" + duration + '\'' +
                 ", status=" + status +
+                ", notes=" + notes +
                 '}';
     }
 }

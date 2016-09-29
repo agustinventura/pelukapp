@@ -48,7 +48,7 @@ public class AppointmentService {
         Set<Block> blocks = blockService.get(appointmentDTO.getBlocks());
         Set<Work> works = workService.get(appointmentDTO.getWorks());
         AppUser requestUser = authentication != null ? userRepository.findByUsername(authentication.getName()) : null;
-        confirmed = new Appointment(requestUser, works, blocks);
+        confirmed = new Appointment(requestUser, works, blocks, appointmentDTO.getNotes());
         confirmed = appointmentRepository.save(confirmed);
         return confirmed;
     }

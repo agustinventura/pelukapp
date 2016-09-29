@@ -57,7 +57,7 @@ public class Appointment implements Comparable<Appointment> {
         status = AppointmentStatus.VALID;
     }
 
-    public Appointment(AppUser user, Set<Work> works, Set<Block> blocks) {
+    public Appointment(AppUser user, Set<Work> works, Set<Block> blocks, String notes) {
         this();
         checkAuthentication(user);
         checkWorks(works);
@@ -74,6 +74,8 @@ public class Appointment implements Comparable<Appointment> {
         LocalDate appointmentDate = firstBlock.getWorkingDay().getDate();
         this.date = LocalDateTime.of(appointmentDate, appointmentTime);
         this.duration = Duration.of(works.stream().mapToInt(work -> work.getDuration()).sum(), ChronoUnit.MINUTES);
+
+        this.notes = notes;
     }
 
     public Integer getId() {
@@ -158,6 +160,7 @@ public class Appointment implements Comparable<Appointment> {
                 ", date=" + date +
                 ", blocks=" + blocks.stream().mapToInt(block -> block.getId()).toArray() +
                 ", works=" + works.stream().mapToInt(work -> work.getId()).toArray() +
+                ", notes=" + notes +
                 '}';
     }
 

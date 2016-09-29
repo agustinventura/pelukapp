@@ -30,7 +30,7 @@ public class AgendaService {
 
     public Set<Block> getDayBlocks(Agenda agenda, LocalDate day) {
         Set<Block> dayBlocks = Sets.newTreeSet();
-        if (agenda != null) {
+        if (agenda != null && day != null) {
             if (agenda.hasWorkingDay(day)) {
                 dayBlocks = agenda.getWorkingDayBlocks(day);
             } else {

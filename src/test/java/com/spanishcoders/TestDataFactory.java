@@ -3,13 +3,14 @@ package com.spanishcoders;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.spanishcoders.model.*;
-import org.mockito.Mockito;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Map;
 import java.util.Set;
+
+import static org.mockito.Mockito.mock;
 
 /**
  * Created by agustin on 28/06/16.
@@ -62,10 +63,6 @@ public class TestDataFactory {
         return hairdresser;
     }
 
-    public static Agenda mockAgenda() {
-        return Mockito.mock(Agenda.class);
-    }
-
     public static Agenda mockFullAgenda() {
         Agenda agenda = new Agenda(mockHairdresser());
         LocalDate today = LocalDate.now();
@@ -77,7 +74,7 @@ public class TestDataFactory {
 
     public static Timetable mockTimetable() {
         LocalDate today = LocalDate.now();
-        Timetable timetable = new Timetable(mockAgenda(), today.minusDays(1), today.plusDays(1));
+        Timetable timetable = new Timetable(mock(Agenda.class), today.minusDays(1), today.plusDays(1));
         return timetable;
     }
 

@@ -36,7 +36,25 @@ public class HairdresserServiceTests extends PelukaapUnitTest {
     }
 
     @Test
-    public void getTodaysBlocks() {
+    public void getDayBlocksWithoutHairdressers() {
+        given(hairdresserRepository.findByStatus(any(UserStatus.class))).willReturn(Sets.newHashSet());
+        Map<Hairdresser, Set<Block>> availableBlocks = hairdresserService.getDayBlocks(LocalDate.now());
+        assertThat(availableBlocks.size(), is(0));
+    }
+
+    @Test
+    public void getDayBlocksWithoutDay() {
+        Hairdresser hairdresser = mock(Hairdresser.class);
+        given(hairdresserRepository.findByStatus(any(UserStatus.class))).willReturn(Sets.newHashSet(hairdresser));
+        Set<Block> todaysBlocks = Sets.newHashSet();
+        given(agendaService.getDayBlocks(any(Agenda.class), any(LocalDate.class))).willReturn(todaysBlocks);
+        Map<Hairdresser, Set<Block>> availableBlocks = hairdresserService.getDayBlocks(null);
+        assertThat(availableBlocks.entrySet(), not((empty())));
+        assertThat(availableBlocks.get(hairdresser).size(), is((todaysBlocks.size())));
+    }
+
+    @Test
+    public void getDayBlocksForToday() {
         Hairdresser hairdresser = mock(Hairdresser.class);
         given(hairdresserRepository.findByStatus(any(UserStatus.class))).willReturn(Sets.newHashSet(hairdresser));
         Set<Block> todaysBlocks = Sets.newHashSet(mock(Block.class));
