@@ -14,7 +14,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Optional;
 
 /**
  * Created by agustin on 21/06/16.
@@ -33,23 +32,16 @@ public class AppointmentController {
 
     @PreAuthorize("authenticated")
     @RequestMapping(method = RequestMethod.POST)
-    public AppointmentDTO createAppointment(Authentication authentication, @RequestBody AppointmentDTO appointment) {
-        Appointment confirmed = appointmentService.confirmAppointment(authentication, appointment);
+    public AppointmentDTO create(Authentication authentication, @RequestBody AppointmentDTO appointment) {
+        Appointment confirmed = appointmentService.createAppointment(authentication, appointment);
         return new AppointmentDTO(confirmed);
     }
 
     @PreAuthorize("authenticated")
     @RequestMapping(method = RequestMethod.PUT)
-    public AppointmentDTO cancelAppointment(Authentication authentication, @RequestBody AppointmentDTO appointment) {
-        Optional<Appointment> maybeAppointment = appointmentService.get(appointment.getId());
-        Appointment cancelled = null;
-        if (maybeAppointment.isPresent()) {
-            cancelled = appointmentService.cancelAppointment(authentication, maybeAppointment.get());
-        } else {
-            logger.error("AppUser " + authentication.getName() + " tried to cancel non-existing appointment " + appointment);
-            throw new IllegalArgumentException("There's no Appointment which matches " + appointment);
-        }
-        return new AppointmentDTO(cancelled);
+    public AppointmentDTO update(Authentication authentication, @RequestBody AppointmentDTO appointment) {
+        Appointment modified = appointmentService.update(authentication, appointment);
+        return new AppointmentDTO(modified);
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

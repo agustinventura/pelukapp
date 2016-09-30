@@ -117,7 +117,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void getAppointmentWithInvalidPairingWorkBlock() throws Exception {
-        given(appointmentService.confirmAppointment(any(Authentication.class), any(AppointmentDTO.class))).willThrow(new IllegalArgumentException());
+        given(appointmentService.createAppointment(any(Authentication.class), any(AppointmentDTO.class))).willThrow(new IllegalArgumentException());
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         this.mockMvc.perform(post(APPOINTMENT_URL)
                 .content(toJSON(appointmentDTO))
@@ -129,7 +129,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
     @Test
     @WithMockUser(username = "client", roles = {"USER", "CLIENT"})
     public void getAppointmentWithPrivateWorkAsClient() throws Exception {
-        given(appointmentService.confirmAppointment(any(Authentication.class), any(AppointmentDTO.class))).willThrow(new AccessDeniedException("Access denied"));
+        given(appointmentService.createAppointment(any(Authentication.class), any(AppointmentDTO.class))).willThrow(new AccessDeniedException("Access denied"));
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         this.mockMvc.perform(post(APPOINTMENT_URL)
                 .content(toJSON(appointmentDTO))
@@ -141,10 +141,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
     @Test
     @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
     public void cancelInvalidAppointment() throws Exception {
-        given(appointmentService.get(any(Integer.class))).willAnswer(invocation -> {
-            Optional<Appointment> appointment = Optional.empty();
-            return appointment;
-        });
+        given(appointmentService.update(any(Authentication.class), any(AppointmentDTO.class))).willThrow(IllegalArgumentException.class);
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         this.mockMvc.perform(put(APPOINTMENT_URL)
                 .content(toJSON(appointmentDTO))
@@ -160,7 +157,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             Optional<Appointment> appointment = Optional.of(new Appointment());
             return appointment;
         });
-        given(appointmentService.cancelAppointment(any(Authentication.class), any(Appointment.class))).willAnswer(invocation -> {
+        given(appointmentService.update(any(Authentication.class), any(AppointmentDTO.class))).willAnswer(invocation -> {
             Appointment appointment = new Appointment();
             appointment.setStatus(AppointmentStatus.CANCELLED);
             return appointment;
@@ -183,7 +180,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             Optional<Appointment> appointment = Optional.of(new Appointment());
             return appointment;
         });
-        given(appointmentService.cancelAppointment(any(Authentication.class), any(Appointment.class))).willAnswer(invocation -> {
+        given(appointmentService.update(any(Authentication.class), any(AppointmentDTO.class))).willAnswer(invocation -> {
             Appointment appointment = new Appointment();
             appointment.setStatus(AppointmentStatus.CANCELLED);
             return appointment;
@@ -206,7 +203,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             Optional<Appointment> appointment = Optional.of(new Appointment());
             return appointment;
         });
-        given(appointmentService.cancelAppointment(any(Authentication.class), any(Appointment.class))).willThrow(AccessDeniedException.class);
+        given(appointmentService.update(any(Authentication.class), any(AppointmentDTO.class))).willThrow(AccessDeniedException.class);
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         this.mockMvc.perform(put(APPOINTMENT_URL)
                 .content(toJSON(appointmentDTO))
@@ -222,7 +219,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
             Optional<Appointment> appointment = Optional.of(new Appointment());
             return appointment;
         });
-        given(appointmentService.cancelAppointment(any(Authentication.class), any(Appointment.class))).willAnswer(invocation -> {
+        given(appointmentService.update(any(Authentication.class), any(AppointmentDTO.class))).willAnswer(invocation -> {
             Appointment appointment = new Appointment();
             appointment.setStatus(AppointmentStatus.CANCELLED);
             return appointment;
@@ -244,7 +241,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
     }
 
     private void answerAppointmentFromDTO() {
-        given(appointmentService.confirmAppointment(any(Authentication.class), any(AppointmentDTO.class))).willAnswer(invocation -> {
+        given(appointmentService.createAppointment(any(Authentication.class), any(AppointmentDTO.class))).willAnswer(invocation -> {
             AppointmentDTO appointmentDTO = (AppointmentDTO) invocation.getArguments()[1];
             Appointment appointment = new Appointment();
             appointment.setBlocks(appointmentDTO.getBlocks().stream().map(blockId -> {

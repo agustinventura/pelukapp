@@ -6,6 +6,8 @@ import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.repositories.AppointmentRepository;
 import com.spanishcoders.repositories.UserRepository;
 import io.jsonwebtoken.lang.Collections;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -25,6 +27,8 @@ import java.util.Set;
 @Transactional
 public class AppointmentService {
 
+    private static final Logger logger = LoggerFactory.getLogger(AppointmentService.class);
+
     private AppointmentRepository appointmentRepository;
 
     private BlockService blockService;
@@ -43,7 +47,7 @@ public class AppointmentService {
         this.userRepository = userRepository;
     }
 
-    public Appointment confirmAppointment(Authentication authentication, AppointmentDTO appointmentDTO) {
+    public Appointment createAppointment(Authentication authentication, AppointmentDTO appointmentDTO) {
         Appointment confirmed = null;
         Set<Block> blocks = blockService.get(appointmentDTO.getBlocks());
         Set<Work> works = workService.get(appointmentDTO.getWorks());
@@ -53,11 +57,27 @@ public class AppointmentService {
         return confirmed;
     }
 
-    public Appointment cancelAppointment(Authentication authentication, Appointment appointment) {
-        checkUserRole(authentication, appointment);
-        checkIfUserIsProprietaryOrAdmin(authentication, appointment);
-        appointment.setBlocks(refreshBlocks(appointment.getBlocks()));
-        appointment.cancel();
+    public Appointment update(Authentication authentication, AppointmentDTO appointment) {
+        Optional<Appointment> maybeAppointment = this.get(appointment.getId());
+        Appointment modified = null;
+        if (maybeAppointment.isPresent()) {
+            checkUserRole(authentication, maybeAppointment.get());
+            modified = modifyNotesOrCancel(authentication, maybeAppointment.get(), appointment);
+        } else {
+            logger.error("AppUser " + authentication.getName() + " tried to update non-existing appointment " + appointment);
+            throw new IllegalArgumentException("There's no Appointment which matches " + appointment);
+        }
+        return modified;
+    }
+
+    private Appointment modifyNotesOrCancel(Authentication authentication, Appointment appointment, AppointmentDTO appointmentDTO) {
+        if (AppointmentStatus.valueOf(appointmentDTO.getStatus().toString()) == AppointmentStatus.CANCELLED) {
+            checkIfUserIsProprietaryOrAdmin(authentication, appointment);
+            appointment.setBlocks(refreshBlocks(appointment.getBlocks()));
+            appointment.cancel();
+        } else {
+            appointment.setNotes(appointmentDTO.getNotes());
+        }
         return appointmentRepository.save(appointment);
     }
 

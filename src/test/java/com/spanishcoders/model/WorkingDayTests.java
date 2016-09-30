@@ -2,9 +2,9 @@ package com.spanishcoders.model;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.junit.Ignore;
 import org.junit.Test;
 
+import java.time.Duration;
 import java.time.LocalTime;
 import java.util.Set;
 
@@ -48,16 +48,20 @@ public class WorkingDayTests {
         assertThat(availableBlocks, is(empty()));
     }
 
-    @Ignore
     @Test
     public void getAvailableBlocksEmptyDayOneWork() throws Exception {
-        //TODO: SIGUE FALLANDO CUANDO SE PASA LA HORA DE CIERRE
         Agenda agenda = mock(Agenda.class);
         given(agenda.getNonWorkingDays()).willReturn(Sets.newHashSet());
         given(agenda.getWorkingDays()).willReturn(Maps.newTreeMap());
         Stretch stretch = mock(Stretch.class);
-        int startHour = (LocalTime.now().getHour() + 1) % 23;
-        int endHour = (LocalTime.now().getHour() + 6) % 23;
+        int startHour = LocalTime.now().getHour() + 1;
+        if (startHour > 23) {
+            startHour--;
+        }
+        int endHour = (startHour + 1);
+        if (endHour > 23) {
+            endHour = startHour;
+        }
         given(stretch.getStartTime()).willReturn(LocalTime.of(startHour, 00));
         given(stretch.getEndTime()).willReturn(LocalTime.of(endHour, 00));
         Timetable timetable = mock(Timetable.class);
@@ -69,7 +73,9 @@ public class WorkingDayTests {
         given(publicWork.getKind()).willReturn(WorkKind.PUBLIC);
         Set<Work> publicWorks = Sets.newHashSet(publicWork);
         Set<Block> availableBlocks = workingDay.getAvailableBlocks(publicWorks);
-        assertThat(availableBlocks.size(), is(10));
+        Duration stretchDuration = Duration.ofHours(endHour - startHour);
+        int blocksSize = (int) (stretchDuration.toMinutes() / Block.DEFAULT_BLOCK_LENGTH.toMinutes());
+        assertThat(availableBlocks.size(), is(blocksSize));
     }
 
     @Test

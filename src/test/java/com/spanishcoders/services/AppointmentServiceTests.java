@@ -58,13 +58,13 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 
     @Test(expected = AccessDeniedException.class)
     public void confirmAppointmentNullAuthorization() {
-        appointmentService.confirmAppointment(null, new AppointmentDTO());
+        appointmentService.createAppointment(null, new AppointmentDTO());
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void confirmAppointmentEmptyWorks() throws Exception {
         Authentication authentication = mock(Authentication.class);
-        appointmentService.confirmAppointment(authentication, new AppointmentDTO());
+        appointmentService.createAppointment(authentication, new AppointmentDTO());
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -72,7 +72,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
         Authentication authentication = mock(Authentication.class);
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().clear();
-        appointmentService.confirmAppointment(authentication, appointmentDTO);
+        appointmentService.createAppointment(authentication, appointmentDTO);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -80,7 +80,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
         Authentication authentication = mock(Authentication.class);
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(1);
-        appointmentService.confirmAppointment(authentication, appointmentDTO);
+        appointmentService.createAppointment(authentication, appointmentDTO);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -89,7 +89,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(1);
         appointmentDTO.getBlocks().clear();
-        appointmentService.confirmAppointment(authentication, appointmentDTO);
+        appointmentService.createAppointment(authentication, appointmentDTO);
     }
 
     @Test(expected = AccessDeniedException.class)
@@ -105,7 +105,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
         Set<Work> works = Sets.newHashSet(privateWork);
         given(workService.get(any(Set.class))).willReturn(works);
         AppointmentDTO appointmentDTO = mock(AppointmentDTO.class);
-        appointmentService.confirmAppointment(authentication, appointmentDTO);
+        appointmentService.createAppointment(authentication, appointmentDTO);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -120,7 +120,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
         Set<Work> works = Sets.newHashSet(work);
         given(workService.get(any(Set.class))).willReturn(works);
         AppointmentDTO appointmentDTO = mock(AppointmentDTO.class);
-        appointmentService.confirmAppointment(authentication, appointmentDTO);
+        appointmentService.createAppointment(authentication, appointmentDTO);
     }
 
     @Test
@@ -145,7 +145,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
         given(blockService.get(any(Collection.class))).willReturn(requestedBlocks);
         given(workService.get(any(Set.class))).willReturn(requestedWorks);
         AppointmentDTO appointmentDTO = mock(AppointmentDTO.class);
-        Appointment result = appointmentService.confirmAppointment(authentication, appointmentDTO);
+        Appointment result = appointmentService.createAppointment(authentication, appointmentDTO);
         assertThat(result, notNullValue());
         assertThat(result.getWorks(), is(requestedWorks));
         assertThat(result.getBlocks(), is(requestedBlocks));
@@ -163,7 +163,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
             requestedAppointment.setStatus(AppointmentStatus.CANCELLED);
             return requestedAppointment;
         });
-        appointment = appointmentService.cancelAppointment(authentication, appointment);
+        appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
 
         given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
         assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
@@ -176,7 +176,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
         given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
         Appointment appointment = mock(Appointment.class);
         given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(23));
-        appointmentService.cancelAppointment(authentication, appointment);
+        appointmentService.update(authentication, new AppointmentDTO(appointment));
     }
 
     @Test(expected = AccessDeniedException.class)
@@ -186,7 +186,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
         given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
         Appointment appointment = mock(Appointment.class);
         given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(25));
-        appointmentService.cancelAppointment(authentication, appointment);
+        appointmentService.update(authentication, new AppointmentDTO(appointment));
     }
 
     @Test
@@ -201,7 +201,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
             requestedAppointment.setStatus(AppointmentStatus.CANCELLED);
             return requestedAppointment;
         });
-        appointment = appointmentService.cancelAppointment(authentication, appointment);
+        appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
 
         given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
         assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
@@ -223,7 +223,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
         given(userRepository.findByUsername(any(String.class))).willReturn(user);
         given(appointment.getUser()).willReturn(user);
         given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
-        appointment = appointmentService.cancelAppointment(authentication, appointment);
+        appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
         assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
     }
 
