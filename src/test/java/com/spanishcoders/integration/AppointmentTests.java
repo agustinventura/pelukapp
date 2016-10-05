@@ -2,6 +2,7 @@ package com.spanishcoders.integration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spanishcoders.model.Appointment;
 import com.spanishcoders.model.Work;
 import com.spanishcoders.model.dto.AppointmentDTO;
 import com.spanishcoders.model.dto.BlockDTO;
@@ -176,7 +177,10 @@ public class AppointmentTests extends IntegrationTests {
         String clientAuth = loginAsClient();
         AppointmentDTO toBeCancelled = confirmAppointmentWithOneWork(clientAuth);
         String adminAuth = loginAsAdmin();
-        AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, adminAuth, toBeCancelled, typeRef);
+        Appointment appointment = new Appointment();
+        appointment.setId(toBeCancelled.getId());
+        appointment.cancel();
+        AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, adminAuth, new AppointmentDTO(appointment), typeRef);
         assertThat(cancelled, notNullValue());
         assertThat(cancelled.getStatus(), is(1));
     }
@@ -186,7 +190,10 @@ public class AppointmentTests extends IntegrationTests {
         String auth = loginAsClient();
         AppointmentDTO appointmentDTO = this.getAppointment(auth);
         appointmentDTO = confirmAppointment(auth, appointmentDTO);
-        ResponseEntity<String> response = errorClient.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, toJSON(appointmentDTO), errorTypeRef);
+        Appointment appointment = new Appointment();
+        appointment.setId(appointmentDTO.getId());
+        appointment.cancel();
+        ResponseEntity<String> response = errorClient.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, toJSON(new AppointmentDTO(appointment)), errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
     }
 
@@ -195,7 +202,10 @@ public class AppointmentTests extends IntegrationTests {
         String auth = loginAsAdmin();
         AppointmentDTO appointmentDTO = this.getAppointment(auth);
         appointmentDTO = confirmAppointment(auth, appointmentDTO);
-        AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        Appointment appointment = new Appointment();
+        appointment.setId(appointmentDTO.getId());
+        appointment.cancel();
+        AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth, new AppointmentDTO(appointment), typeRef);
         assertThat(cancelled, notNullValue());
         assertThat(cancelled.getStatus(), is(1));
     }
@@ -232,7 +242,10 @@ public class AppointmentTests extends IntegrationTests {
     }
 
     private void cancelAppointment(String auth, AppointmentDTO appointmentDTO) {
-        AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        Appointment appointment = new Appointment();
+        appointment.setId(appointmentDTO.getId());
+        appointment.cancel();
+        AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth, new AppointmentDTO(appointment), typeRef);
         assertThat(cancelled, notNullValue());
         assertThat(cancelled.getStatus(), is(1));
     }

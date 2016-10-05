@@ -153,66 +153,71 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 
     @Test
     public void cancelAppointmentWithLessThan24HoursAsWorker() throws Exception {
+        Appointment appointment = mock(Appointment.class);
+        given(appointmentRepository.findOne(any(Integer.class))).willReturn(appointment);
         Authentication authentication = mock(Authentication.class);
         Collection<GrantedAuthority> workerAuthority = Sets.newHashSet(Role.WORKER.getGrantedAuthority());
         given(authentication.getAuthorities()).willAnswer(invocation -> workerAuthority);
-        Appointment appointment = mock(Appointment.class);
         given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(23));
         given(appointmentRepository.save(any(Appointment.class))).will(invocation -> {
             Appointment requestedAppointment = (Appointment) invocation.getArguments()[0];
             requestedAppointment.setStatus(AppointmentStatus.CANCELLED);
             return requestedAppointment;
         });
-        appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
-
         given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
+        appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
         assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
     }
 
     @Test(expected = AccessDeniedException.class)
     public void cancelAppointmentWithLessThan24HoursAsClient() throws Exception {
+        Appointment appointment = mock(Appointment.class);
+        given(appointmentRepository.findOne(any(Integer.class))).willReturn(appointment);
         Authentication authentication = mock(Authentication.class);
         Collection<GrantedAuthority> clientAuthority = Sets.newHashSet(Role.CLIENT.getGrantedAuthority());
         given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
-        Appointment appointment = mock(Appointment.class);
         given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(23));
+        given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
         appointmentService.update(authentication, new AppointmentDTO(appointment));
     }
 
     @Test(expected = AccessDeniedException.class)
     public void cancelAnotherClientAppointmentAsClient() throws Exception {
+        Appointment appointment = mock(Appointment.class);
+        given(appointmentRepository.findOne(any(Integer.class))).willReturn(appointment);
         Authentication authentication = mock(Authentication.class);
         Collection<GrantedAuthority> clientAuthority = Sets.newHashSet(Role.CLIENT.getGrantedAuthority());
         given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
-        Appointment appointment = mock(Appointment.class);
         given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(25));
+        given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
         appointmentService.update(authentication, new AppointmentDTO(appointment));
     }
 
     @Test
     public void cancelAnotherClientAppointmentAsWorker() throws Exception {
+        Appointment appointment = mock(Appointment.class);
+        given(appointmentRepository.findOne(any(Integer.class))).willReturn(appointment);
         Authentication authentication = mock(Authentication.class);
         Collection<GrantedAuthority> workerAuthority = Sets.newHashSet(Role.WORKER.getGrantedAuthority());
         given(authentication.getAuthorities()).willAnswer(invocation -> workerAuthority);
-        Appointment appointment = mock(Appointment.class);
         given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(25));
         given(appointmentRepository.save(any(Appointment.class))).will(invocation -> {
             Appointment requestedAppointment = (Appointment) invocation.getArguments()[0];
             requestedAppointment.setStatus(AppointmentStatus.CANCELLED);
             return requestedAppointment;
         });
-        appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
-
         given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
+        appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
         assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
     }
 
     @Test
     public void cancelAppointmentWithMoreThan24HoursAsClient() throws Exception {
+        Appointment appointment = mock(Appointment.class);
+        given(appointmentRepository.findOne(any(Integer.class))).willReturn(appointment);
         Authentication authentication = mock(Authentication.class);
         Collection<GrantedAuthority> clientAuthority = Sets.newHashSet(Role.CLIENT.getGrantedAuthority());
         given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
-        Appointment appointment = mock(Appointment.class);
         given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(25));
         given(appointmentRepository.save(any(Appointment.class))).will(invocation -> {
             Appointment requestedAppointment = (Appointment) invocation.getArguments()[0];
@@ -225,6 +230,40 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
         given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
         appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
         assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
+    }
+
+    @Test
+    public void modifyAppointmentNotesAsWorker() throws Exception {
+        Appointment appointment = mock(Appointment.class);
+        given(appointmentRepository.findOne(any(Integer.class))).willReturn(appointment);
+        Authentication authentication = mock(Authentication.class);
+        Collection<GrantedAuthority> workerAuthority = Sets.newHashSet(Role.WORKER.getGrantedAuthority());
+        given(authentication.getAuthorities()).willAnswer(invocation -> workerAuthority);
+        given(appointment.getStatus()).willReturn(AppointmentStatus.VALID);
+        given(appointmentRepository.save(any(Appointment.class))).will(invocation ->
+                invocation.getArguments()[0]);
+        String notes = "new notes";
+        given(appointment.getNotes()).willReturn(notes);
+        appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
+        assertThat(appointment.getNotes(), is(notes));
+    }
+
+    @Test
+    public void modifyAppointmentNotesAsClient() throws Exception {
+        Appointment appointment = mock(Appointment.class);
+        given(appointmentRepository.findOne(any(Integer.class))).willReturn(appointment);
+        Authentication authentication = mock(Authentication.class);
+        Collection<GrantedAuthority> clientAuthority = Sets.newHashSet(Role.CLIENT.getGrantedAuthority());
+        given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
+        given(appointmentRepository.save(any(Appointment.class))).will(invocation -> invocation.getArguments()[0]);
+        AppUser user = mock(AppUser.class);
+        given(userRepository.findByUsername(any(String.class))).willReturn(user);
+        given(appointment.getUser()).willReturn(user);
+        String notes = "new notes";
+        given(appointment.getNotes()).willReturn(notes);
+        given(appointment.getStatus()).willReturn(AppointmentStatus.VALID);
+        appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
+        assertThat(appointment.getNotes(), is(notes));
     }
 
     @Test

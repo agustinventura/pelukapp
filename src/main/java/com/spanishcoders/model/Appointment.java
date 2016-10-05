@@ -82,6 +82,10 @@ public class Appointment implements Comparable<Appointment> {
         return id;
     }
 
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public Set<Block> getBlocks() {
         return blocks;
     }

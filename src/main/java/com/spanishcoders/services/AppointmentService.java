@@ -61,7 +61,6 @@ public class AppointmentService {
         Optional<Appointment> maybeAppointment = this.get(appointment.getId());
         Appointment modified = null;
         if (maybeAppointment.isPresent()) {
-            checkUserRole(authentication, maybeAppointment.get());
             modified = modifyNotesOrCancel(authentication, maybeAppointment.get(), appointment);
         } else {
             logger.error("AppUser " + authentication.getName() + " tried to update non-existing appointment " + appointment);
@@ -71,14 +70,24 @@ public class AppointmentService {
     }
 
     private Appointment modifyNotesOrCancel(Authentication authentication, Appointment appointment, AppointmentDTO appointmentDTO) {
-        if (AppointmentStatus.valueOf(appointmentDTO.getStatus().toString()) == AppointmentStatus.CANCELLED) {
-            checkIfUserIsProprietaryOrAdmin(authentication, appointment);
-            appointment.setBlocks(refreshBlocks(appointment.getBlocks()));
-            appointment.cancel();
+        checkIfUserIsProprietaryOrAdmin(authentication, appointment);
+        AppointmentStatus dtoStatus = AppointmentStatus.values()[appointmentDTO.getStatus()];
+        if (dtoStatus == AppointmentStatus.CANCELLED) {
+            cancelAppointment(authentication, appointment);
         } else {
-            appointment.setNotes(appointmentDTO.getNotes());
+            modifyNotes(appointment, appointmentDTO);
         }
         return appointmentRepository.save(appointment);
+    }
+
+    private void modifyNotes(Appointment appointment, AppointmentDTO appointmentDTO) {
+        appointment.setNotes(appointmentDTO.getNotes());
+    }
+
+    private void cancelAppointment(Authentication authentication, Appointment appointment) {
+        checkUserPermissionToCancel(authentication, appointment);
+        appointment.setBlocks(refreshBlocks(appointment.getBlocks()));
+        appointment.cancel();
     }
 
     private void checkIfUserIsProprietaryOrAdmin(Authentication authentication, Appointment appointment) {
@@ -91,7 +100,7 @@ public class AppointmentService {
         }
     }
 
-    private void checkUserRole(Authentication authentication, Appointment appointment) {
+    private void checkUserPermissionToCancel(Authentication authentication, Appointment appointment) {
         if (appointment.getDate().isBefore(LocalDateTime.now().plusHours(maxHoursToCancelAsClient))) {
             Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication.getAuthorities();
             if (!userAuthorities.stream().anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
