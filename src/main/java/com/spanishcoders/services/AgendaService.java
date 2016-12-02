@@ -3,7 +3,6 @@ package com.spanishcoders.services;
 import com.google.common.collect.Sets;
 import com.spanishcoders.model.Agenda;
 import com.spanishcoders.model.Block;
-import com.spanishcoders.model.Work;
 import com.spanishcoders.model.WorkingDay;
 import com.spanishcoders.repositories.AgendaRepository;
 import org.springframework.stereotype.Service;
@@ -21,11 +20,8 @@ public class AgendaService {
 
     private AgendaRepository agendaRepository;
 
-    private WorkingDayService workingDayService;
-
-    public AgendaService(AgendaRepository agendaRepository, WorkingDayService workingDayService) {
+    public AgendaService(AgendaRepository agendaRepository) {
         this.agendaRepository = agendaRepository;
-        this.workingDayService = workingDayService;
     }
 
     public Set<Block> getDayBlocks(Agenda agenda, LocalDate day) {
@@ -42,23 +38,5 @@ public class AgendaService {
             }
         }
         return dayBlocks;
-    }
-
-    public Set<Block> getAvailableBlocks(Agenda agenda, Set<Work> works, LocalDate day) {
-        Set<Block> availableBlocks = Sets.newTreeSet();
-        if (agenda != null && works != null && !works.isEmpty() && day != null) {
-            if (agenda.hasWorkingDay(day)) {
-                WorkingDay workingDay = agenda.getWorkingDays().get(day);
-                availableBlocks = workingDay.getAvailableBlocks(works);
-            } else {
-                if (!agenda.isNonWorkingDay(day)) {
-                    new WorkingDay(agenda, day);
-                    agendaRepository.save(agenda);
-                    WorkingDay workingDay = agenda.getWorkingDays().get(day);
-                    availableBlocks = workingDay.getAvailableBlocks(works);
-                }
-            }
-        }
-        return availableBlocks;
     }
 }

@@ -1,7 +1,5 @@
 package com.spanishcoders.model;
 
-import com.google.common.collect.Sets;
-
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -122,27 +120,6 @@ public class WorkingDay implements Comparable<WorkingDay> {
         this.blocks.add(block);
     }
 
-    public Set<Block> getAvailableBlocks(Set<Work> works) {
-        Set<Block> availableBlocks = Sets.newTreeSet();
-        if (works != null && !works.isEmpty()) {
-            int worksLength = getWorksTotalLength(works);
-            for (Block block : blocks) {
-                if (isAfterNow(block) && isAvailable(block, worksLength)) {
-                    availableBlocks.add(block);
-                }
-            }
-        }
-        return availableBlocks;
-    }
-
-    private boolean isAfterNow(Block block) {
-        if (block.getWorkingDay().getDate().isEqual(LocalDate.now())) {
-            return block.getStart().isAfter(LocalTime.now());
-        } else {
-            return true;
-        }
-    }
-
     private LocalDate getNewWorkingDayDate(Set<LocalDate> nonWorkingDays, SortedMap<LocalDate, WorkingDay> workingDays) {
         LocalDate lastWorkingDayDate = null;
         if (workingDays.isEmpty()) {
@@ -169,38 +146,6 @@ public class WorkingDay implements Comparable<WorkingDay> {
             }
         }
         return newBlocks;
-    }
-
-    private boolean isAvailable(Block block, int worksTotalLength) {
-        if (block.getAppointment() != null) {
-            return false;
-        } else {
-            worksTotalLength -= block.getLength().toMinutes();
-            if (worksTotalLength <= 0) {
-                return true;
-            } else {
-                NavigableSet<Block> nextBlocks = new TreeSet<>(blocks);
-                nextBlocks = nextBlocks.tailSet(block, false);
-                if (nextBlocks.isEmpty()) {
-                    return false;
-                } else {
-                    Block nextBlock = nextBlocks.first();
-                    if (block.isContiguousTo(nextBlock)) {
-                        return isAvailable(nextBlock, worksTotalLength);
-                    } else {
-                        return false;
-                    }
-                }
-            }
-        }
-    }
-
-    private int getWorksTotalLength(Set<Work> works) {
-        int totalLength = 0;
-        for (Work work : works) {
-            totalLength += work.getDuration();
-        }
-        return totalLength;
     }
 
     @Override

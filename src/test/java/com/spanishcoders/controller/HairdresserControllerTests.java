@@ -19,7 +19,6 @@ import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Set;
 
@@ -51,19 +50,6 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
     public void setUp() {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).apply(springSecurity()).build();
         given(workService.get(any(Set.class))).willReturn(mockAllWorks());
-    }
-
-    @Test
-    @WithMockUser(username = "admin", roles = {"USER", "WORKER"})
-    public void getAvailableBlocksForDay() throws Exception {
-        given(hairdresserService.getAvailableBlocksForDayByHairdresser(any(Set.class), any(LocalDate.class))).willReturn(Maps.newHashMap());
-        LocalDate fiveDaysFromNow = LocalDate.now().plusDays(5);
-        String isoDate = fiveDaysFromNow.format(DateTimeFormatter.ISO_LOCAL_DATE);
-        String requestUrl = "/hairdresser/blocks/available/" + isoDate + "/works=1;works=2";
-        this.mockMvc.perform(get(requestUrl).accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
-                .andExpect(status().isOk())
-                .andExpect(content().contentType("application/json;charset=UTF-8"))
-                .andExpect(jsonPath("$.*", hasSize(0)));
     }
 
     @Test

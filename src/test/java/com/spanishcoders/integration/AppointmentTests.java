@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spanishcoders.model.Appointment;
 import com.spanishcoders.model.Work;
 import com.spanishcoders.model.dto.AppointmentDTO;
-import com.spanishcoders.model.dto.BlockDTO;
+import com.spanishcoders.model.dto.ScheduleDTO;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
@@ -76,15 +76,13 @@ public class AppointmentTests extends IntegrationTests {
     public void getAppointmentWithoutEnoughBlocks() throws JsonProcessingException {
         String auth = loginAsClient();
         Set<Work> works = integrationDataFactory.getWorks(auth);
-        TreeSet<BlockDTO> blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works);
-        int dayOffset = 1;
-        while (blocks.size() < 1) {
-            blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works, LocalDate.now().plusDays(dayOffset));
-            dayOffset++;
+        Set<ScheduleDTO> schedule = integrationDataFactory.getSchedule(auth, LocalDate.now()).stream().filter(scheduleDTO -> scheduleDTO.getAppointmentId() == 0).collect(Collectors.toSet());
+        while (schedule.size() < 1) {
+            schedule = integrationDataFactory.getSchedule(auth, LocalDate.now().plusDays(1)).stream().filter(scheduleDTO -> scheduleDTO.getAppointmentId() == 0).collect(Collectors.toSet());
         }
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().addAll(works.stream().map(work -> work.getId()).collect(Collectors.toSet()));
-        appointmentDTO.getBlocks().add(blocks.first().getId());
+        appointmentDTO.getBlocks().add(schedule.stream().findFirst().orElseThrow(IllegalStateException::new).getBlockId());
         ResponseEntity<String> response = errorClient.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, toJSON(appointmentDTO), errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
@@ -97,19 +95,18 @@ public class AppointmentTests extends IntegrationTests {
     @Test
     public void getAppointmentWithTooManyBlocks() throws JsonProcessingException {
         String auth = loginAsClient();
-        TreeSet<Work> works = (TreeSet<Work>) integrationDataFactory.getWorks(auth);
-        Set<BlockDTO> blocks = integrationDataFactory.getBlocks(auth, works, LocalDate.now());
-        int dayOffset = 1;
-        while (blocks.size() <= works.size()) {
-            blocks = integrationDataFactory.getBlocks(auth, works, LocalDate.now().plusDays(dayOffset));
-            dayOffset++;
+        Work work = integrationDataFactory.getWorks(auth).stream().findFirst().orElseThrow(IllegalStateException::new);
+        Set<ScheduleDTO> schedule = integrationDataFactory.getSchedule(auth, LocalDate.now()).stream().filter(scheduleDTO -> scheduleDTO.getAppointmentId() == 0).collect(Collectors.toSet());
+        while (schedule.size() < 2) {
+            schedule = integrationDataFactory.getSchedule(auth, LocalDate.now().plusDays(1)).stream().filter(scheduleDTO -> scheduleDTO.getAppointmentId() == 0).collect(Collectors.toSet());
         }
         AppointmentDTO appointmentDTO = new AppointmentDTO();
-        appointmentDTO.getWorks().add(works.first().getId());
-        appointmentDTO.getBlocks().addAll(blocks.stream().map(blockDTO -> blockDTO.getId()).collect(Collectors.toSet()));
+        appointmentDTO.getWorks().add(work.getId());
+        appointmentDTO.getBlocks().addAll(schedule.stream().map(ScheduleDTO -> ScheduleDTO.getBlockId()).collect(Collectors.toSet()));
         ResponseEntity<String> response = errorClient.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL, auth, toJSON(appointmentDTO), errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
     }
+
 
     @Test
     public void getAppointmentWithOneWorkAsClient() {
@@ -216,16 +213,16 @@ public class AppointmentTests extends IntegrationTests {
 
     private AppointmentDTO getAppointmentWithManyWorks(String auth) {
         Set<Work> works = integrationDataFactory.getWorks(auth);
-        Set<BlockDTO> blocks = integrationDataFactory.getBlocks(auth, works, LocalDate.now());
+        Set<ScheduleDTO> schedule = integrationDataFactory.getSchedule(auth, LocalDate.now());
         int dayOffset = 1;
-        while (blocks.size() <= works.size()) {
-            blocks = integrationDataFactory.getBlocks(auth, works, LocalDate.now().plusDays(dayOffset));
+        while (schedule.size() <= works.size()) {
+            schedule = integrationDataFactory.getSchedule(auth, LocalDate.now().plusDays(dayOffset));
             dayOffset++;
         }
-        List<BlockDTO> selectedBlock = blocks.stream().sorted().limit(1).collect(Collectors.toList());
+        List<ScheduleDTO> selectedSchedule = schedule.stream().sorted().limit(1).collect(Collectors.toList());
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().addAll(works.stream().map(work -> work.getId()).collect(Collectors.toSet()));
-        int firstBlockId = selectedBlock.get(0).getId();
+        int firstBlockId = selectedSchedule.get(0).getBlockId();
         for (int i = 0; i < works.size(); i++) {
             appointmentDTO.getBlocks().add(firstBlockId + i);
         }
@@ -258,17 +255,16 @@ public class AppointmentTests extends IntegrationTests {
     private AppointmentDTO getAppointment(String auth) {
         TreeSet<Work> works = (TreeSet<Work>) integrationDataFactory.getWorks(auth);
         Work work = works.first();
-        TreeSet<BlockDTO> blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works, LocalDate.now());
+        TreeSet<ScheduleDTO> schedule = (TreeSet<ScheduleDTO>) integrationDataFactory.getSchedule(auth, LocalDate.now());
         int dayOffset = 1;
-        while (blocks.size() <= works.size()) {
-            blocks = (TreeSet<BlockDTO>) integrationDataFactory.getBlocks(auth, works, LocalDate.now().plusDays(dayOffset));
+        while (schedule.size() <= works.size()) {
+            schedule = (TreeSet<ScheduleDTO>) integrationDataFactory.getSchedule(auth, LocalDate.now().plusDays(dayOffset));
             dayOffset++;
         }
-        BlockDTO block = blocks.first();
+        ScheduleDTO firstSchedule = schedule.first();
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(work.getId());
-        appointmentDTO.getBlocks().add(block.getId());
-        LocalDate today = LocalDate.now();
+        appointmentDTO.getBlocks().add(firstSchedule.getBlockId());
         return appointmentDTO;
     }
 }

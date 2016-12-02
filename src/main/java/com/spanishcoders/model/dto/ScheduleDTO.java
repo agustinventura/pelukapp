@@ -2,6 +2,8 @@ package com.spanishcoders.model.dto;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.model.Block;
+import com.spanishcoders.model.Role;
+import org.springframework.security.core.Authentication;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -41,19 +43,25 @@ public class ScheduleDTO implements Comparable<ScheduleDTO> {
         notes = "";
     }
 
-    public ScheduleDTO(Block block) {
+    public ScheduleDTO(Authentication authentication, Block block) {
         blockId = block.getId();
         start = block.getStart().toString();
         length = block.getLength().toString();
         workingDay = block.getWorkingDay() != null ? block.getWorkingDay().getDate().toString() : "";
         hairdresserId = block.getWorkingDay().getAgenda().getHairdresser().getId();
         appointmentId = block.getAppointment() != null ? block.getAppointment().getId() : 0;
-        client = block.getAppointment() != null ? block.getAppointment().getUser().getName() : "";
-        worksIds = Sets.newHashSet();
-        if (block.getAppointment() != null) {
-            worksIds.addAll(block.getAppointment().getWorks().stream().map(work -> work.getId()).collect(Collectors.toSet()));
+        if (authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
+            client = block.getAppointment() != null ? block.getAppointment().getUser().getName() : "";
+            worksIds = Sets.newHashSet();
+            if (block.getAppointment() != null) {
+                worksIds.addAll(block.getAppointment().getWorks().stream().map(work -> work.getId()).collect(Collectors.toSet()));
+            }
+            notes = block.getAppointment() != null ? block.getAppointment().getNotes() : "";
+        } else {
+            client = "";
+            worksIds = Sets.newHashSet();
+            notes = "";
         }
-        notes = block.getAppointment() != null ? block.getAppointment().getNotes() : "";
     }
 
     public Integer getBlockId() {

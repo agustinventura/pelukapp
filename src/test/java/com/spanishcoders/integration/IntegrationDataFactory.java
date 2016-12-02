@@ -3,8 +3,8 @@ package com.spanishcoders.integration;
 import com.google.common.collect.Sets;
 import com.spanishcoders.model.Work;
 import com.spanishcoders.model.dto.AppointmentDTO;
-import com.spanishcoders.model.dto.BlockDTO;
-import com.spanishcoders.model.dto.HairdresserBlocks;
+import com.spanishcoders.model.dto.HairdresserSchedule;
+import com.spanishcoders.model.dto.ScheduleDTO;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 
@@ -12,7 +12,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Set;
-import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 import static com.spanishcoders.integration.AppointmentTests.APPOINTMENT_URL;
@@ -38,25 +37,16 @@ public class IntegrationDataFactory {
         return Sets.newTreeSet(worksClient.getWithAuthorizationHeader(WorkTests.WORKS_URL, auth, worksTypeRef));
     }
 
-    public String getWorksUrl(String auth) {
-        return getWorks(auth).stream().map(work -> work.getId().toString()).collect(Collectors.joining(";works=", "works=", ""));
-    }
-
-    public Set<BlockDTO> getBlocks(String auth, Set<Work> works) {
-        return this.getBlocks(auth, works, LocalDate.now());
-    }
-
-    public Set<BlockDTO> getBlocks(String auth, Set<Work> works, LocalDate date) {
-        HeadersTestRestTemplate<List<HairdresserBlocks>> blocksClient = new HeadersTestRestTemplate<>(testRestTemplate);
-        ParameterizedTypeReference<List<HairdresserBlocks>> blocksTypeRef = new ParameterizedTypeReference<List<HairdresserBlocks>>() {
+    public Set<ScheduleDTO> getSchedule(String auth, LocalDate date) {
+        HeadersTestRestTemplate<List<HairdresserSchedule>> scheduleClient = new HeadersTestRestTemplate<>(testRestTemplate);
+        ParameterizedTypeReference<List<HairdresserSchedule>> scheduleTypeRef = new ParameterizedTypeReference<List<HairdresserSchedule>>() {
         };
-        String blocksUrl = HairdresserTests.FREE_BLOCKS_URL;
+        String scheduleUrl = HairdresserTests.DAY_SCHEDULE_URL;
         if (date != null) {
-            blocksUrl += date.format(DateTimeFormatter.ISO_LOCAL_DATE) + "/";
+            scheduleUrl += date.format(DateTimeFormatter.ISO_LOCAL_DATE) + "/";
         }
-        blocksUrl += works.stream().map(work -> work.getId().toString()).collect(Collectors.joining(";works=", "works=", ""));
-        List<HairdresserBlocks> hairdresserAvailableBlocks = blocksClient.getWithAuthorizationHeader(blocksUrl, auth, blocksTypeRef);
-        return Sets.newTreeSet(hairdresserAvailableBlocks.get(0).getBlocks());
+        List<HairdresserSchedule> hairdresserAvailableBlocks = scheduleClient.getWithAuthorizationHeader(scheduleUrl, auth, scheduleTypeRef);
+        return Sets.newTreeSet(hairdresserAvailableBlocks.get(0).getSchedule());
     }
 
     public AppointmentDTO getAppointment(String auth) {
@@ -64,17 +54,15 @@ public class IntegrationDataFactory {
     }
 
     public AppointmentDTO getAppointment(String auth, LocalDate date) {
-        TreeSet<Work> works = (TreeSet<Work>) this.getWorks(auth);
-        Work work = works.first();
-        TreeSet<BlockDTO> blocks = null;
-        blocks = (TreeSet<BlockDTO>) this.getBlocks(auth, works, date);
-        if (blocks.size() == 0) {
-            blocks = (TreeSet<BlockDTO>) this.getBlocks(auth, works, date.plusDays(1));
+        Work work = this.getWorks(auth).stream().findFirst().orElseThrow(IllegalStateException::new);
+        Set<ScheduleDTO> scheduleBlocks = this.getSchedule(auth, date).stream().filter(scheduleDTO -> hasOneAvailableBlock(scheduleDTO)).collect(Collectors.toSet());
+        while (scheduleBlocks.size() == 0) {
+            scheduleBlocks = this.getSchedule(auth, date.plusDays(1));
         }
-        BlockDTO block = blocks.last();
+        ScheduleDTO schedule = scheduleBlocks.stream().sorted().findFirst().orElseThrow(IllegalStateException::new);
         AppointmentDTO appointmentDTO = new AppointmentDTO();
         appointmentDTO.getWorks().add(work.getId());
-        appointmentDTO.getBlocks().add(block.getId());
+        appointmentDTO.getBlocks().add(schedule.getBlockId());
         HeadersTestRestTemplate<AppointmentDTO> appointmentsClient = new HeadersTestRestTemplate<>(testRestTemplate);
         ParameterizedTypeReference<AppointmentDTO> appointmentsTypeRef = new ParameterizedTypeReference<AppointmentDTO>() {
         };
@@ -84,5 +72,9 @@ public class IntegrationDataFactory {
         assertThat(confirmed.getWorks(), is(appointmentDTO.getWorks()));
         assertThat(confirmed.getBlocks(), is(appointmentDTO.getBlocks()));
         return confirmed;
+    }
+
+    private boolean hasOneAvailableBlock(ScheduleDTO scheduleDTO) {
+        return scheduleDTO.getAppointmentId() == 0;
     }
 }
