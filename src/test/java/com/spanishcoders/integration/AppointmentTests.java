@@ -185,8 +185,7 @@ public class AppointmentTests extends IntegrationTests {
     @Test
     public void cancelAppointmentWithPeriodExpiredAsClient() throws JsonProcessingException {
         String auth = loginAsClient();
-        AppointmentDTO appointmentDTO = this.getAppointment(auth);
-        appointmentDTO = confirmAppointment(auth, appointmentDTO);
+        AppointmentDTO appointmentDTO = integrationDataFactory.getAppointment(auth);
         Appointment appointment = new Appointment();
         appointment.setId(appointmentDTO.getId());
         appointment.cancel();
@@ -197,8 +196,7 @@ public class AppointmentTests extends IntegrationTests {
     @Test
     public void cancelAppointmentWithPeriodExpiredAsAdmin() {
         String auth = loginAsAdmin();
-        AppointmentDTO appointmentDTO = this.getAppointment(auth);
-        appointmentDTO = confirmAppointment(auth, appointmentDTO);
+        AppointmentDTO appointmentDTO = integrationDataFactory.getAppointment(auth);
         Appointment appointment = new Appointment();
         appointment.setId(appointmentDTO.getId());
         appointment.cancel();
@@ -213,11 +211,9 @@ public class AppointmentTests extends IntegrationTests {
 
     private AppointmentDTO getAppointmentWithManyWorks(String auth) {
         Set<Work> works = integrationDataFactory.getWorks(auth);
-        Set<ScheduleDTO> schedule = integrationDataFactory.getSchedule(auth, LocalDate.now());
-        int dayOffset = 1;
+        Set<ScheduleDTO> schedule = integrationDataFactory.getSchedule(auth, LocalDate.now()).stream().filter(scheduleDTO -> scheduleDTO.getAppointmentId() == 0).collect(Collectors.toSet());
         while (schedule.size() <= works.size()) {
-            schedule = integrationDataFactory.getSchedule(auth, LocalDate.now().plusDays(dayOffset));
-            dayOffset++;
+            schedule = integrationDataFactory.getSchedule(auth, LocalDate.now().plusDays(1));
         }
         List<ScheduleDTO> selectedSchedule = schedule.stream().sorted().limit(1).collect(Collectors.toList());
         AppointmentDTO appointmentDTO = new AppointmentDTO();
@@ -231,6 +227,7 @@ public class AppointmentTests extends IntegrationTests {
 
     private AppointmentDTO confirmAppointment(String auth, AppointmentDTO appointmentDTO) {
         AppointmentDTO appointment = client.postWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO, typeRef);
+        System.out.println(appointment);
         assertThat(appointment, notNullValue());
         assertThat(appointment.getId(), notNullValue());
         assertThat(appointment.getWorks(), is(appointmentDTO.getWorks()));
@@ -250,21 +247,5 @@ public class AppointmentTests extends IntegrationTests {
     private void cancelAppointment(String auth) {
         AppointmentDTO toBeCancelled = confirmAppointmentWithOneWork(auth);
         cancelAppointment(auth, toBeCancelled);
-    }
-
-    private AppointmentDTO getAppointment(String auth) {
-        TreeSet<Work> works = (TreeSet<Work>) integrationDataFactory.getWorks(auth);
-        Work work = works.first();
-        TreeSet<ScheduleDTO> schedule = (TreeSet<ScheduleDTO>) integrationDataFactory.getSchedule(auth, LocalDate.now());
-        int dayOffset = 1;
-        while (schedule.size() <= works.size()) {
-            schedule = (TreeSet<ScheduleDTO>) integrationDataFactory.getSchedule(auth, LocalDate.now().plusDays(dayOffset));
-            dayOffset++;
-        }
-        ScheduleDTO firstSchedule = schedule.first();
-        AppointmentDTO appointmentDTO = new AppointmentDTO();
-        appointmentDTO.getWorks().add(work.getId());
-        appointmentDTO.getBlocks().add(firstSchedule.getBlockId());
-        return appointmentDTO;
     }
 }
