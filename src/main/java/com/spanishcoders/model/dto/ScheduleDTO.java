@@ -1,6 +1,7 @@
 package com.spanishcoders.model.dto;
 
 import com.google.common.collect.Sets;
+import com.spanishcoders.model.Appointment;
 import com.spanishcoders.model.Block;
 import com.spanishcoders.model.Role;
 import org.springframework.security.core.Authentication;
@@ -50,7 +51,7 @@ public class ScheduleDTO implements Comparable<ScheduleDTO> {
         workingDay = block.getWorkingDay() != null ? block.getWorkingDay().getDate().toString() : "";
         hairdresserId = block.getWorkingDay().getAgenda().getHairdresser().getId();
         appointmentId = block.getAppointment() != null ? block.getAppointment().getId() : 0;
-        if (authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
+        if (isWorker(authentication) || isProprietary(authentication, block.getAppointment())) {
             client = block.getAppointment() != null ? block.getAppointment().getUser().getName() : "";
             worksIds = Sets.newHashSet();
             if (block.getAppointment() != null) {
@@ -62,6 +63,18 @@ public class ScheduleDTO implements Comparable<ScheduleDTO> {
             worksIds = Sets.newHashSet();
             notes = "";
         }
+    }
+
+    private boolean isProprietary(Authentication authentication, Appointment appointment) {
+        boolean isProprietary = false;
+        if (authentication != null && appointment != null) {
+            isProprietary = authentication.getName().equals(appointment.getUser().getName());
+        }
+        return isProprietary;
+    }
+
+    private boolean isWorker(Authentication authentication) {
+        return authentication.getAuthorities().stream().anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()));
     }
 
     public Integer getBlockId() {

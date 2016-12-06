@@ -104,7 +104,7 @@ public class HairdresserTests extends IntegrationTests {
         String clientAuth = loginAsClient();
         List<HairdresserSchedule> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(TODAY_SCHEDULE_URL, clientAuth, hairdresserScheduleTypeRef);
         assertThat(schedule, is(not(empty())));
-        assertThat(schedule.stream().filter(hairdresserSchedule -> getScheduleWithClient(hairdresserSchedule)).collect(Collectors.toSet()), is(empty()));
+        assertThat(schedule.stream().filter(hairdresserSchedule -> getScheduleWithOtherClients(hairdresserSchedule)).collect(Collectors.toSet()), is(empty()));
     }
 
     @Test
@@ -134,11 +134,11 @@ public class HairdresserTests extends IntegrationTests {
         List<HairdresserSchedule> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL +
                 LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), clientAuth, hairdresserScheduleTypeRef);
         assertThat(schedule, is(not(empty())));
-        assertThat(schedule.stream().filter(hairdresserSchedule -> getScheduleWithClient(hairdresserSchedule)).collect(Collectors.toSet()), is(empty()));
+        assertThat(schedule.stream().filter(hairdresserSchedule -> getScheduleWithOtherClients(hairdresserSchedule)).collect(Collectors.toSet()), is(empty()));
     }
 
-    private boolean getScheduleWithClient(HairdresserSchedule hairdresserSchedule) {
-        return hairdresserSchedule.getSchedule().stream().anyMatch(scheduleDTO -> !StringUtils.isEmpty(scheduleDTO.getClient()));
+    private boolean getScheduleWithOtherClients(HairdresserSchedule hairdresserSchedule) {
+        return hairdresserSchedule.getSchedule().stream().anyMatch(scheduleDTO -> (!StringUtils.isEmpty(scheduleDTO.getClient()) && !scheduleDTO.getClient().equals(CLIENT_USERNAME)));
     }
 
     @Test
