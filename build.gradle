@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '1.4.0.RELEASE'
+        springBootVersion = '1.5.3.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -8,8 +8,8 @@ buildscript {
         maven { url "https://repo.spring.io/milestone" }
     }
     dependencies {
-        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.4.0.RELEASE")
-        classpath 'org.springframework:springloaded:1.2.0.RELEASE'
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:1.5.3.RELEASE")
+        classpath 'org.springframework:springloaded:1.2.7.RELEASE'
     }
 }
 
@@ -35,15 +35,15 @@ dependencies {
     compile('org.springframework.boot:spring-boot-starter-data-jpa')
     compile('org.springframework.boot:spring-boot-starter-security')
     compile('org.springframework.boot:spring-boot-starter-web')
-    compile('com.google.guava:guava:19.0')
-    compile('io.jsonwebtoken:jjwt:0.6.0')
-    compile('org.hibernate:hibernate-java8:5.1.0.Final')
-    compile('io.springfox:springfox-swagger2:2.5.0')
-    compile('io.springfox:springfox-swagger-ui:2.5.0')
-    compile('org.postgresql:postgresql:9.4.1209')
+    compile('com.google.guava:guava:21.0')
+    compile('io.jsonwebtoken:jjwt:0.7.0')
+    compile('io.springfox:springfox-swagger2:2.6.1')
+    compile('io.springfox:springfox-swagger-ui:2.6.1')
+    compile('org.postgresql:postgresql:9.4.1212')
+    compile('org.hibernate:hibernate-java8')
     runtime('com.h2database:h2')
     testCompile('org.springframework.boot:spring-boot-starter-test')
-    testCompile('org.springframework.security:spring-security-test:4.1.0.RELEASE')
+    testCompile('org.springframework.security:spring-security-test:4.2.2.RELEASE')
     testCompile('org.apache.httpcomponents:httpclient')
 }
 

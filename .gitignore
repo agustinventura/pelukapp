@@ -58,3 +58,9 @@ fabric.properties
 
 # *.iml
 # modules.xml
+
+#Eclipse
+.classpath
+.project
+.settings/
+bin/
