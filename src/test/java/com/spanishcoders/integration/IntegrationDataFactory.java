@@ -1,10 +1,11 @@
 package com.spanishcoders.integration;
 
 import com.google.common.collect.Sets;
-import com.spanishcoders.model.Work;
-import com.spanishcoders.model.dto.AppointmentDTO;
-import com.spanishcoders.model.dto.HairdresserSchedule;
-import com.spanishcoders.model.dto.ScheduleDTO;
+import com.spanishcoders.appointment.AppointmentDTO;
+import com.spanishcoders.work.Work;
+import com.spanishcoders.workingday.HairdresserScheduleDTO;
+import com.spanishcoders.workingday.ScheduleDTO;
+
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.core.ParameterizedTypeReference;
 
@@ -38,14 +39,14 @@ public class IntegrationDataFactory {
     }
 
     public Set<ScheduleDTO> getSchedule(String auth, LocalDate date) {
-        HeadersTestRestTemplate<List<HairdresserSchedule>> scheduleClient = new HeadersTestRestTemplate<>(testRestTemplate);
-        ParameterizedTypeReference<List<HairdresserSchedule>> scheduleTypeRef = new ParameterizedTypeReference<List<HairdresserSchedule>>() {
+        HeadersTestRestTemplate<List<HairdresserScheduleDTO>> scheduleClient = new HeadersTestRestTemplate<>(testRestTemplate);
+        ParameterizedTypeReference<List<HairdresserScheduleDTO>> scheduleTypeRef = new ParameterizedTypeReference<List<HairdresserScheduleDTO>>() {
         };
         String scheduleUrl = HairdresserTests.DAY_SCHEDULE_URL;
         if (date != null) {
             scheduleUrl += date.format(DateTimeFormatter.ISO_LOCAL_DATE) + "/";
         }
-        List<HairdresserSchedule> hairdresserAvailableBlocks = scheduleClient.getWithAuthorizationHeader(scheduleUrl, auth, scheduleTypeRef);
+        List<HairdresserScheduleDTO> hairdresserAvailableBlocks = scheduleClient.getWithAuthorizationHeader(scheduleUrl, auth, scheduleTypeRef);
         return Sets.newTreeSet(hairdresserAvailableBlocks.get(0).getSchedule());
     }
 

@@ -2,7 +2,16 @@ package com.spanishcoders;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
+import com.spanishcoders.agenda.Agenda;
+import com.spanishcoders.agenda.Stretch;
+import com.spanishcoders.agenda.Timetable;
+import com.spanishcoders.appointment.Appointment;
 import com.spanishcoders.model.*;
+import com.spanishcoders.user.hairdresser.Hairdresser;
+import com.spanishcoders.work.Work;
+import com.spanishcoders.work.WorkKind;
+import com.spanishcoders.workingday.WorkingDay;
+import com.spanishcoders.workingday.block.Block;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;

@@ -1,8 +1,10 @@
 package com.spanishcoders.services;
 
 import com.spanishcoders.PelukaapUnitTest;
-import com.spanishcoders.model.WorkingDay;
-import com.spanishcoders.repositories.WorkingDayRepository;
+import com.spanishcoders.workingday.WorkingDay;
+import com.spanishcoders.workingday.WorkingDayRepository;
+import com.spanishcoders.workingday.WorkingDayService;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;

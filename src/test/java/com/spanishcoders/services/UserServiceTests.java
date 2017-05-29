@@ -2,9 +2,12 @@ package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
-import com.spanishcoders.model.AppUser;
-import com.spanishcoders.model.Appointment;
-import com.spanishcoders.repositories.UserRepository;
+import com.spanishcoders.appointment.Appointment;
+import com.spanishcoders.appointment.AppointmentService;
+import com.spanishcoders.user.AppUser;
+import com.spanishcoders.user.UserRepository;
+import com.spanishcoders.user.UserService;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;

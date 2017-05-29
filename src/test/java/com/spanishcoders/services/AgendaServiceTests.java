@@ -2,11 +2,13 @@ package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
-import com.spanishcoders.model.Agenda;
-import com.spanishcoders.model.Block;
-import com.spanishcoders.model.Stretch;
-import com.spanishcoders.model.Timetable;
-import com.spanishcoders.repositories.AgendaRepository;
+import com.spanishcoders.agenda.Agenda;
+import com.spanishcoders.agenda.AgendaRepository;
+import com.spanishcoders.agenda.AgendaService;
+import com.spanishcoders.agenda.Stretch;
+import com.spanishcoders.agenda.Timetable;
+import com.spanishcoders.workingday.block.Block;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;

@@ -2,6 +2,8 @@ package com.spanishcoders.model;
 
 import org.junit.Test;
 
+import com.spanishcoders.workingday.block.Block;
+
 import java.time.LocalTime;
 
 import static org.hamcrest.Matchers.is;

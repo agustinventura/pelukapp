@@ -2,9 +2,11 @@ package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
-import com.spanishcoders.model.Block;
-import com.spanishcoders.model.WorkingDay;
-import com.spanishcoders.repositories.BlockRepository;
+import com.spanishcoders.workingday.WorkingDay;
+import com.spanishcoders.workingday.block.Block;
+import com.spanishcoders.workingday.block.BlockRepository;
+import com.spanishcoders.workingday.block.BlockService;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;

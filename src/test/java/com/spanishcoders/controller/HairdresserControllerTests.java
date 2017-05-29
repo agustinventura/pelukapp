@@ -3,9 +3,15 @@ package com.spanishcoders.controller;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
+import com.spanishcoders.agenda.Agenda;
 import com.spanishcoders.model.*;
-import com.spanishcoders.services.HairdresserService;
-import com.spanishcoders.services.WorkService;
+import com.spanishcoders.user.UserStatus;
+import com.spanishcoders.user.hairdresser.Hairdresser;
+import com.spanishcoders.user.hairdresser.HairdresserService;
+import com.spanishcoders.work.WorkService;
+import com.spanishcoders.workingday.WorkingDay;
+import com.spanishcoders.workingday.block.Block;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;

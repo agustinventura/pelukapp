@@ -1,7 +1,8 @@
 package com.spanishcoders.integration;
 
-import com.spanishcoders.model.Work;
-import com.spanishcoders.model.WorkKind;
+import com.spanishcoders.work.Work;
+import com.spanishcoders.work.WorkKind;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;

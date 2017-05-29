@@ -1,6 +1,11 @@
 package com.spanishcoders.model;
 
 import com.google.common.collect.Sets;
+import com.spanishcoders.agenda.Agenda;
+import com.spanishcoders.agenda.Timetable;
+import com.spanishcoders.workingday.WorkingDay;
+import com.spanishcoders.workingday.block.Block;
+
 import org.junit.Test;
 
 import java.time.LocalDate;

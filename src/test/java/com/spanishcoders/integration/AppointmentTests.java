@@ -2,10 +2,11 @@ package com.spanishcoders.integration;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spanishcoders.model.Appointment;
-import com.spanishcoders.model.Work;
-import com.spanishcoders.model.dto.AppointmentDTO;
-import com.spanishcoders.model.dto.ScheduleDTO;
+import com.spanishcoders.appointment.Appointment;
+import com.spanishcoders.appointment.AppointmentDTO;
+import com.spanishcoders.work.Work;
+import com.spanishcoders.workingday.ScheduleDTO;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;

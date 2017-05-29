@@ -1,8 +1,9 @@
 package com.spanishcoders.integration;
 
-import com.spanishcoders.model.dto.HairdresserDTO;
-import com.spanishcoders.model.dto.HairdresserSchedule;
-import com.spanishcoders.model.dto.ScheduleDTO;
+import com.spanishcoders.user.hairdresser.HairdresserDTO;
+import com.spanishcoders.workingday.HairdresserScheduleDTO;
+import com.spanishcoders.workingday.ScheduleDTO;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
@@ -31,8 +32,8 @@ public class HairdresserTests extends IntegrationTests {
     public static final String DAY_SCHEDULE_URL = "/hairdresser/schedule/";
     ParameterizedTypeReference<Object> errorTypeRef = new ParameterizedTypeReference<Object>() {
     };
-    private HeadersTestRestTemplate<List<HairdresserSchedule>> hairdresserScheduleClient;
-    private ParameterizedTypeReference<List<HairdresserSchedule>> hairdresserScheduleTypeRef = new ParameterizedTypeReference<List<HairdresserSchedule>>() {
+    private HeadersTestRestTemplate<List<HairdresserScheduleDTO>> hairdresserScheduleClient;
+    private ParameterizedTypeReference<List<HairdresserScheduleDTO>> hairdresserScheduleTypeRef = new ParameterizedTypeReference<List<HairdresserScheduleDTO>>() {
     };
     private HeadersTestRestTemplate<Object> errorClient;
 
@@ -60,9 +61,9 @@ public class HairdresserTests extends IntegrationTests {
     @Test
     public void getScheduleNonWorkingDay() {
         String authHeader = loginAsClient();
-        List<HairdresserSchedule> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL + LocalDate.of(2016, 01, 01).format(DateTimeFormatter.ISO_LOCAL_DATE) + "/", authHeader, hairdresserScheduleTypeRef);
+        List<HairdresserScheduleDTO> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL + LocalDate.of(2016, 01, 01).format(DateTimeFormatter.ISO_LOCAL_DATE) + "/", authHeader, hairdresserScheduleTypeRef);
         assertThat(schedule, is(not(empty())));
-        HairdresserSchedule hairdresserSchedule = schedule.get(0);
+        HairdresserScheduleDTO hairdresserSchedule = schedule.get(0);
         HairdresserDTO hairdresser = hairdresserSchedule.getHairdresser();
         assertThat(hairdresser, notNullValue());
         Set<ScheduleDTO> scheduleBlocks = hairdresserSchedule.getSchedule();
@@ -72,9 +73,9 @@ public class HairdresserTests extends IntegrationTests {
     @Test
     public void getScheduleAsClient() {
         String authHeader = loginAsClient();
-        List<HairdresserSchedule> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/", authHeader, hairdresserScheduleTypeRef);
+        List<HairdresserScheduleDTO> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/", authHeader, hairdresserScheduleTypeRef);
         assertThat(schedule, is(not(empty())));
-        HairdresserSchedule hairdresserSchedule = schedule.get(0);
+        HairdresserScheduleDTO hairdresserSchedule = schedule.get(0);
         HairdresserDTO hairdresser = hairdresserSchedule.getHairdresser();
         assertThat(hairdresser, notNullValue());
         Set<ScheduleDTO> scheduleBlocks = hairdresserSchedule.getSchedule();
@@ -84,9 +85,9 @@ public class HairdresserTests extends IntegrationTests {
     @Test
     public void getScheduleAsHairdresser() {
         String authHeader = loginAsAdmin();
-        List<HairdresserSchedule> hairdresserSchedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/", authHeader, hairdresserScheduleTypeRef);
+        List<HairdresserScheduleDTO> hairdresserSchedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/", authHeader, hairdresserScheduleTypeRef);
         assertThat(hairdresserSchedule, is(not(empty())));
-        HairdresserSchedule hairdresserAvailableBlocks = hairdresserSchedule.get(0);
+        HairdresserScheduleDTO hairdresserAvailableBlocks = hairdresserSchedule.get(0);
         HairdresserDTO hairdresser = hairdresserAvailableBlocks.getHairdresser();
         assertThat(hairdresser, notNullValue());
         Set<ScheduleDTO> scheduleBlocks = hairdresserAvailableBlocks.getSchedule();
@@ -102,7 +103,7 @@ public class HairdresserTests extends IntegrationTests {
     @Test
     public void getTodayScheduleAsClient() {
         String clientAuth = loginAsClient();
-        List<HairdresserSchedule> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(TODAY_SCHEDULE_URL, clientAuth, hairdresserScheduleTypeRef);
+        List<HairdresserScheduleDTO> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(TODAY_SCHEDULE_URL, clientAuth, hairdresserScheduleTypeRef);
         assertThat(schedule, is(not(empty())));
         assertThat(schedule.stream().filter(hairdresserSchedule -> getScheduleWithOtherClients(hairdresserSchedule)).collect(Collectors.toSet()), is(empty()));
     }
@@ -110,7 +111,7 @@ public class HairdresserTests extends IntegrationTests {
     @Test
     public void getTodayScheduleAsAdmin() {
         String adminAuth = loginAsAdmin();
-        List<HairdresserSchedule> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(TODAY_SCHEDULE_URL, adminAuth, hairdresserScheduleTypeRef);
+        List<HairdresserScheduleDTO> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(TODAY_SCHEDULE_URL, adminAuth, hairdresserScheduleTypeRef);
         assertThat(schedule, is(not(empty())));
     }
 
@@ -131,20 +132,20 @@ public class HairdresserTests extends IntegrationTests {
     @Test
     public void getDayScheduleAsClient() {
         String clientAuth = loginAsClient();
-        List<HairdresserSchedule> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL +
+        List<HairdresserScheduleDTO> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL +
                 LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), clientAuth, hairdresserScheduleTypeRef);
         assertThat(schedule, is(not(empty())));
         assertThat(schedule.stream().filter(hairdresserSchedule -> getScheduleWithOtherClients(hairdresserSchedule)).collect(Collectors.toSet()), is(empty()));
     }
 
-    private boolean getScheduleWithOtherClients(HairdresserSchedule hairdresserSchedule) {
+    private boolean getScheduleWithOtherClients(HairdresserScheduleDTO hairdresserSchedule) {
         return hairdresserSchedule.getSchedule().stream().anyMatch(scheduleDTO -> (!StringUtils.isEmpty(scheduleDTO.getClient()) && !scheduleDTO.getClient().equals(CLIENT_USERNAME)));
     }
 
     @Test
     public void getDayScheduleAsAdmin() {
         String adminAuth = loginAsAdmin();
-        List<HairdresserSchedule> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL +
+        List<HairdresserScheduleDTO> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL +
                 LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), adminAuth, hairdresserScheduleTypeRef);
         assertThat(schedule, is(not(empty())));
     }

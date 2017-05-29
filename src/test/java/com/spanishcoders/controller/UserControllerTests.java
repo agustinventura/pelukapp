@@ -2,9 +2,11 @@ package com.spanishcoders.controller;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
-import com.spanishcoders.model.AppUser;
-import com.spanishcoders.model.Appointment;
-import com.spanishcoders.services.UserService;
+import com.spanishcoders.appointment.Appointment;
+import com.spanishcoders.user.AppUser;
+import com.spanishcoders.user.UserController;
+import com.spanishcoders.user.UserService;
+
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;

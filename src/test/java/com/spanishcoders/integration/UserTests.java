@@ -1,8 +1,9 @@
 package com.spanishcoders.integration;
 
-import com.spanishcoders.model.dto.AppointmentDTO;
-import com.spanishcoders.model.dto.ClientDTO;
-import com.spanishcoders.model.dto.SignInUserDTO;
+import com.spanishcoders.appointment.AppointmentDTO;
+import com.spanishcoders.user.SignInUserDTO;
+import com.spanishcoders.user.client.ClientDTO;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;

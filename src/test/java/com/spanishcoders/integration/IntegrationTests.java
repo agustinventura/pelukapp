@@ -1,7 +1,8 @@
 package com.spanishcoders.integration;
 
-import com.spanishcoders.model.dto.SignInUserDTO;
-import com.spanishcoders.model.dto.UserDTO;
+import com.spanishcoders.user.SignInUserDTO;
+import com.spanishcoders.user.UserDTO;
+
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;

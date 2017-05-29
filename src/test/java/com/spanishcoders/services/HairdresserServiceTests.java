@@ -2,11 +2,14 @@ package com.spanishcoders.services;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
-import com.spanishcoders.model.Agenda;
-import com.spanishcoders.model.Block;
-import com.spanishcoders.model.Hairdresser;
-import com.spanishcoders.model.UserStatus;
-import com.spanishcoders.repositories.HairdresserRepository;
+import com.spanishcoders.agenda.Agenda;
+import com.spanishcoders.agenda.AgendaService;
+import com.spanishcoders.user.UserStatus;
+import com.spanishcoders.user.hairdresser.Hairdresser;
+import com.spanishcoders.user.hairdresser.HairdresserRepository;
+import com.spanishcoders.user.hairdresser.HairdresserService;
+import com.spanishcoders.workingday.block.Block;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
