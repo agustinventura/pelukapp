@@ -1,8 +1,8 @@
 package com.spanishcoders.user.client;
 
-import com.spanishcoders.user.AppUser;
-
 import javax.persistence.Entity;
+
+import com.spanishcoders.user.AppUser;
 
 /**
  * Created by pep on 12/05/2016.
@@ -10,30 +10,29 @@ import javax.persistence.Entity;
 @Entity
 public class Client extends AppUser {
 
-    private String distance;
+	private String distance;
 
-    public Client() {
+	public Client() {
 
-    }
+	}
 
-    public Client(ClientDTO clientDTO) {
-        super(clientDTO);
-        this.distance = clientDTO.getDistance();
-    }
+	public Client(ClientDTO clientDTO) {
+		super(clientDTO);
+		this.distance = clientDTO.getDistance();
+	}
 
-    public String getDistance() {
-        return distance;
-    }
+	public String getDistance() {
+		return distance;
+	}
 
-    public void setDistance(String distance) {
-        this.distance = distance;
-    }
+	public void setDistance(String distance) {
+		this.distance = distance;
+	}
 
-    @Override
-    public String toString() {
-        return "Client{" +
-                "username=" + username +
-                "distance='" + distance + '\'' +
-                '}';
-    }
+	@Override
+	public String toString() {
+		return "Client [distance=" + distance + ", getUsername()=" + getUsername() + ", getStatus()=" + getStatus()
+				+ ", getName()=" + getName() + ", getPassword()=" + getPassword() + ", getId()=" + getId()
+				+ ", getPhone()=" + getPhone() + "]";
+	}
 }

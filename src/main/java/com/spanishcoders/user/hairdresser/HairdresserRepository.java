@@ -1,13 +1,14 @@
 package com.spanishcoders.user.hairdresser;
 
-import com.spanishcoders.user.UserStatus;
+import java.util.Set;
 
 import org.springframework.data.repository.CrudRepository;
 
-import java.util.Set;
+import com.spanishcoders.user.UserStatus;
 
 public interface HairdresserRepository extends CrudRepository<Hairdresser, Integer> {
 
-    Set<Hairdresser> findByStatus(UserStatus active);
-}
+	Hairdresser findByUsername(String username);
 
+	Set<Hairdresser> findByStatus(UserStatus active);
+}

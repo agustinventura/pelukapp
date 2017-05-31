@@ -16,7 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.spanishcoders.appointment.AppointmentDTO;
-import com.spanishcoders.user.SignInUserDTO;
+import com.spanishcoders.user.UserDTO;
 import com.spanishcoders.user.client.ClientDTO;
 
 public class UserTests extends IntegrationTests {
@@ -30,7 +30,7 @@ public class UserTests extends IntegrationTests {
 
 	@Test
 	public void clientLogin() {
-		final SignInUserDTO client = login(CLIENT_USERNAME, CLIENT_PASSWORD).getBody();
+		final UserDTO client = login(CLIENT_USERNAME, CLIENT_PASSWORD).getBody();
 		assertThat(client.getUsername(), is(CLIENT_USERNAME));
 	}
 
@@ -48,7 +48,7 @@ public class UserTests extends IntegrationTests {
 
 	@Test
 	public void adminLogin() {
-		final SignInUserDTO admin = login(ADMIN_USERNAME, ADMIN_PASSWORD).getBody();
+		final UserDTO admin = login(ADMIN_USERNAME, ADMIN_PASSWORD).getBody();
 		assertThat(admin.getUsername(), is(ADMIN_USERNAME));
 	}
 
@@ -63,7 +63,7 @@ public class UserTests extends IntegrationTests {
 		final ResponseEntity<ClientDTO> registrationResponse = register(username, password, phone, name);
 		assertThat(registrationResponse.getStatusCode(), is(HttpStatus.OK));
 
-		final ResponseEntity<SignInUserDTO> loginResponse = login(username, password);
+		final ResponseEntity<UserDTO> loginResponse = login(username, password);
 		assertThat(loginResponse.getStatusCode(), is(HttpStatus.OK));
 	}
 

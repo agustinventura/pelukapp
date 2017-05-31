@@ -1,4 +1,4 @@
-package com.spanishcoders.services;
+package com.spanishcoders.user;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;

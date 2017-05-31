@@ -25,9 +25,6 @@ import com.spanishcoders.workingday.block.BlockService;
 
 import io.jsonwebtoken.lang.Collections;
 
-/**
- * Created by agustin on 7/07/16.
- */
 @Service
 @Transactional
 public class AppointmentService {

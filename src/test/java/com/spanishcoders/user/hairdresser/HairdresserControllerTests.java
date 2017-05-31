@@ -1,4 +1,4 @@
-package com.spanishcoders.controller;
+package com.spanishcoders.user.hairdresser;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;

@@ -31,10 +31,6 @@ import com.spanishcoders.work.Work;
 import com.spanishcoders.work.WorkKind;
 import com.spanishcoders.workingday.block.Block;
 
-/**
- * Created by pep on 12/05/2016.
- */
-
 @Entity
 public class Appointment implements Comparable<Appointment> {
 
