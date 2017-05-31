@@ -1,5 +1,8 @@
 package com.spanishcoders.work;
 
+import java.util.Collection;
+import java.util.stream.Collectors;
+
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -7,24 +10,20 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.util.Collection;
-
-/**
- * Created by pep on 12/05/2016.
- */
 @RestController
 @RequestMapping(value = "/works", produces = MediaType.APPLICATION_JSON_VALUE)
 public class WorkController {
 
-    private WorkService workService;
+	private final WorkService workService;
 
-    public WorkController(WorkService workService) {
-        this.workService = workService;
-    }
+	public WorkController(WorkService workService) {
+		this.workService = workService;
+	}
 
-    @PreAuthorize("authenticated")
-    @RequestMapping(method = RequestMethod.GET)
-    public Collection<Work> getWorks(Authentication authentication) {
-        return workService.getAvailableWorks(authentication.getAuthorities());
-    }
+	@PreAuthorize("authenticated")
+	@RequestMapping(method = RequestMethod.GET)
+	public Collection<WorkDTO> getWorks(Authentication authentication) {
+		return workService.getAvailableWorks(authentication.getAuthorities()).stream().map(work -> new WorkDTO(work))
+				.collect(Collectors.toList());
+	}
 }

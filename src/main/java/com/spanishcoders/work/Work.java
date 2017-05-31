@@ -1,92 +1,98 @@
 package com.spanishcoders.work;
 
-import javax.persistence.*;
+import java.time.Duration;
 
-/**
- * Created by pep on 12/05/2016.
- */
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+
 @Entity
 public class Work implements Comparable<Work> {
 
-    @Id
-    @GeneratedValue
-    private Integer id;
+	@Id
+	@GeneratedValue
+	private Integer id;
 
-    private String name;
+	private String name;
 
-    /**
-     * in minutes
-     */
-    private int duration;
+	private Duration duration;
 
-    @Enumerated(EnumType.STRING)
-    private WorkKind kind;
+	@Enumerated(EnumType.STRING)
+	private WorkKind kind;
 
-    public Work() {
-    }
+	public Work() {
+	}
 
-    public Work(String name, int duration, WorkKind kind) {
-        this.name = name;
-        this.duration = duration;
-        this.kind = kind;
-    }
+	public Work(String name, Duration duration, WorkKind kind) {
+		this.name = name;
+		this.duration = duration;
+		this.kind = kind;
+	}
 
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-    public Integer getId() {
-        return id;
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public String getName() {
-        return name;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setName(String name) {
-        this.name = name;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public int getDuration() {
-        return duration;
-    }
+	public Duration getDuration() {
+		return duration;
+	}
 
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
+	public void setDuration(Duration duration) {
+		this.duration = duration;
+	}
 
-    public WorkKind getKind() {
-        return kind;
-    }
+	public WorkKind getKind() {
+		return kind;
+	}
 
-    public void setKind(WorkKind kind) {
-        this.kind = kind;
-    }
+	public void setKind(WorkKind kind) {
+		this.kind = kind;
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
-        Work work = (Work) o;
+		final Work work = (Work) o;
 
-        if (id != null ? !id.equals(work.id) : work.id != null) return false;
-        return name != null ? name.equals(work.name) : work.name == null;
+		if (id != null ? !id.equals(work.id) : work.id != null) {
+			return false;
+		}
+		return name != null ? name.equals(work.name) : work.name == null;
 
-    }
+	}
 
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (name != null ? name.hashCode() : 0);
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		int result = id != null ? id.hashCode() : 0;
+		result = 31 * result + (name != null ? name.hashCode() : 0);
+		return result;
+	}
 
-    @Override
-    public int compareTo(Work o) {
-        return this.getId().compareTo(o.getId());
-    }
+	@Override
+	public int compareTo(Work o) {
+		return this.getId().compareTo(o.getId());
+	}
 }
