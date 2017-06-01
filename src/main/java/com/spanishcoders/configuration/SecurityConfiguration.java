@@ -35,8 +35,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private final UserRepository userRepository;
 
 	@Autowired
-	public SecurityConfiguration(
-			@Qualifier("pelukappUserDetailsService") UserDetailsService userDetailsService,
+	public SecurityConfiguration(@Qualifier("pelukappUserDetailsService") UserDetailsService userDetailsService,
 			UserRepository userRepository) {
 		this.userDetailsService = userDetailsService;
 		this.userRepository = userRepository;
@@ -48,8 +47,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 		http.headers().frameOptions().disable();
 		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.GET, "/").permitAll()
 				.antMatchers(HttpMethod.GET, "/*.html").permitAll().antMatchers(HttpMethod.GET, "/static/index.html")
-				.permitAll().antMatchers(HttpMethod.POST, "/login").permitAll()
-				.antMatchers(HttpMethod.POST, "/user/client").permitAll().antMatchers("/favicon.ico").permitAll()
+				.permitAll().antMatchers(HttpMethod.POST, "/login").permitAll().antMatchers(HttpMethod.POST, "/client")
+				.permitAll().antMatchers("/favicon.ico").permitAll()
 
 				// Enable for h2-console access
 				.antMatchers("/h2-console/**").permitAll().antMatchers("/v2/api-docs/**").permitAll()

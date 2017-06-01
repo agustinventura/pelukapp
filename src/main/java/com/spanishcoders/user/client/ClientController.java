@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/client", produces = MediaType.APPLICATION_JSON_VALUE)
+@RequestMapping(value = "/client", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ClientController {
 
 	private final ClientService clientService;
@@ -17,7 +17,7 @@ public class ClientController {
 		this.clientService = clientService;
 	}
 
-	@RequestMapping(value = "client", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(method = RequestMethod.POST)
 	public ClientDTO registerClient(Authentication authentication, @RequestBody ClientDTO clientDTO) {
 		return new ClientDTO(clientService.createClient(authentication, clientDTO));
 	}

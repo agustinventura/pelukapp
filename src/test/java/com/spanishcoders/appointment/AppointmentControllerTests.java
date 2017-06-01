@@ -32,8 +32,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spanishcoders.PelukaapUnitTest;
 import com.spanishcoders.work.Work;
 import com.spanishcoders.work.WorkService;
@@ -225,11 +223,6 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
 				.andExpect(status().isOk()).andExpect(content().contentType("application/json;charset=UTF-8"))
 				.andExpect(jsonPath("$.*", hasSize(8))).andExpect(jsonPath("$.status", is(1)));
-	}
-
-	private String toJSON(AppointmentDTO appointmentDTO) throws JsonProcessingException {
-		final ObjectMapper objectMapper = new ObjectMapper();
-		return objectMapper.writeValueAsString(appointmentDTO);
 	}
 
 	private void answerAppointmentFromDTO() {
