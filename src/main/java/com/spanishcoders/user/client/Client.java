@@ -4,9 +4,6 @@ import javax.persistence.Entity;
 
 import com.spanishcoders.user.AppUser;
 
-/**
- * Created by pep on 12/05/2016.
- */
 @Entity
 public class Client extends AppUser {
 

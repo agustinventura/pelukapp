@@ -13,14 +13,11 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spanishcoders.appointment.AppointmentDTO;
-import com.spanishcoders.user.client.Client;
-import com.spanishcoders.user.client.ClientDTO;
 
 @RestController
 @RequestMapping(value = "/user", produces = MediaType.APPLICATION_JSON_VALUE)
@@ -39,11 +36,6 @@ public class UserController {
 	public Set<AppointmentDTO> getNextAppointments(Authentication authentication) {
 		return userService.getNextAppointments(authentication).stream()
 				.map(appointment -> new AppointmentDTO(appointment)).collect(Collectors.toSet());
-	}
-
-	@RequestMapping(value = "client", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public Client registerClient(Authentication authentication, @RequestBody ClientDTO clientDTO) {
-		return userService.createClient(authentication, clientDTO);
 	}
 
 	@ExceptionHandler(IllegalArgumentException.class)

@@ -23,7 +23,7 @@ public class WorkController {
 	@PreAuthorize("authenticated")
 	@RequestMapping(method = RequestMethod.GET)
 	public Collection<WorkDTO> getWorks(Authentication authentication) {
-		return workService.getAvailableWorks(authentication.getAuthorities()).stream().map(work -> new WorkDTO(work))
+		return workService.getAvailableWorks(authentication).stream().map(work -> new WorkDTO(work))
 				.collect(Collectors.toList());
 	}
 }

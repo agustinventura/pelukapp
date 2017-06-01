@@ -1,9 +1,8 @@
 package com.spanishcoders.work;
 
-import java.util.Collection;
 import java.util.Set;
 
-import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,8 +19,9 @@ public class WorkService {
 		this.workRepository = workRepository;
 	}
 
-	Set<Work> getAvailableWorks(Collection<? extends GrantedAuthority> userAuthorities) {
-		if (userAuthorities != null && userAuthorities.contains(Role.WORKER.getGrantedAuthority())) {
+	Set<Work> getAvailableWorks(Authentication userAuthentication) {
+		if (userAuthentication != null
+				&& userAuthentication.getAuthorities().contains(Role.WORKER.getGrantedAuthority())) {
 			return Sets.newHashSet(workRepository.findAll());
 		} else {
 			return Sets.newHashSet(workRepository.findByKind(WorkKind.PUBLIC));

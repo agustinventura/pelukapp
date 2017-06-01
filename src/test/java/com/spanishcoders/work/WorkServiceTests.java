@@ -6,22 +6,28 @@ import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
-import com.spanishcoders.user.Role;
 
 public class WorkServiceTests extends PelukaapUnitTest {
 
 	@MockBean
 	private WorkRepository workRepository;
+
+	@MockBean
+	private Authentication authentication;
 
 	private WorkService workService;
 
@@ -32,29 +38,34 @@ public class WorkServiceTests extends PelukaapUnitTest {
 
 	@Test
 	public void getAvailableWorksForWorker() throws Exception {
+		final Collection authorities = mock(Collection.class);
 		given(workRepository.findAll()).willReturn(Sets.newHashSet(new Work()));
-		final Set<Work> availableWorks = workService
-				.getAvailableWorks(Sets.newHashSet(Role.WORKER.getGrantedAuthority()));
+		given(authentication.getAuthorities()).willReturn(authorities);
+		given(authorities.contains(any(GrantedAuthority.class))).willReturn(true);
+		final Set<Work> availableWorks = workService.getAvailableWorks(authentication);
 		assertThat(availableWorks, hasSize(1));
 	}
 
 	@Test
 	public void getAvailableWorksForClient() throws Exception {
+		final Collection authorities = mock(Collection.class);
 		given(workRepository.findByKind(WorkKind.PUBLIC)).willReturn(Sets.newHashSet(new Work()));
-		final Set<Work> availableWorks = workService
-				.getAvailableWorks(Sets.newHashSet(Role.CLIENT.getGrantedAuthority()));
+		given(authentication.getAuthorities()).willReturn(authorities);
+		given(authorities.contains(any(GrantedAuthority.class))).willReturn(false);
+		final Set<Work> availableWorks = workService.getAvailableWorks(authentication);
 		assertThat(availableWorks, hasSize(1));
 	}
 
 	@Test
 	public void getAvailableWorksWithoutAuthorities() throws Exception {
 		given(workRepository.findByKind(WorkKind.PUBLIC)).willReturn(Sets.newHashSet(new Work()));
-		final Set<Work> availableWorks = workService.getAvailableWorks(Sets.newHashSet());
+		given(authentication.getAuthorities()).willReturn(Collections.EMPTY_SET);
+		final Set<Work> availableWorks = workService.getAvailableWorks(authentication);
 		assertThat(availableWorks, hasSize(1));
 	}
 
 	@Test
-	public void getAvailableWorksWithNullAuthorities() throws Exception {
+	public void getAvailableWorksWithNullAuthentication() throws Exception {
 		given(workRepository.findByKind(WorkKind.PUBLIC)).willReturn(Sets.newHashSet(new Work()));
 		final Set<Work> availableWorks = workService.getAvailableWorks(null);
 		assertThat(availableWorks, hasSize(1));

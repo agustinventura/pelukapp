@@ -1,9 +1,5 @@
 package com.spanishcoders.user;
 
-import java.util.Set;
-
-import com.google.common.collect.Sets;
-
 public class UserDTO {
 
 	private Integer id;
@@ -12,10 +8,9 @@ public class UserDTO {
 	private String password;
 	private String phone;
 	private UserStatus status;
-	private Set<Integer> appointments;
 
 	public UserDTO() {
-		appointments = Sets.newTreeSet();
+		super();
 	}
 
 	public UserDTO(AppUser user) {
@@ -76,14 +71,6 @@ public class UserDTO {
 		this.status = userStatus;
 	}
 
-	public Set<Integer> getAppointments() {
-		return appointments;
-	}
-
-	public void setAppointments(Set<Integer> appointments) {
-		this.appointments = appointments;
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -117,7 +104,6 @@ public class UserDTO {
 	@Override
 	public String toString() {
 		return "UserDTO{" + "id=" + id + ", name='" + name + '\'' + ", username='" + username + '\'' + ", password='"
-				+ password + '\'' + ", phone='" + phone + '\'' + ", status=" + status + ", appointments=" + appointments
-				+ '}';
+				+ password + '\'' + ", phone='" + phone + '\'' + ", status=" + status + +'}';
 	}
 }
