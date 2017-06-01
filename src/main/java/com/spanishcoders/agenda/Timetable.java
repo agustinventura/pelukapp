@@ -21,7 +21,7 @@ public class Timetable {
 
 	@Id
 	@GeneratedValue
-	protected Integer id;
+	private Integer id;
 
 	@NotNull
 	private LocalDate startDay;
@@ -77,6 +77,10 @@ public class Timetable {
 		this.stretches = stretches;
 	}
 
+	public void addStretch(Stretch stretch) {
+		this.stretches.add(stretch);
+	}
+
 	@Override
 	public String toString() {
 		return "Timetable{" + "id=" + id + ", startDay=" + startDay + ", endDay=" + endDay + ", stretches=" + stretches
@@ -84,26 +88,49 @@ public class Timetable {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-
-		final Timetable timetable = (Timetable) o;
-
-		return id != null ? id.equals(timetable.id) : timetable.id == null;
-
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((endDay == null) ? 0 : endDay.hashCode());
+		result = prime * result + ((startDay == null) ? 0 : startDay.hashCode());
+		result = prime * result + ((stretches == null) ? 0 : stretches.hashCode());
+		return result;
 	}
 
 	@Override
-	public int hashCode() {
-		return id != null ? id.hashCode() : 0;
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final Timetable other = (Timetable) obj;
+		if (endDay == null) {
+			if (other.endDay != null) {
+				return false;
+			}
+		} else if (!endDay.equals(other.endDay)) {
+			return false;
+		}
+		if (startDay == null) {
+			if (other.startDay != null) {
+				return false;
+			}
+		} else if (!startDay.equals(other.startDay)) {
+			return false;
+		}
+		if (stretches == null) {
+			if (other.stretches != null) {
+				return false;
+			}
+		} else if (!stretches.equals(other.stretches)) {
+			return false;
+		}
+		return true;
 	}
 
-	public void addStretch(Stretch stretch) {
-		this.stretches.add(stretch);
-	}
 }
