@@ -1,103 +1,99 @@
 package com.spanishcoders.agenda;
 
+import java.time.LocalTime;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.ManyToOne;
 import javax.validation.constraints.NotNull;
 
-import java.time.LocalTime;
-
-/**
- * Created by agustin on 16/06/16.
- */
 @Entity
 public class Stretch {
 
-    @Id
-    @GeneratedValue
-    protected Integer id;
+	@Id
+	@GeneratedValue
+	private Integer id;
 
-    @NotNull
-    private LocalTime startTime;
+	@NotNull
+	private LocalTime startTime;
 
-    @NotNull
-    private LocalTime endTime;
+	@NotNull
+	private LocalTime endTime;
 
-    @ManyToOne
-    private Timetable timetables;
+	public Stretch() {
+	}
 
-    public Stretch() {
-        this.timetables = null;
-    }
+	public Stretch(LocalTime startTime, LocalTime endTime) {
+		this();
+		this.startTime = startTime;
+		this.endTime = endTime;
+	}
 
-    public Stretch(Timetable timetable, LocalTime startTime, LocalTime endTime) {
-        this();
-        this.startTime = startTime;
-        this.endTime = endTime;
-        timetables = timetable;
-        timetable.addStretch(this);
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public Integer getId() {
-        return id;
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public LocalTime getStartTime() {
+		return startTime;
+	}
 
-    public LocalTime getStartTime() {
-        return startTime;
-    }
+	public void setStartTime(LocalTime startTime) {
+		this.startTime = startTime;
+	}
 
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
+	public LocalTime getEndTime() {
+		return endTime;
+	}
 
-    public LocalTime getEndTime() {
-        return endTime;
-    }
+	public void setEndTime(LocalTime endTime) {
+		this.endTime = endTime;
+	}
 
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
+	@Override
+	public String toString() {
+		return "Stretch{" + "id=" + id + ", startTime=" + startTime + ", endTime=" + endTime + '}';
+	}
 
-    public Timetable getTimetables() {
-        return timetables;
-    }
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((endTime == null) ? 0 : endTime.hashCode());
+		result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
+		return result;
+	}
 
-    public void setTimetables(Timetable timetables) {
-        this.timetables = timetables;
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final Stretch other = (Stretch) obj;
+		if (endTime == null) {
+			if (other.endTime != null) {
+				return false;
+			}
+		} else if (!endTime.equals(other.endTime)) {
+			return false;
+		}
+		if (startTime == null) {
+			if (other.startTime != null) {
+				return false;
+			}
+		} else if (!startTime.equals(other.startTime)) {
+			return false;
+		}
+		return true;
+	}
 
-    @Override
-    public String toString() {
-        return "Stretch{" +
-                "id=" + id +
-                ", startTime=" + startTime +
-                ", endTime=" + endTime +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Stretch stretch = (Stretch) o;
-
-        if (id != null ? !id.equals(stretch.id) : stretch.id != null) return false;
-        if (startTime != null ? !startTime.equals(stretch.startTime) : stretch.startTime != null) return false;
-        return endTime != null ? endTime.equals(stretch.endTime) : stretch.endTime == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
-        result = 31 * result + (startTime != null ? startTime.hashCode() : 0);
-        result = 31 * result + (endTime != null ? endTime.hashCode() : 0);
-        return result;
-    }
 }

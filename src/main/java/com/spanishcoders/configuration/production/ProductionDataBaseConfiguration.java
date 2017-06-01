@@ -130,11 +130,11 @@ public class ProductionDataBaseConfiguration {
 	}
 
 	private void createAgenda(Hairdresser admin) {
-		final Agenda agenda = new Agenda(admin);
-		final Timetable timetable = new Timetable(agenda, LocalDate.now().minusDays(365),
-				LocalDate.now().plusDays(365));
-		final Stretch morning = new Stretch(timetable, LocalTime.of(10, 00), LocalTime.of(14, 00));
-		final Stretch afternoon = new Stretch(timetable, LocalTime.of(17, 00), LocalTime.of(21, 00));
+		final Stretch morning = new Stretch(LocalTime.of(10, 00), LocalTime.of(14, 00));
+		final Stretch afternoon = new Stretch(LocalTime.of(17, 00), LocalTime.of(21, 00));
+		final Timetable timetable = new Timetable(LocalDate.now().minusDays(365), LocalDate.now().plusDays(365),
+				morning, afternoon);
+		final Agenda agenda = new Agenda(admin, timetable);
 		agenda.addNonWorkingDay(LocalDate.of(2016, 01, 01));
 		agenda.addNonWorkingDay(LocalDate.of(2016, 01, 06));
 		agenda.addNonWorkingDay(LocalDate.of(2016, 02, 28));

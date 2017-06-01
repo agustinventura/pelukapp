@@ -1,7 +1,5 @@
 package com.spanishcoders;
 
-import static org.mockito.Mockito.mock;
-
 import java.security.SecureRandom;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -21,9 +19,6 @@ import com.spanishcoders.work.WorkKind;
 import com.spanishcoders.workingday.WorkingDay;
 import com.spanishcoders.workingday.block.Block;
 
-/**
- * Created by agustin on 28/06/16.
- */
 public class TestDataFactory {
 
 	public static Set<Block> mockBlocks() {
@@ -73,24 +68,23 @@ public class TestDataFactory {
 	}
 
 	public static Agenda mockFullAgenda() {
-		final Agenda agenda = new Agenda(mockHairdresser());
 		final LocalDate today = LocalDate.now();
-		final Timetable timetable = new Timetable(agenda, today.minusDays(1), today.plusDays(1));
-		final Stretch morning = new Stretch(timetable, LocalTime.of(9, 30), LocalTime.of(14, 00));
-		final Stretch afternoon = new Stretch(timetable, LocalTime.of(17, 00), LocalTime.of(20, 30));
+		final Stretch morning = new Stretch(LocalTime.of(9, 30), LocalTime.of(14, 00));
+		final Stretch afternoon = new Stretch(LocalTime.of(17, 00), LocalTime.of(20, 30));
+		final Timetable timetable = new Timetable(today.minusDays(1), today.plusDays(1), morning, afternoon);
+		final Agenda agenda = new Agenda(mockHairdresser(), timetable);
 		return agenda;
 	}
 
 	public static Timetable mockTimetable() {
 		final LocalDate today = LocalDate.now();
-		final Timetable timetable = new Timetable(mock(Agenda.class), today.minusDays(1), today.plusDays(1));
+		final Timetable timetable = new Timetable(today.minusDays(1), today.plusDays(1));
 		return timetable;
 	}
 
 	public static Set<Stretch> mockStretches() {
-		final Timetable timetable = mockTimetable();
-		final Stretch morning = new Stretch(timetable, LocalTime.of(9, 30), LocalTime.of(14, 00));
-		final Stretch afternoon = new Stretch(timetable, LocalTime.of(17, 00), LocalTime.of(20, 30));
+		final Stretch morning = new Stretch(LocalTime.of(9, 30), LocalTime.of(14, 00));
+		final Stretch afternoon = new Stretch(LocalTime.of(17, 00), LocalTime.of(20, 30));
 		return Sets.newHashSet(morning, afternoon);
 	}
 

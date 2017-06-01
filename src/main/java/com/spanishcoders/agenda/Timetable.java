@@ -1,121 +1,109 @@
 package com.spanishcoders.agenda;
 
-import com.google.common.collect.Sets;
+import java.time.LocalDate;
+import java.util.Arrays;
+import java.util.Set;
+
+import javax.persistence.CascadeType;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToMany;
+import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.time.LocalDate;
-import java.util.Set;
+import com.google.common.collect.Sets;
 
-/**
- * Created by agustin on 16/06/16.
- */
 @Entity
 public class Timetable {
 
-    @Id
-    @GeneratedValue
-    protected Integer id;
+	@Id
+	@GeneratedValue
+	protected Integer id;
 
-    @NotNull
-    private LocalDate startDay;
+	@NotNull
+	private LocalDate startDay;
 
-    @NotNull
-    private LocalDate endDay;
+	@NotNull
+	private LocalDate endDay;
 
-    @ManyToOne
-    private Agenda agendas;
+	@NotEmpty
+	@OneToMany(cascade = CascadeType.ALL)
+	@JoinColumn
+	private Set<Stretch> stretches;
 
-    @NotEmpty
-    @OneToMany(mappedBy = "timetables", cascade = CascadeType.ALL)
-    private Set<Stretch> stretches;
+	public Timetable() {
+		this.stretches = Sets.newHashSet();
+	}
 
-    public Timetable() {
-        this.stretches = Sets.newHashSet();
-        this.agendas = null;
-    }
+	public Timetable(LocalDate startDay, LocalDate endDay, Stretch... stretchs) {
+		this();
+		this.startDay = startDay;
+		this.endDay = endDay;
+		this.stretches.addAll(Arrays.asList(stretchs));
+	}
 
-    public Timetable(LocalDate startDay, LocalDate endDay) {
-        this();
-        this.startDay = startDay;
-        this.endDay = endDay;
-    }
+	public Integer getId() {
+		return id;
+	}
 
-    public Timetable(Agenda agenda, LocalDate startDay, LocalDate endDay) {
-        this(startDay, endDay);
-        this.agendas = agenda;
-        agenda.addTimetable(this);
-    }
+	public void setId(Integer id) {
+		this.id = id;
+	}
 
-    public Integer getId() {
-        return id;
-    }
+	public LocalDate getStartDay() {
+		return startDay;
+	}
 
-    public void setId(Integer id) {
-        this.id = id;
-    }
+	public void setStartDay(LocalDate startDay) {
+		this.startDay = startDay;
+	}
 
-    public LocalDate getStartDay() {
-        return startDay;
-    }
+	public LocalDate getEndDay() {
+		return endDay;
+	}
 
-    public void setStartDay(LocalDate startDay) {
-        this.startDay = startDay;
-    }
+	public void setEndDay(LocalDate endDay) {
+		this.endDay = endDay;
+	}
 
-    public LocalDate getEndDay() {
-        return endDay;
-    }
+	public Set<Stretch> getStretches() {
+		return stretches;
+	}
 
-    public void setEndDay(LocalDate endDay) {
-        this.endDay = endDay;
-    }
+	public void setStretches(Set<Stretch> stretches) {
+		this.stretches = stretches;
+	}
 
-    public Agenda getAgendas() {
-        return agendas;
-    }
+	@Override
+	public String toString() {
+		return "Timetable{" + "id=" + id + ", startDay=" + startDay + ", endDay=" + endDay + ", stretches=" + stretches
+				+ '}';
+	}
 
-    public void setAgendas(Agenda agendas) {
-        this.agendas = agendas;
-    }
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
 
-    public Set<Stretch> getStretches() {
-        return stretches;
-    }
+		final Timetable timetable = (Timetable) o;
 
-    public void setStretches(Set<Stretch> stretches) {
-        this.stretches = stretches;
-    }
+		return id != null ? id.equals(timetable.id) : timetable.id == null;
 
-    @Override
-    public String toString() {
-        return "Timetable{" +
-                "id=" + id +
-                ", startDay=" + startDay +
-                ", endDay=" + endDay +
-                ", stretches=" + stretches +
-                '}';
-    }
+	}
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+	@Override
+	public int hashCode() {
+		return id != null ? id.hashCode() : 0;
+	}
 
-        Timetable timetable = (Timetable) o;
-
-        return id != null ? id.equals(timetable.id) : timetable.id == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        return id != null ? id.hashCode() : 0;
-    }
-
-    public void addStretch(Stretch stretch) {
-        this.stretches.add(stretch);
-    }
+	public void addStretch(Stretch stretch) {
+		this.stretches.add(stretch);
+	}
 }
