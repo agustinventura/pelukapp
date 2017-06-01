@@ -20,8 +20,8 @@ public class WorkService {
 		this.workRepository = workRepository;
 	}
 
-	Set<Work> getAvailableWorks(Collection<? extends GrantedAuthority> collection) {
-		if (collection.contains(Role.WORKER.getGrantedAuthority())) {
+	Set<Work> getAvailableWorks(Collection<? extends GrantedAuthority> userAuthorities) {
+		if (userAuthorities != null && userAuthorities.contains(Role.WORKER.getGrantedAuthority())) {
 			return Sets.newHashSet(workRepository.findAll());
 		} else {
 			return Sets.newHashSet(workRepository.findByKind(WorkKind.PUBLIC));
