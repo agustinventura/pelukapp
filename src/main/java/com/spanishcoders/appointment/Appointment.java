@@ -86,7 +86,6 @@ public class Appointment implements Comparable<Appointment> {
 		this.date = LocalDateTime.of(appointmentDate, appointmentTime);
 		this.duration = Duration.of(works.stream().mapToLong(work -> work.getDuration().toMinutes()).sum(),
 				ChronoUnit.MINUTES);
-
 		this.notes = notes;
 	}
 
@@ -147,23 +146,57 @@ public class Appointment implements Comparable<Appointment> {
 	}
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
-		if (o == null || getClass() != o.getClass()) {
-			return false;
-		}
-
-		final Appointment that = (Appointment) o;
-
-		return id != null ? id.equals(that.id) : that.id == null;
-
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((blocks == null) ? 0 : blocks.hashCode());
+		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((user == null) ? 0 : user.hashCode());
+		result = prime * result + ((works == null) ? 0 : works.hashCode());
+		return result;
 	}
 
 	@Override
-	public int hashCode() {
-		return id != null ? id.hashCode() : 0;
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final Appointment other = (Appointment) obj;
+		if (blocks == null) {
+			if (other.blocks != null) {
+				return false;
+			}
+		} else if (!blocks.equals(other.blocks)) {
+			return false;
+		}
+		if (id == null) {
+			if (other.id != null) {
+				return false;
+			}
+		} else if (!id.equals(other.id)) {
+			return false;
+		}
+		if (user == null) {
+			if (other.user != null) {
+				return false;
+			}
+		} else if (!user.equals(other.user)) {
+			return false;
+		}
+		if (works == null) {
+			if (other.works != null) {
+				return false;
+			}
+		} else if (!works.equals(other.works)) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
