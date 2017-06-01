@@ -77,7 +77,7 @@ public class AppointmentService {
 	private Appointment modifyNotesOrCancel(Authentication authentication, Appointment appointment,
 			AppointmentDTO appointmentDTO) {
 		checkIfUserIsProprietaryOrAdmin(authentication, appointment);
-		final AppointmentStatus dtoStatus = AppointmentStatus.values()[appointmentDTO.getStatus()];
+		final AppointmentStatus dtoStatus = appointmentDTO.getStatus();
 		if (dtoStatus == AppointmentStatus.CANCELLED) {
 			cancelAppointment(authentication, appointment);
 		} else {

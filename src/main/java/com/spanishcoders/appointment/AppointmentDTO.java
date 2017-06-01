@@ -13,7 +13,7 @@ public class AppointmentDTO {
 	private final Integer user;
 	private final String date;
 	private final String duration;
-	private final Integer status;
+	private final AppointmentStatus status;
 	private final String notes;
 
 	public AppointmentDTO() {
@@ -21,7 +21,7 @@ public class AppointmentDTO {
 		user = 0;
 		date = "";
 		duration = "";
-		status = 1;
+		status = AppointmentStatus.CANCELLED;
 		notes = "";
 		blocks = Sets.newTreeSet();
 		works = Sets.newTreeSet();
@@ -30,7 +30,7 @@ public class AppointmentDTO {
 	public AppointmentDTO(Appointment appointment) {
 		id = appointment.getId();
 		user = appointment.getUser() != null ? appointment.getUser().getId() : null;
-		status = appointment.getStatus() != null ? appointment.getStatus().ordinal() : null;
+		status = appointment.getStatus();
 		blocks = Sets.newTreeSet();
 		if (appointment.getBlocks() != null && !appointment.getBlocks().isEmpty()) {
 			blocks.addAll(appointment.getBlocks().stream().map(block -> block.getId()).collect(Collectors.toSet()));
@@ -74,7 +74,7 @@ public class AppointmentDTO {
 		return duration;
 	}
 
-	public Integer getStatus() {
+	public AppointmentStatus getStatus() {
 		return status;
 	}
 
