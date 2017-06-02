@@ -5,31 +5,27 @@ import java.util.Collection;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.spanishcoders.user.AppUser;
 import com.spanishcoders.user.Role;
+import com.spanishcoders.user.UserService;
 
 @Service
 @Transactional
 public class ClientService {
 
-	private final ClientRepository clientRepository;
+	private final UserService userService;
 
-	private final PasswordEncoder passwordEncoder;
-
-	public ClientService(ClientRepository clientRepository, PasswordEncoder passwordEncoder) {
+	public ClientService(UserService userService) {
 		super();
-		this.clientRepository = clientRepository;
-		this.passwordEncoder = passwordEncoder;
+		this.userService = userService;
 	}
 
 	public Client createClient(Authentication authentication, Client client) {
 		if (authentication == null) {
 			// new user registering himself
-			createClient(client);
+			userService.create(client);
 		} else {
 			final Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication
 					.getAuthorities();
@@ -39,25 +35,10 @@ public class ClientService {
 				throw new AccessDeniedException("You need to logout first");
 			} else {
 				// worker registering user
-				createClient(client);
+				userService.create(client);
 			}
 		}
 
 		return client;
-	}
-
-	private Client createClient(Client client) {
-		checkUsername(client);
-		client.setPassword(passwordEncoder.encode(client.getPassword()));
-		client = clientRepository.save(client);
-		return client;
-	}
-
-	private void checkUsername(Client client) {
-		final String username = client.getUsername();
-		final AppUser existingUser = clientRepository.findByUsername(username);
-		if (existingUser != null) {
-			throw new IllegalArgumentException("There's an user with username " + username);
-		}
 	}
 }

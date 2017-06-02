@@ -13,6 +13,7 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
@@ -25,13 +26,16 @@ public class UserServiceTests extends PelukaapUnitTest {
 	private UserRepository userRepository;
 
 	@MockBean
+	private PasswordEncoder passwordEncoder;
+
+	@MockBean
 	private AppointmentService appointmentService;
 
 	private UserService userService;
 
 	@Before
 	public void setUp() {
-		userService = new UserService(userRepository, appointmentService);
+		userService = new UserService(userRepository, appointmentService, passwordEncoder);
 	}
 
 	@Test(expected = AccessDeniedException.class)

@@ -4,6 +4,7 @@ import java.util.Set;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +17,28 @@ public class UserService {
 
 	private final UserRepository userRepository;
 	private final AppointmentService appointmentService;
+	private final PasswordEncoder passwordEncoder;
 
-	public UserService(UserRepository userRepository, AppointmentService appointmentService) {
+	public UserService(UserRepository userRepository, AppointmentService appointmentService,
+			PasswordEncoder passwordEncoder) {
 		this.userRepository = userRepository;
 		this.appointmentService = appointmentService;
+		this.passwordEncoder = passwordEncoder;
+	}
+
+	public AppUser create(AppUser user) {
+		checkUsername(user);
+		user.setPassword(passwordEncoder.encode(user.getPassword()));
+		user = userRepository.save(user);
+		return user;
+	}
+
+	private void checkUsername(AppUser user) {
+		final String username = user.getUsername();
+		final AppUser existingUser = userRepository.findByUsername(username);
+		if (existingUser != null) {
+			throw new IllegalArgumentException("There's an user with username " + username);
+		}
 	}
 
 	Set<Appointment> getNextAppointments(Authentication authentication) {

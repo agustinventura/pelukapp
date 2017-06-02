@@ -13,40 +13,27 @@ import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
 import com.spanishcoders.user.Role;
+import com.spanishcoders.user.UserService;
 
 public class ClientServiceTests extends PelukaapUnitTest {
 
 	@MockBean
-	private ClientRepository clientRepository;
-
-	@MockBean
-	private PasswordEncoder passwordEncoder;
+	private UserService userService;
 
 	private ClientService clientService;
 
 	@Before
 	public void setUp() {
-		clientService = new ClientService(clientRepository, passwordEncoder);
-	}
-
-	@Test(expected = IllegalArgumentException.class)
-	public void clientRegistersExistingUsername() {
-		when(clientRepository.findByUsername(any(String.class))).thenReturn(mock(Client.class));
-		clientService.createClient(null, mock(Client.class));
+		clientService = new ClientService(userService);
 	}
 
 	@Test
 	public void clientRegistersHimself() {
-		when(clientRepository.findByUsername(any(String.class))).thenReturn(null);
-		when(passwordEncoder.encode(any(CharSequence.class))).thenAnswer(invocation -> {
-			return invocation.getArguments()[0];
-		});
-		when(clientRepository.save(any(Client.class))).thenAnswer(invocation -> {
+		when(userService.create(any(Client.class))).thenAnswer(invocation -> {
 			return invocation.getArguments()[0];
 		});
 		final Client client = mockClient();
@@ -73,11 +60,7 @@ public class ClientServiceTests extends PelukaapUnitTest {
 		final Authentication authentication = mock(Authentication.class);
 		final Collection authorities = Sets.newHashSet(Role.WORKER.getGrantedAuthority());
 		when(authentication.getAuthorities()).thenReturn(authorities);
-		when(clientRepository.findByUsername(any(String.class))).thenReturn(null);
-		when(passwordEncoder.encode(any(CharSequence.class))).thenAnswer(invocation -> {
-			return invocation.getArguments()[0];
-		});
-		when(clientRepository.save(any(Client.class))).thenAnswer(invocation -> {
+		when(userService.create(any(Client.class))).thenAnswer(invocation -> {
 			return invocation.getArguments()[0];
 		});
 		final Client client = mockClient();
