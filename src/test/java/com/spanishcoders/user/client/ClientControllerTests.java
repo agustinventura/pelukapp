@@ -56,7 +56,6 @@ public class ClientControllerTests extends PelukaapUnitTest {
 	}
 
 	@Test
-	// TODO: FIX, THROWS 401
 	public void registerNewClient() throws Exception {
 		final UserDTO dto = new UserDTO();
 		dto.setUsername("anonymous");

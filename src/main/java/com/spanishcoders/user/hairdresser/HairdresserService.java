@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Maps;
 import com.spanishcoders.agenda.AgendaService;
+import com.spanishcoders.user.Role;
 import com.spanishcoders.user.UserStatus;
 import com.spanishcoders.workingday.block.Block;
 
@@ -39,6 +40,11 @@ public class HairdresserService {
 			if (hairdresser == null) {
 				throw new IllegalArgumentException("Can't create a hairdresser from null data");
 			} else {
+				if (!authentication.getAuthorities().stream()
+						.anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
+					// normal user registering hairdresser? not gonna happen
+					throw new AccessDeniedException("You need to be worker");
+				}
 				return createHairdresser(hairdresser);
 			}
 		}
