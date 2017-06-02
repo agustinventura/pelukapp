@@ -33,11 +33,8 @@ public class ClientControllerTests extends PelukaapUnitTest {
 
 	@Before
 	public void setUp() {
-		given(clientService.createClient(any(Authentication.class), any(ClientDTO.class))).will(invocation -> {
-			final ClientDTO dto = (ClientDTO) invocation.getArguments()[1];
-			final Client mockUser = new Client();
-			mockUser.setUsername(dto.getUsername());
-			return mockUser;
+		given(clientService.createClient(any(Authentication.class), any(Client.class))).will(invocation -> {
+			return invocation.getArguments()[1];
 		});
 	}
 

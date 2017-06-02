@@ -21,6 +21,7 @@ public class ClientController {
 	@PreAuthorize("permitAll")
 	@RequestMapping(method = RequestMethod.POST)
 	public ClientDTO registerClient(Authentication authentication, @RequestBody ClientDTO clientDTO) {
-		return new ClientDTO(clientService.createClient(authentication, clientDTO));
+		final Client client = new Client(clientDTO);
+		return new ClientDTO(clientService.createClient(authentication, client));
 	}
 }

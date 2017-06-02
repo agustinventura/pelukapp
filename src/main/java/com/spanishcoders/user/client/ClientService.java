@@ -11,7 +11,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.spanishcoders.user.AppUser;
 import com.spanishcoders.user.Role;
-import com.spanishcoders.user.UserDTO;
 
 @Service
 @Transactional
@@ -27,11 +26,10 @@ public class ClientService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public Client createClient(Authentication authentication, ClientDTO clientDTO) {
-		final Client client = null;
+	public Client createClient(Authentication authentication, Client client) {
 		if (authentication == null) {
 			// new user registering himself
-			createClient(clientDTO);
+			createClient(client);
 		} else {
 			final Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication
 					.getAuthorities();
@@ -41,23 +39,22 @@ public class ClientService {
 				throw new AccessDeniedException("You need to logout first");
 			} else {
 				// worker registering user
-				createClient(clientDTO);
+				createClient(client);
 			}
 		}
 
 		return client;
 	}
 
-	private Client createClient(ClientDTO clientDTO) {
-		checkUsername(clientDTO);
-		clientDTO.setPassword(passwordEncoder.encode(clientDTO.getPassword()));
-		final Client client = new Client(clientDTO);
-		clientRepository.save(client);
+	private Client createClient(Client client) {
+		checkUsername(client);
+		client.setPassword(passwordEncoder.encode(client.getPassword()));
+		client = clientRepository.save(client);
 		return client;
 	}
 
-	private void checkUsername(UserDTO userDTO) {
-		final String username = userDTO.getUsername();
+	private void checkUsername(Client client) {
+		final String username = client.getUsername();
 		final AppUser existingUser = clientRepository.findByUsername(username);
 		if (existingUser != null) {
 			throw new IllegalArgumentException("There's an user with username " + username);
