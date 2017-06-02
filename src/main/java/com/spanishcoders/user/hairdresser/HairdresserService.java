@@ -12,7 +12,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Maps;
 import com.spanishcoders.agenda.AgendaService;
-import com.spanishcoders.user.UserDTO;
 import com.spanishcoders.user.UserStatus;
 import com.spanishcoders.workingday.block.Block;
 
@@ -33,29 +32,28 @@ public class HairdresserService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
-	public Hairdresser registerHairdresser(Authentication authentication, UserDTO userDTO) {
+	public Hairdresser registerHairdresser(Authentication authentication, Hairdresser hairdresser) {
 		if (authentication == null) {
 			throw new AccessDeniedException("AppUser needs to be logged to register a hairdresser");
 		} else {
-			if (userDTO == null) {
+			if (hairdresser == null) {
 				throw new IllegalArgumentException("Can't create a hairdresser from null data");
 			} else {
-				return createHairdresser(userDTO);
+				return createHairdresser(hairdresser);
 			}
 		}
 	}
 
-	private Hairdresser createHairdresser(UserDTO userDTO) {
-		checkUsername(userDTO);
-		userDTO.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-		final Hairdresser hairdresser = new Hairdresser(userDTO);
+	private Hairdresser createHairdresser(Hairdresser hairdresser) {
+		checkUsername(hairdresser);
+		hairdresser.setPassword(passwordEncoder.encode(hairdresser.getPassword()));
 		return hairdresserRepository.save(hairdresser);
 	}
 
-	private void checkUsername(UserDTO userDTO) {
-		final String username = userDTO.getUsername();
-		final Hairdresser hairdresser = hairdresserRepository.findByUsername(username);
-		if (hairdresser != null) {
+	private void checkUsername(Hairdresser hairdresser) {
+		final String username = hairdresser.getUsername();
+		final Hairdresser user = hairdresserRepository.findByUsername(username);
+		if (user != null) {
 			throw new IllegalArgumentException("There's an user with username " + username);
 		}
 	}

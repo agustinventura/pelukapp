@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import com.spanishcoders.user.UserDTO;
 import com.spanishcoders.workingday.HairdresserScheduleDTO;
 import com.spanishcoders.workingday.ScheduleDTO;
 import com.spanishcoders.workingday.block.Block;
@@ -34,8 +33,10 @@ public class HairdresserController {
 
 	@PreAuthorize("authenticated")
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
-	public HairdresserDTO registerHairdresser(Authentication authentication, @RequestBody UserDTO userDTO) {
-		return new HairdresserDTO(hairdresserService.registerHairdresser(authentication, userDTO));
+	public HairdresserDTO registerHairdresser(Authentication authentication,
+			@RequestBody HairdresserDTO hairdresserDTO) {
+		final Hairdresser hairdresser = new Hairdresser(hairdresserDTO);
+		return new HairdresserDTO(hairdresserService.registerHairdresser(authentication, hairdresser));
 	}
 
 	@PreAuthorize("authenticated")
