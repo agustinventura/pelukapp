@@ -11,13 +11,11 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.spanishcoders.appointment.AppointmentDTO;
 import com.spanishcoders.user.UserDTO;
-import com.spanishcoders.user.client.ClientDTO;
 
 public class UserTests extends IntegrationTests {
 
@@ -50,33 +48,6 @@ public class UserTests extends IntegrationTests {
 	public void adminLogin() {
 		final UserDTO admin = login(ADMIN_USERNAME, ADMIN_PASSWORD).getBody();
 		assertThat(admin.getUsername(), is(ADMIN_USERNAME));
-	}
-
-	@Test
-	public void registerUser() {
-
-		final String username = "usuario1234";
-		final String password = "usuario1234";
-		final String name = "usuario";
-		final String phone = "666666666";
-
-		final ResponseEntity<ClientDTO> registrationResponse = register(username, password, phone, name);
-		assertThat(registrationResponse.getStatusCode(), is(HttpStatus.OK));
-
-		final ResponseEntity<UserDTO> loginResponse = login(username, password);
-		assertThat(loginResponse.getStatusCode(), is(HttpStatus.OK));
-	}
-
-	private ResponseEntity<ClientDTO> register(String username, String password, String phone, String name) {
-		final ClientDTO clientDTO = new ClientDTO();
-		clientDTO.setUsername(username);
-		clientDTO.setPassword(password);
-		clientDTO.setName(name);
-		clientDTO.setPhone(phone);
-		final HttpEntity<ClientDTO> request = new HttpEntity<>(clientDTO);
-		final ResponseEntity<ClientDTO> response = testRestTemplate.postForEntity(REGISTER_CLIENT_URL, request,
-				ClientDTO.class);
-		return response;
 	}
 
 	@Test

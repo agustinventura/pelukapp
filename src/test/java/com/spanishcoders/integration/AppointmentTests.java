@@ -19,12 +19,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spanishcoders.appointment.Appointment;
 import com.spanishcoders.appointment.AppointmentDTO;
+import com.spanishcoders.appointment.AppointmentStatus;
 import com.spanishcoders.work.WorkDTO;
 import com.spanishcoders.workingday.ScheduleDTO;
 
-/**
- * Created by agustin on 11/08/16.
- */
 public class AppointmentTests extends IntegrationTests {
 
 	public static final String APPOINTMENT_URL = "/appointment";
@@ -45,8 +43,8 @@ public class AppointmentTests extends IntegrationTests {
 
 	@Test
 	public void getAppointmentWithoutAuthorization() {
-		final ResponseEntity<AppointmentDTO> response = client.getResponseEntityWithAuthorizationHeader(APPOINTMENT_URL,
-				"", typeRef);
+		final ResponseEntity<String> response = errorClient.getResponseEntityWithAuthorizationHeader(APPOINTMENT_URL,
+				"", errorTypeRef);
 		assertThat(response.getStatusCode(), is(HttpStatus.FORBIDDEN));
 	}
 
@@ -194,7 +192,7 @@ public class AppointmentTests extends IntegrationTests {
 		final AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, adminAuth,
 				new AppointmentDTO(appointment), typeRef);
 		assertThat(cancelled, notNullValue());
-		assertThat(cancelled.getStatus(), is(1));
+		assertThat(cancelled.getStatus(), is(AppointmentStatus.CANCELLED));
 	}
 
 	@Test
@@ -219,7 +217,7 @@ public class AppointmentTests extends IntegrationTests {
 		final AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth,
 				new AppointmentDTO(appointment), typeRef);
 		assertThat(cancelled, notNullValue());
-		assertThat(cancelled.getStatus(), is(1));
+		assertThat(cancelled.getStatus(), is(AppointmentStatus.CANCELLED));
 	}
 
 	private AppointmentDTO confirmAppointmentWithOneWork(String auth) {
@@ -261,7 +259,7 @@ public class AppointmentTests extends IntegrationTests {
 		final AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth,
 				new AppointmentDTO(appointment), typeRef);
 		assertThat(cancelled, notNullValue());
-		assertThat(cancelled.getStatus(), is(1));
+		assertThat(cancelled.getStatus(), is(AppointmentStatus.CANCELLED));
 	}
 
 	private void cancelAppointment(String auth) {
