@@ -149,8 +149,9 @@ public class Appointment implements Comparable<Appointment> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((blocks == null) ? 0 : blocks.hashCode());
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((date == null) ? 0 : date.hashCode());
+		result = prime * result + ((duration == null) ? 0 : duration.hashCode());
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
 		result = prime * result + ((user == null) ? 0 : user.hashCode());
 		result = prime * result + ((works == null) ? 0 : works.hashCode());
 		return result;
@@ -168,18 +169,21 @@ public class Appointment implements Comparable<Appointment> {
 			return false;
 		}
 		final Appointment other = (Appointment) obj;
-		if (blocks == null) {
-			if (other.blocks != null) {
+		if (date == null) {
+			if (other.date != null) {
 				return false;
 			}
-		} else if (!blocks.equals(other.blocks)) {
+		} else if (!date.equals(other.date)) {
 			return false;
 		}
-		if (id == null) {
-			if (other.id != null) {
+		if (duration == null) {
+			if (other.duration != null) {
 				return false;
 			}
-		} else if (!id.equals(other.id)) {
+		} else if (!duration.equals(other.duration)) {
+			return false;
+		}
+		if (status != other.status) {
 			return false;
 		}
 		if (user == null) {

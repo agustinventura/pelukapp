@@ -15,11 +15,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spanishcoders.user.UserDTO;
 
-/**
- * Created by agustin on 8/08/16.
- */
 @RunWith(SpringRunner.class)
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("integration")
@@ -37,6 +36,12 @@ public abstract class IntegrationTests {
 	protected TestRestTemplate testRestTemplate;
 
 	protected IntegrationDataFactory integrationDataFactory;
+
+	protected String toJSON(Object dto) throws JsonProcessingException {
+		final ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.findAndRegisterModules();
+		return objectMapper.writeValueAsString(dto);
+	}
 
 	protected String loginAsClient() {
 		final ResponseEntity<UserDTO> response = login(CLIENT_USERNAME, CLIENT_PASSWORD);

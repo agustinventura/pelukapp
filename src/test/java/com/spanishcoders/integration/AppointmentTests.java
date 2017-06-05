@@ -16,7 +16,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spanishcoders.appointment.Appointment;
 import com.spanishcoders.appointment.AppointmentDTO;
 import com.spanishcoders.appointment.AppointmentStatus;
@@ -91,11 +90,6 @@ public class AppointmentTests extends IntegrationTests {
 		final ResponseEntity<String> response = errorClient.postResponseEntityWithAuthorizationHeader(APPOINTMENT_URL,
 				auth, toJSON(appointmentDTO), errorTypeRef);
 		assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
-	}
-
-	private String toJSON(AppointmentDTO appointmentDTO) throws JsonProcessingException {
-		final ObjectMapper objectMapper = new ObjectMapper();
-		return objectMapper.writeValueAsString(appointmentDTO);
 	}
 
 	@Test

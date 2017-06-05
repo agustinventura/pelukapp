@@ -1,5 +1,11 @@
 package com.spanishcoders.user;
 
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import com.google.common.collect.Sets;
+import com.spanishcoders.appointment.AppointmentDTO;
+
 public class UserDTO {
 
 	private Integer id;
@@ -8,6 +14,7 @@ public class UserDTO {
 	private String password;
 	private String phone;
 	private UserStatus status;
+	private final Set<AppointmentDTO> appointments = Sets.newTreeSet();
 
 	public UserDTO() {
 		super();
@@ -21,6 +28,9 @@ public class UserDTO {
 		// we don't set the password here
 		this.setPhone(user.getPhone());
 		this.setStatus(user.getStatus());
+		appointments.addAll(user.getAppointments().stream().map(appointment -> {
+			return new AppointmentDTO(appointment);
+		}).collect(Collectors.toSet()));
 	}
 
 	public Integer getId() {

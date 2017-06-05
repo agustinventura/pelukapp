@@ -13,6 +13,7 @@ public abstract class PelukaapUnitTest {
 
 	protected String toJSON(Object dto) throws JsonProcessingException {
 		final ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.findAndRegisterModules();
 		return objectMapper.writeValueAsString(dto);
 	}
 

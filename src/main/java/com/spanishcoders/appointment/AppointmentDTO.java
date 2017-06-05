@@ -1,17 +1,18 @@
 package com.spanishcoders.appointment;
 
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
 
-public class AppointmentDTO {
+public class AppointmentDTO implements Comparable<AppointmentDTO> {
 
 	private final Integer id;
 	private final Set<Integer> blocks;
 	private final Set<Integer> works;
 	private final Integer user;
-	private final String date;
+	private final LocalDateTime date;
 	private final String duration;
 	private final AppointmentStatus status;
 	private final String notes;
@@ -19,7 +20,7 @@ public class AppointmentDTO {
 	public AppointmentDTO() {
 		id = 0;
 		user = 0;
-		date = "";
+		date = null;
 		duration = "";
 		status = AppointmentStatus.CANCELLED;
 		notes = "";
@@ -32,11 +33,9 @@ public class AppointmentDTO {
 		user = appointment.getUser() != null ? appointment.getUser().getId() : null;
 		status = appointment.getStatus();
 		blocks = Sets.newTreeSet();
+		date = appointment.getDate();
 		if (appointment.getBlocks() != null && !appointment.getBlocks().isEmpty()) {
 			blocks.addAll(appointment.getBlocks().stream().map(block -> block.getId()).collect(Collectors.toSet()));
-			date = appointment.getBlocks().stream().findFirst().get().getWorkingDay().getDate().toString();
-		} else {
-			date = "";
 		}
 		works = Sets.newTreeSet();
 		if (appointment.getWorks() != null && !appointment.getWorks().isEmpty()) {
@@ -66,7 +65,7 @@ public class AppointmentDTO {
 		return user;
 	}
 
-	public String getDate() {
+	public LocalDateTime getDate() {
 		return date;
 	}
 
@@ -107,5 +106,10 @@ public class AppointmentDTO {
 		return "AppointmentDTO{" + "id=" + id + ", blocks=" + blocks + ", works=" + works + ", user=" + user
 				+ ", date='" + date + '\'' + ", duration='" + duration + '\'' + ", status=" + status + ", notes="
 				+ notes + '}';
+	}
+
+	@Override
+	public int compareTo(AppointmentDTO o) {
+		return this.date.compareTo(o.getDate());
 	}
 }
