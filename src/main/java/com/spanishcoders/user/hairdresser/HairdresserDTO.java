@@ -7,7 +7,7 @@ public class HairdresserDTO extends UserDTO {
 	private Integer agenda;
 
 	public HairdresserDTO() {
-
+		super();
 	}
 
 	public HairdresserDTO(Hairdresser hairdresser) {

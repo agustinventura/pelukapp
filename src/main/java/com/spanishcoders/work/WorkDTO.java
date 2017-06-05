@@ -1,12 +1,14 @@
 package com.spanishcoders.work;
 
+import java.time.Duration;
+
 public class WorkDTO {
 
 	private Integer id;
 
 	private String name;
 
-	private long duration;
+	private Duration duration;
 
 	private WorkKind workKind;
 
@@ -18,7 +20,7 @@ public class WorkDTO {
 		super();
 		this.id = work.getId();
 		this.name = work.getName();
-		this.duration = work.getDuration().toMinutes();
+		this.duration = work.getDuration();
 		this.workKind = work.getKind();
 	}
 
@@ -38,11 +40,11 @@ public class WorkDTO {
 		this.name = name;
 	}
 
-	public long getDuration() {
+	public Duration getDuration() {
 		return duration;
 	}
 
-	public void setDuration(long duration) {
+	public void setDuration(Duration duration) {
 		this.duration = duration;
 	}
 
@@ -58,7 +60,7 @@ public class WorkDTO {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (int) (duration ^ (duration >>> 32));
+		result = prime * result + ((duration == null) ? 0 : duration.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((workKind == null) ? 0 : workKind.hashCode());
 		return result;
@@ -76,7 +78,11 @@ public class WorkDTO {
 			return false;
 		}
 		final WorkDTO other = (WorkDTO) obj;
-		if (duration != other.duration) {
+		if (duration == null) {
+			if (other.duration != null) {
+				return false;
+			}
+		} else if (!duration.equals(other.duration)) {
 			return false;
 		}
 		if (name == null) {

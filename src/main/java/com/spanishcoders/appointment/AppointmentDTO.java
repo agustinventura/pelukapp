@@ -13,7 +13,7 @@ public class AppointmentDTO implements Comparable<AppointmentDTO> {
 	private final Set<Integer> works;
 	private final Integer user;
 	private final LocalDateTime date;
-	private final String duration;
+	private final Long duration;
 	private final AppointmentStatus status;
 	private final String notes;
 
@@ -21,7 +21,7 @@ public class AppointmentDTO implements Comparable<AppointmentDTO> {
 		id = 0;
 		user = 0;
 		date = null;
-		duration = "";
+		duration = 0L;
 		status = AppointmentStatus.CANCELLED;
 		notes = "";
 		blocks = Sets.newTreeSet();
@@ -42,9 +42,9 @@ public class AppointmentDTO implements Comparable<AppointmentDTO> {
 			works.addAll(appointment.getWorks().stream().map(work -> work.getId()).collect(Collectors.toSet()));
 			final Long worksLength = appointment.getWorks().stream().mapToLong(work -> work.getDuration().toMinutes())
 					.sum();
-			duration = worksLength.toString();
+			duration = worksLength;
 		} else {
-			duration = "";
+			duration = 0L;
 		}
 		notes = appointment.getNotes();
 	}
@@ -69,7 +69,7 @@ public class AppointmentDTO implements Comparable<AppointmentDTO> {
 		return date;
 	}
 
-	public String getDuration() {
+	public Long getDuration() {
 		return duration;
 	}
 

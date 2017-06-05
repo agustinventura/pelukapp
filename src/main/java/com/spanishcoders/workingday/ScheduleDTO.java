@@ -1,5 +1,8 @@
 package com.spanishcoders.workingday;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -14,11 +17,11 @@ public class ScheduleDTO implements Comparable<ScheduleDTO> {
 
 	private final Integer blockId;
 
-	private final String start;
+	private final LocalTime start;
 
-	private final String length;
+	private final Duration length;
 
-	private final String workingDay;
+	private final LocalDate workingDay;
 
 	private final Integer hairdresserId;
 
@@ -32,9 +35,9 @@ public class ScheduleDTO implements Comparable<ScheduleDTO> {
 
 	public ScheduleDTO() {
 		blockId = 0;
-		start = "";
-		length = "";
-		workingDay = "";
+		start = null;
+		length = null;
+		workingDay = null;
 		hairdresserId = 0;
 		appointmentId = 0;
 		client = "";
@@ -44,9 +47,9 @@ public class ScheduleDTO implements Comparable<ScheduleDTO> {
 
 	public ScheduleDTO(Authentication authentication, Block block) {
 		blockId = block.getId();
-		start = block.getStart().toString();
-		length = block.getLength().toString();
-		workingDay = block.getWorkingDay() != null ? block.getWorkingDay().getDate().toString() : "";
+		start = block.getStart();
+		length = block.getLength();
+		workingDay = block.getWorkingDay() != null ? block.getWorkingDay().getDate() : null;
 		hairdresserId = block.getWorkingDay().getAgenda().getHairdresser().getId();
 		appointmentId = block.getAppointment() != null ? block.getAppointment().getId() : 0;
 		if (isWorker(authentication) || isProprietary(authentication, block.getAppointment())) {
@@ -81,15 +84,15 @@ public class ScheduleDTO implements Comparable<ScheduleDTO> {
 		return blockId;
 	}
 
-	public String getStart() {
+	public LocalTime getStart() {
 		return start;
 	}
 
-	public String getLength() {
+	public Duration getLength() {
 		return length;
 	}
 
-	public String getWorkingDay() {
+	public LocalDate getWorkingDay() {
 		return workingDay;
 	}
 
