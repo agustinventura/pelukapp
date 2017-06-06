@@ -14,6 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 import java.util.Set;
 
@@ -131,6 +132,49 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 		});
 		this.mockMvc
 				.perform(get("/hairdresser/schedule/today")
+						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+				.andExpect(status().isOk()).andExpect(content().contentType("application/json;charset=UTF-8"))
+				.andExpect(jsonPath("$.*", hasSize(1))).andExpect(jsonPath("$[0].schedule.*", hasSize(1)));
+	}
+
+	@Test
+	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
+	public void getDayScheduleWithoutWorks() throws Exception {
+		given(hairdresserService.getDayBlocks(any(LocalDate.class))).willReturn(Maps.newHashMap());
+		final LocalDate date = LocalDate.now();
+		final String isoDate = date.format(DateTimeFormatter.ISO_DATE);
+		this.mockMvc
+				.perform(get("/hairdresser/schedule/" + isoDate)
+						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+				.andExpect(status().isOk()).andExpect(content().contentType("application/json;charset=UTF-8"))
+				.andExpect(jsonPath("$.*", hasSize(0)));
+	}
+
+	@Test
+	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
+	public void getDayScheduleWithOneWork() throws Exception {
+		given(hairdresserService.getDayBlocks(any(LocalDate.class))).willAnswer(invocation -> {
+			final Map<Hairdresser, Set<Block>> answer = Maps.newHashMap();
+			final Block block = mock(Block.class);
+			final WorkingDay workingDay = mock(WorkingDay.class);
+			final Agenda agenda = mock(Agenda.class);
+			final Hairdresser hairdresser = mock(Hairdresser.class);
+			given(hairdresser.getId()).willReturn(1);
+			given(hairdresser.getStatus()).willReturn(UserStatus.ACTIVE);
+			given(agenda.getHairdresser()).willReturn(hairdresser);
+			given(workingDay.getAgenda()).willReturn(agenda);
+			given(workingDay.getDate()).willReturn(LocalDate.now());
+			given(block.getStart()).willReturn(LocalTime.now());
+			given(block.getLength()).willReturn(Block.DEFAULT_BLOCK_LENGTH);
+			given(block.getWorkingDay()).willReturn(workingDay);
+			final Set<Block> blocks = Sets.newHashSet(block);
+			answer.put(hairdresser, blocks);
+			return answer;
+		});
+		final LocalDate date = LocalDate.now();
+		final String isoDate = date.format(DateTimeFormatter.ISO_DATE);
+		this.mockMvc
+				.perform(get("/hairdresser/schedule/" + isoDate)
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
 				.andExpect(status().isOk()).andExpect(content().contentType("application/json;charset=UTF-8"))
 				.andExpect(jsonPath("$.*", hasSize(1))).andExpect(jsonPath("$[0].schedule.*", hasSize(1)));

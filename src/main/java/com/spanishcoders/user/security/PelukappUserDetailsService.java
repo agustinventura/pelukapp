@@ -3,7 +3,6 @@ package com.spanishcoders.user.security;
 import java.util.Collection;
 import java.util.Set;
 
-import org.assertj.core.util.Sets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +12,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Sets;
 import com.spanishcoders.user.AppUser;
 import com.spanishcoders.user.Role;
 import com.spanishcoders.user.UserRepository;
