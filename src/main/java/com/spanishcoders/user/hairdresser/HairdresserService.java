@@ -17,7 +17,7 @@ import com.spanishcoders.user.UserStatus;
 import com.spanishcoders.workingday.block.Block;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class HairdresserService {
 
 	private final AgendaService agendaService;
@@ -33,6 +33,7 @@ public class HairdresserService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
+	@Transactional(readOnly = false)
 	public Hairdresser registerHairdresser(Authentication authentication, Hairdresser hairdresser) {
 		if (authentication == null) {
 			throw new AccessDeniedException("AppUser needs to be logged to register a hairdresser");
