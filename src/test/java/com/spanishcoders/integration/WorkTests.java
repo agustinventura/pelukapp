@@ -50,7 +50,7 @@ public class WorkTests extends IntegrationTests {
 
 	@Test
 	public void getWorksAsAdmin() {
-		final String authHeader = loginAsAdmin();
+		final String authHeader = loginAsWorker();
 		final Set<WorkDTO> works = client.getWithAuthorizationHeader(WORKS_URL, authHeader, typeRef);
 		assertThat(works, not(empty()));
 	}

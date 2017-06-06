@@ -103,9 +103,8 @@ public class AppointmentDTO implements Comparable<AppointmentDTO> {
 
 	@Override
 	public String toString() {
-		return "AppointmentDTO{" + "id=" + id + ", blocks=" + blocks + ", works=" + works + ", user=" + user
-				+ ", date='" + date + '\'' + ", duration='" + duration + '\'' + ", status=" + status + ", notes="
-				+ notes + '}';
+		return "AppointmentDTO [id=" + id + ", blocks=" + blocks + ", works=" + works + ", user=" + user + ", date="
+				+ date + ", duration=" + duration + ", status=" + status + ", notes=" + notes + "]";
 	}
 
 	@Override

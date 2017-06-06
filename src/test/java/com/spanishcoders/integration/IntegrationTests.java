@@ -25,7 +25,6 @@ import com.spanishcoders.user.UserDTO;
 public abstract class IntegrationTests {
 
 	public static final String LOGIN_URL = "/login";
-	public static final String REGISTER_CLIENT_URL = "/user/client";
 	public static final String AUTH_HEADER = "X-AUTH-TOKEN";
 	public static final String CLIENT_USERNAME = "client";
 	public static final String CLIENT_PASSWORD = "client";
@@ -49,7 +48,7 @@ public abstract class IntegrationTests {
 		return authToken;
 	}
 
-	protected String loginAsAdmin() {
+	protected String loginAsWorker() {
 		final ResponseEntity<UserDTO> response = login(ADMIN_USERNAME, ADMIN_PASSWORD);
 		final String authToken = getAuthHeader(response);
 		return authToken;

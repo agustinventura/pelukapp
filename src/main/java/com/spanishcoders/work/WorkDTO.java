@@ -98,4 +98,9 @@ public class WorkDTO {
 		return true;
 	}
 
+	@Override
+	public String toString() {
+		return "WorkDTO [id=" + id + ", name=" + name + ", duration=" + duration + ", workKind=" + workKind + "]";
+	}
+
 }

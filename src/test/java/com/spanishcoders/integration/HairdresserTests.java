@@ -84,7 +84,7 @@ public class HairdresserTests extends IntegrationTests {
 
     @Test
     public void getScheduleAsHairdresser() {
-        String authHeader = loginAsAdmin();
+        String authHeader = loginAsWorker();
         List<HairdresserScheduleDTO> hairdresserSchedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL + LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE) + "/", authHeader, hairdresserScheduleTypeRef);
         assertThat(hairdresserSchedule, is(not(empty())));
         HairdresserScheduleDTO hairdresserAvailableBlocks = hairdresserSchedule.get(0);
@@ -110,7 +110,7 @@ public class HairdresserTests extends IntegrationTests {
 
     @Test
     public void getTodayScheduleAsAdmin() {
-        String adminAuth = loginAsAdmin();
+        String adminAuth = loginAsWorker();
         List<HairdresserScheduleDTO> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(TODAY_SCHEDULE_URL, adminAuth, hairdresserScheduleTypeRef);
         assertThat(schedule, is(not(empty())));
     }
@@ -123,7 +123,7 @@ public class HairdresserTests extends IntegrationTests {
 
     @Test
     public void getDayScheduleInvalidDay() {
-        String adminAuth = loginAsAdmin();
+        String adminAuth = loginAsWorker();
         ResponseEntity<Object> response = errorClient.getResponseEntityWithAuthorizationHeader(DAY_SCHEDULE_URL +
                 "2016-xy-01", adminAuth, errorTypeRef);
         assertThat(response.getStatusCode(), is(HttpStatus.BAD_REQUEST));
@@ -144,7 +144,7 @@ public class HairdresserTests extends IntegrationTests {
 
     @Test
     public void getDayScheduleAsAdmin() {
-        String adminAuth = loginAsAdmin();
+        String adminAuth = loginAsWorker();
         List<HairdresserScheduleDTO> schedule = hairdresserScheduleClient.getWithAuthorizationHeader(DAY_SCHEDULE_URL +
                 LocalDate.now().format(DateTimeFormatter.ISO_LOCAL_DATE), adminAuth, hairdresserScheduleTypeRef);
         assertThat(schedule, is(not(empty())));

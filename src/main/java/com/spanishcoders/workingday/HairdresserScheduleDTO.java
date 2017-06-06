@@ -28,4 +28,39 @@ public class HairdresserScheduleDTO {
 	public Set<ScheduleDTO> getSchedule() {
 		return schedule;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((hairdresser == null) ? 0 : hairdresser.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		final HairdresserScheduleDTO other = (HairdresserScheduleDTO) obj;
+		if (hairdresser == null) {
+			if (other.hairdresser != null) {
+				return false;
+			}
+		} else if (!hairdresser.equals(other.hairdresser)) {
+			return false;
+		}
+		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "HairdresserScheduleDTO [hairdresser=" + hairdresser + ", schedule=" + schedule + "]";
+	}
 }

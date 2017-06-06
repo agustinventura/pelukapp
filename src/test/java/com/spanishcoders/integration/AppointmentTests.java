@@ -75,7 +75,7 @@ public class AppointmentTests extends IntegrationTests {
 
 	@Test
 	public void getAppointmentWithoutEnoughBlocks() throws JsonProcessingException {
-		final String auth = loginAsClient();
+		final String auth = loginAsWorker();
 		final Set<WorkDTO> works = integrationDataFactory.getWorks(auth);
 		Set<ScheduleDTO> schedule = integrationDataFactory.getSchedule(auth, LocalDate.now()).stream()
 				.filter(scheduleDTO -> scheduleDTO.getAppointmentId() == 0).collect(Collectors.toSet());
@@ -116,7 +116,7 @@ public class AppointmentTests extends IntegrationTests {
 	public void getAppointmentWithOneWorkAsClient() {
 		final String auth = loginAsClient();
 		final AppointmentDTO appointmentDTO = confirmAppointmentWithOneWork(auth);
-		final String adminAuth = loginAsAdmin();
+		final String adminAuth = loginAsWorker();
 		cancelAppointment(adminAuth, appointmentDTO);
 	}
 
@@ -124,20 +124,20 @@ public class AppointmentTests extends IntegrationTests {
 	public void getAppointmentWithManyWorksAsClient() {
 		final String auth = loginAsClient();
 		final AppointmentDTO appointmentDTO = getAppointmentWithManyWorks(auth);
-		final String adminAuth = loginAsAdmin();
+		final String adminAuth = loginAsWorker();
 		cancelAppointment(adminAuth, appointmentDTO);
 	}
 
 	@Test
 	public void getAppointmentWithOneWorkAsAdmin() {
-		final String auth = loginAsAdmin();
+		final String auth = loginAsWorker();
 		final AppointmentDTO appointmentDTO = confirmAppointmentWithOneWork(auth);
 		cancelAppointment(auth, appointmentDTO);
 	}
 
 	@Test
 	public void getAppointmentWithManyWorksAsAdmin() {
-		final String auth = loginAsAdmin();
+		final String auth = loginAsWorker();
 		final AppointmentDTO appointmentDTO = getAppointmentWithManyWorks(auth);
 		cancelAppointment(auth, appointmentDTO);
 	}
@@ -153,13 +153,13 @@ public class AppointmentTests extends IntegrationTests {
 
 	@Test
 	public void cancelAdminAppointmentAsAdmin() {
-		final String auth = loginAsAdmin();
+		final String auth = loginAsWorker();
 		cancelAppointment(auth);
 	}
 
 	@Test
 	public void cancelAdminAppointmentAsClient() throws JsonProcessingException {
-		final String adminAuth = loginAsAdmin();
+		final String adminAuth = loginAsWorker();
 		final AppointmentDTO toBeCancelled = confirmAppointmentWithOneWork(adminAuth);
 		final String clientAuth = loginAsClient();
 		final ResponseEntity<String> response = errorClient.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL,
@@ -179,7 +179,7 @@ public class AppointmentTests extends IntegrationTests {
 	public void cancelClientAppointmentAsAdmin() {
 		final String clientAuth = loginAsClient();
 		final AppointmentDTO toBeCancelled = confirmAppointmentWithOneWork(clientAuth);
-		final String adminAuth = loginAsAdmin();
+		final String adminAuth = loginAsWorker();
 		final Appointment appointment = new Appointment();
 		appointment.setId(toBeCancelled.getId());
 		appointment.cancel();
@@ -203,7 +203,7 @@ public class AppointmentTests extends IntegrationTests {
 
 	@Test
 	public void cancelAppointmentWithPeriodExpiredAsAdmin() {
-		final String auth = loginAsAdmin();
+		final String auth = loginAsWorker();
 		final AppointmentDTO appointmentDTO = integrationDataFactory.getAppointment(auth);
 		final Appointment appointment = new Appointment();
 		appointment.setId(appointmentDTO.getId());
@@ -238,7 +238,6 @@ public class AppointmentTests extends IntegrationTests {
 	private AppointmentDTO confirmAppointment(String auth, AppointmentDTO appointmentDTO) {
 		final AppointmentDTO appointment = client.postWithAuthorizationHeader(APPOINTMENT_URL, auth, appointmentDTO,
 				typeRef);
-		System.out.println(appointment);
 		assertThat(appointment, notNullValue());
 		assertThat(appointment.getId(), notNullValue());
 		assertThat(appointment.getWorks(), is(appointmentDTO.getWorks()));

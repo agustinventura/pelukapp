@@ -20,7 +20,7 @@ import java.util.Set;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
@@ -39,7 +39,7 @@ import com.spanishcoders.work.WorkService;
 import com.spanishcoders.workingday.WorkingDay;
 import com.spanishcoders.workingday.block.Block;
 
-@SpringBootTest
+@WebMvcTest(controllers = HairdresserController.class)
 public class HairdresserControllerTests extends PelukaapUnitTest {
 
 	@MockBean

@@ -138,9 +138,9 @@ public class ScheduleDTO implements Comparable<ScheduleDTO> {
 
 	@Override
 	public String toString() {
-		return "ScheduleDTO{" + "blockId=" + blockId + ", start='" + start + '\'' + ", length='" + length + '\''
-				+ ", workingDay='" + workingDay + '\'' + ", hairdresserId=" + hairdresserId + ", client='" + client
-				+ '\'' + ", worksIds=" + worksIds + ", notes='" + notes + '\'' + '}';
+		return "ScheduleDTO [blockId=" + blockId + ", start=" + start + ", length=" + length + ", workingDay="
+				+ workingDay + ", hairdresserId=" + hairdresserId + ", appointmentId=" + appointmentId + ", client="
+				+ client + ", worksIds=" + worksIds + ", notes=" + notes + "]";
 	}
 
 	@Override

@@ -50,6 +50,8 @@ public class HairdresserDTO extends UserDTO {
 
 	@Override
 	public String toString() {
-		return "HairdresserDTO{" + "agenda=" + agenda + '}';
+		return "HairdresserDTO [agenda=" + agenda + ", getId()=" + getId() + ", getName()=" + getName()
+				+ ", getUsername()=" + getUsername() + ", getPassword()=" + getPassword() + ", getPhone()=" + getPhone()
+				+ ", getStatus()=" + getStatus() + "]";
 	}
 }
