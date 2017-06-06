@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -16,15 +17,18 @@ import java.time.LocalTime;
 import java.util.Map;
 import java.util.Set;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -35,7 +39,7 @@ import com.spanishcoders.work.WorkService;
 import com.spanishcoders.workingday.WorkingDay;
 import com.spanishcoders.workingday.block.Block;
 
-@WebMvcTest(controllers = HairdresserController.class)
+@SpringBootTest
 public class HairdresserControllerTests extends PelukaapUnitTest {
 
 	@MockBean
@@ -45,7 +49,14 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	private WorkService workService;
 
 	@Autowired
+	private WebApplicationContext wac;
+
 	private MockMvc mockMvc;
+
+	@Before
+	public void setUp() {
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).apply(springSecurity()).build();
+	}
 
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })

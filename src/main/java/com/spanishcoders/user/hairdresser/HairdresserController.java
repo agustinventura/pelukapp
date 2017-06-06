@@ -39,13 +39,13 @@ public class HairdresserController {
 		return new HairdresserDTO(hairdresserService.registerHairdresser(authentication, hairdresser));
 	}
 
-	@PreAuthorize("authenticated")
+	@PreAuthorize("hasRole('WORKER')")
 	@RequestMapping(value = "schedule/today", method = RequestMethod.GET)
 	public List<HairdresserScheduleDTO> getTodaySchedule(Authentication authentication) {
 		return getDaySchedule(authentication, LocalDate.now());
 	}
 
-	@PreAuthorize("authenticated")
+	@PreAuthorize("hasRole('WORKER')")
 	@RequestMapping(value = "schedule/{day}", method = RequestMethod.GET)
 	public List<HairdresserScheduleDTO> getDaySchedule(Authentication authentication,
 			@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day) {
