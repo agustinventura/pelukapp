@@ -3,7 +3,11 @@ package com.spanishcoders.user;
 import java.util.Set;
 
 import javax.persistence.Column;
+import javax.persistence.DiscriminatorColumn;
+import javax.persistence.DiscriminatorType;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -18,6 +22,7 @@ import com.spanishcoders.appointment.Appointment;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "ROLE", discriminatorType = DiscriminatorType.STRING)
 public class AppUser {
 
 	@Id
@@ -43,6 +48,11 @@ public class AppUser {
 	@OneToMany(mappedBy = "user", fetch = FetchType.EAGER)
 	@OrderBy(value = "date asc")
 	private Set<Appointment> appointments;
+
+	@NotNull
+	@Column(name = "ROLE", nullable = false, insertable = false, updatable = false)
+	@Enumerated(EnumType.STRING)
+	private Role role;
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -115,6 +125,14 @@ public class AppUser {
 
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
 	}
 
 	public Set<Appointment> getAppointments() {

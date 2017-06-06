@@ -1,20 +1,24 @@
 package com.spanishcoders.user.hairdresser;
 
 import javax.persistence.CascadeType;
+import javax.persistence.DiscriminatorValue;
 import javax.persistence.Entity;
 import javax.persistence.OneToOne;
 
 import com.spanishcoders.agenda.Agenda;
 import com.spanishcoders.user.AppUser;
+import com.spanishcoders.user.Role;
 import com.spanishcoders.user.UserDTO;
 
 @Entity
+@DiscriminatorValue(value = Role.Values.WORKER)
 public class Hairdresser extends AppUser {
 
 	@OneToOne(mappedBy = "hairdresser", cascade = CascadeType.ALL)
 	private Agenda agenda;
 
 	public Hairdresser() {
+		this.setRole(Role.WORKER);
 	}
 
 	public Hairdresser(String username, String password, String phone) {

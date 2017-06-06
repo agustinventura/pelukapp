@@ -14,6 +14,7 @@ public class UserDTO {
 	private String password;
 	private String phone;
 	private UserStatus status;
+	private Role role;
 	private final Set<AppointmentDTO> appointments = Sets.newTreeSet();
 
 	public UserDTO() {
@@ -28,6 +29,7 @@ public class UserDTO {
 		// we don't set the password here
 		this.setPhone(user.getPhone());
 		this.setStatus(user.getStatus());
+		this.setRole(user.getRole());
 		appointments.addAll(user.getAppointments().stream().map(appointment -> {
 			return new AppointmentDTO(appointment);
 		}).collect(Collectors.toSet()));
@@ -71,6 +73,14 @@ public class UserDTO {
 
 	public void setPhone(String phone) {
 		this.phone = phone;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
+		this.role = role;
 	}
 
 	public UserStatus getStatus() {

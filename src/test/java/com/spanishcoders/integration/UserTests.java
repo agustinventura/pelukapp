@@ -8,6 +8,7 @@ import org.junit.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
+import com.spanishcoders.user.Role;
 import com.spanishcoders.user.UserDTO;
 
 public class UserTests extends IntegrationTests {
@@ -21,6 +22,7 @@ public class UserTests extends IntegrationTests {
 	public void clientLogin() {
 		final UserDTO client = login(CLIENT_USERNAME, CLIENT_PASSWORD).getBody();
 		assertThat(client.getUsername(), is(CLIENT_USERNAME));
+		assertThat(client.getRole(), is(Role.CLIENT));
 	}
 
 	@Test
@@ -39,5 +41,6 @@ public class UserTests extends IntegrationTests {
 	public void adminLogin() {
 		final UserDTO admin = login(ADMIN_USERNAME, ADMIN_PASSWORD).getBody();
 		assertThat(admin.getUsername(), is(ADMIN_USERNAME));
+		assertThat(admin.getRole(), is(Role.WORKER));
 	}
 }

@@ -6,14 +6,14 @@ import com.spanishcoders.user.client.Client;
 import com.spanishcoders.user.hairdresser.Hairdresser;
 
 public enum Role {
-	WORKER("ROLE_WORKER"), CLIENT("ROLE_CLIENT");
+	WORKER(Values.WORKER), CLIENT(Values.CLIENT);
 
 	private String name;
 	private SimpleGrantedAuthority grantedAuthority;
 
 	Role(String name) {
 		this.name = name;
-		this.grantedAuthority = new SimpleGrantedAuthority(name);
+		this.grantedAuthority = new SimpleGrantedAuthority("ROLE_" + name);
 	}
 
 	public static Role getRole(AppUser user) {
@@ -32,5 +32,10 @@ public enum Role {
 
 	public SimpleGrantedAuthority getGrantedAuthority() {
 		return this.grantedAuthority;
+	}
+
+	public static class Values {
+		public static final String WORKER = "WORKER";
+		public static final String CLIENT = "CLIENT";
 	}
 }
