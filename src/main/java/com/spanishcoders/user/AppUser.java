@@ -10,11 +10,14 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Inheritance;
 import javax.persistence.InheritanceType;
 import javax.persistence.OneToMany;
 import javax.persistence.OrderBy;
+import javax.persistence.Table;
+import javax.persistence.UniqueConstraint;
 import javax.validation.constraints.NotNull;
 
 import com.google.common.collect.Sets;
@@ -22,18 +25,19 @@ import com.spanishcoders.appointment.Appointment;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "ROLE", discriminatorType = DiscriminatorType.STRING)
+@DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
+@Table(name = "app_user", uniqueConstraints = @UniqueConstraint(columnNames = { "username" }, name = "username_uk"))
 public class AppUser {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@NotNull
 	private String name;
 
 	@NotNull
-	@Column(unique = true)
+	@Column
 	private String username;
 
 	@NotNull
@@ -50,7 +54,7 @@ public class AppUser {
 	private Set<Appointment> appointments;
 
 	@NotNull
-	@Column(name = "ROLE", nullable = false, insertable = false, updatable = false)
+	@Column(name = "role", nullable = false, insertable = false, updatable = false)
 	@Enumerated(EnumType.STRING)
 	private Role role;
 

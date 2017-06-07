@@ -13,11 +13,16 @@ import java.util.SortedSet;
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -32,10 +37,11 @@ import com.spanishcoders.work.WorkKind;
 import com.spanishcoders.workingday.block.Block;
 
 @Entity
+@Table(name = "appointment")
 public class Appointment implements Comparable<Appointment> {
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@NotNull
@@ -45,10 +51,12 @@ public class Appointment implements Comparable<Appointment> {
 
 	@NotEmpty
 	@ManyToMany(fetch = FetchType.EAGER)
+	@JoinTable(name = "appointment_work", foreignKey = @ForeignKey(name = "work_appointment_fk"), inverseForeignKey = @ForeignKey(name = "appointment_work_fk"))
 	private Set<Work> works;
 
 	@NotNull
 	@ManyToOne
+	@JoinColumn(foreignKey = @ForeignKey(name = "appointment_user_fk"))
 	private AppUser user;
 
 	@NotNull

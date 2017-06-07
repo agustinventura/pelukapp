@@ -8,8 +8,10 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 import javax.persistence.CascadeType;
+import javax.persistence.CollectionTable;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.MapKey;
@@ -17,6 +19,7 @@ import javax.persistence.MapsId;
 import javax.persistence.OneToMany;
 import javax.persistence.OneToOne;
 import javax.persistence.OrderBy;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
@@ -27,6 +30,7 @@ import com.spanishcoders.workingday.WorkingDay;
 import com.spanishcoders.workingday.block.Block;
 
 @Entity
+@Table(name = "agenda")
 public class Agenda {
 
 	@Id
@@ -34,6 +38,7 @@ public class Agenda {
 
 	@NotNull
 	@OneToOne
+	@JoinColumn(foreignKey = @ForeignKey(name = "agenda_hairdresser_fk"))
 	@MapsId
 	private Hairdresser hairdresser;
 
@@ -43,11 +48,12 @@ public class Agenda {
 	private SortedMap<LocalDate, WorkingDay> workingDays;
 
 	@ElementCollection
+	@CollectionTable(name = "non_working_days", foreignKey = @ForeignKey(name = "non_working_days_agenda_fk"))
 	private Set<LocalDate> nonWorkingDays;
 
 	@NotEmpty
 	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn
+	@JoinColumn(foreignKey = @ForeignKey(name = "agenda_timetable_fk"))
 	private Set<Timetable> timetables;
 
 	public Agenda() {

@@ -5,21 +5,26 @@ import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
 
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
 import com.spanishcoders.appointment.Appointment;
 import com.spanishcoders.workingday.WorkingDay;
 
 @Entity
+@Table(name = "block")
 public class Block implements Comparable<Block> {
 
 	public final static Duration DEFAULT_BLOCK_LENGTH = Duration.of(30, ChronoUnit.MINUTES);
 
 	@Id
-	@GeneratedValue
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
 	@NotNull
@@ -30,9 +35,11 @@ public class Block implements Comparable<Block> {
 
 	@NotNull
 	@ManyToOne
+	@JoinColumn(foreignKey = @ForeignKey(name = "block_working_day_fk"))
 	private WorkingDay workingDay;
 
 	@ManyToOne
+	@JoinColumn(foreignKey = @ForeignKey(name = "block_appointment_fk"))
 	private Appointment appointment;
 
 	public Block() {
