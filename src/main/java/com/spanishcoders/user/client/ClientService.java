@@ -8,6 +8,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.spanishcoders.user.AppUser;
 import com.spanishcoders.user.Role;
 import com.spanishcoders.user.UserService;
 
@@ -17,15 +18,19 @@ public class ClientService {
 
 	private final UserService userService;
 
-	public ClientService(UserService userService) {
+	private final ClientRepository clientRepository;
+
+	public ClientService(UserService userService, ClientRepository clientRepository) {
 		super();
 		this.userService = userService;
+		this.clientRepository = clientRepository;
 	}
 
 	public Client createClient(Authentication authentication, Client client) {
 		if (authentication == null) {
 			// new user registering himself
-			userService.create(client);
+			final AppUser user = userService.create(client);
+			client = clientRepository.findOne(user.getId());
 		} else {
 			final Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication
 					.getAuthorities();
@@ -35,7 +40,8 @@ public class ClientService {
 				throw new AccessDeniedException("You need to logout first");
 			} else {
 				// worker registering user
-				userService.create(client);
+				final AppUser user = userService.create(client);
+				client = clientRepository.findOne(user.getId());
 			}
 		}
 

@@ -6,13 +6,14 @@ import java.util.Set;
 
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Maps;
 import com.spanishcoders.agenda.AgendaService;
+import com.spanishcoders.user.AppUser;
 import com.spanishcoders.user.Role;
+import com.spanishcoders.user.UserService;
 import com.spanishcoders.user.UserStatus;
 import com.spanishcoders.workingday.block.Block;
 
@@ -22,15 +23,15 @@ public class HairdresserService {
 
 	private final AgendaService agendaService;
 
+	private final UserService userService;
+
 	private final HairdresserRepository hairdresserRepository;
 
-	private final PasswordEncoder passwordEncoder;
-
-	public HairdresserService(HairdresserRepository hairdresserRepository, AgendaService agendaService,
-			PasswordEncoder passwordEncoder) {
-		this.hairdresserRepository = hairdresserRepository;
+	public HairdresserService(UserService userService, AgendaService agendaService,
+			HairdresserRepository hairdresserRepository) {
+		this.userService = userService;
 		this.agendaService = agendaService;
-		this.passwordEncoder = passwordEncoder;
+		this.hairdresserRepository = hairdresserRepository;
 	}
 
 	@Transactional(readOnly = false)
@@ -45,24 +46,13 @@ public class HairdresserService {
 						.anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
 					// normal user registering hairdresser? not gonna happen
 					throw new AccessDeniedException("You need to be worker");
+				} else {
+					final AppUser user = userService.create(hairdresser);
+					hairdresser = hairdresserRepository.findOne(user.getId());
 				}
-				return createHairdresser(hairdresser);
 			}
 		}
-	}
-
-	private Hairdresser createHairdresser(Hairdresser hairdresser) {
-		checkUsername(hairdresser);
-		hairdresser.setPassword(passwordEncoder.encode(hairdresser.getPassword()));
-		return hairdresserRepository.save(hairdresser);
-	}
-
-	private void checkUsername(Hairdresser hairdresser) {
-		final String username = hairdresser.getUsername();
-		final Hairdresser user = hairdresserRepository.findByUsername(username);
-		if (user != null) {
-			throw new IllegalArgumentException("There's an user with username " + username);
-		}
+		return hairdresser;
 	}
 
 	Map<Hairdresser, Set<Block>> getDayBlocks(LocalDate day) {
@@ -70,7 +60,7 @@ public class HairdresserService {
 		return getDayBlocks(hairdressers, day);
 	}
 
-	Map<Hairdresser, Set<Block>> getDayBlocks(Set<Hairdresser> hairdressers, LocalDate day) {
+	private Map<Hairdresser, Set<Block>> getDayBlocks(Set<Hairdresser> hairdressers, LocalDate day) {
 		final Map<Hairdresser, Set<Block>> availableBlocks = Maps.newHashMap();
 		for (final Hairdresser hairdresser : hairdressers) {
 			final Set<Block> hairdresserBlocks = agendaService.getDayBlocks(hairdresser.getAgenda(), day);

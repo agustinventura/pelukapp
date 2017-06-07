@@ -24,11 +24,14 @@ public class ClientServiceTests extends PelukaapUnitTest {
 	@MockBean
 	private UserService userService;
 
+	@MockBean
+	private ClientRepository clientRepository;
+
 	private ClientService clientService;
 
 	@Before
 	public void setUp() {
-		clientService = new ClientService(userService);
+		clientService = new ClientService(userService, clientRepository);
 	}
 
 	@Test
@@ -37,8 +40,12 @@ public class ClientServiceTests extends PelukaapUnitTest {
 			return invocation.getArguments()[0];
 		});
 		final Client client = mockClient();
+		when(userService.create(any(Client.class))).thenAnswer(invocation -> {
+			return invocation.getArguments()[0];
+		});
+		when(clientRepository.findOne(any(Integer.class))).thenReturn(client);
 		final Client savedClient = clientService.createClient(null, client);
-		assertThat(client.getUsername(), is(savedClient.getUsername()));
+		assertThat(client, is(savedClient));
 	}
 
 	private Client mockClient() {
@@ -59,11 +66,12 @@ public class ClientServiceTests extends PelukaapUnitTest {
 	public void workerRegistersClient() {
 		final Authentication authentication = mock(Authentication.class);
 		final Collection authorities = Sets.newHashSet(Role.WORKER.getGrantedAuthority());
+		final Client client = mockClient();
 		when(authentication.getAuthorities()).thenReturn(authorities);
 		when(userService.create(any(Client.class))).thenAnswer(invocation -> {
 			return invocation.getArguments()[0];
 		});
-		final Client client = mockClient();
+		when(clientRepository.findOne(any(Integer.class))).thenReturn(client);
 		final Client savedClient = clientService.createClient(authentication, client);
 		assertThat(client.getUsername(), is(savedClient.getUsername()));
 	}
