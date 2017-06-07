@@ -12,7 +12,7 @@ import com.spanishcoders.appointment.Appointment;
 import com.spanishcoders.appointment.AppointmentService;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class UserService {
 
 	private final UserRepository userRepository;
@@ -26,6 +26,7 @@ public class UserService {
 		this.passwordEncoder = passwordEncoder;
 	}
 
+	@Transactional(readOnly = false)
 	public AppUser create(AppUser user) {
 		checkUsername(user);
 		user.setPassword(passwordEncoder.encode(user.getPassword()));

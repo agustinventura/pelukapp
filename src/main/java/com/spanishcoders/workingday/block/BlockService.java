@@ -1,31 +1,28 @@
 package com.spanishcoders.workingday.block;
 
-import com.google.common.collect.Sets;
+import java.util.Collection;
+import java.util.Set;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collection;
-import java.util.Set;
+import com.google.common.collect.Sets;
 
-/**
- * Created by agustin on 7/07/16.
- */
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class BlockService {
 
-    private BlockRepository blockRepository;
+	private final BlockRepository blockRepository;
 
-    public BlockService(BlockRepository blockRepository) {
-        this.blockRepository = blockRepository;
-    }
+	public BlockService(BlockRepository blockRepository) {
+		this.blockRepository = blockRepository;
+	}
 
-    public Set<Block> get(Collection<Integer> blockIds) {
-        Set<Block> blocks = Sets.newHashSet();
-        if (blockIds != null && !blockIds.isEmpty()) {
-            blocks = Sets.newTreeSet(blockRepository.findAll(blockIds));
-        }
-        return blocks;
-    }
+	public Set<Block> get(Collection<Integer> blockIds) {
+		Set<Block> blocks = Sets.newHashSet();
+		if (blockIds != null && !blockIds.isEmpty()) {
+			blocks = Sets.newTreeSet(blockRepository.findAll(blockIds));
+		}
+		return blocks;
+	}
 }

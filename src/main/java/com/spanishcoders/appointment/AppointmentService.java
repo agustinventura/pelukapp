@@ -26,7 +26,7 @@ import com.spanishcoders.workingday.block.BlockService;
 import io.jsonwebtoken.lang.Collections;
 
 @Service
-@Transactional
+@Transactional(readOnly = true)
 public class AppointmentService {
 
 	private static final Logger logger = LoggerFactory.getLogger(AppointmentService.class);
@@ -50,6 +50,7 @@ public class AppointmentService {
 		this.userRepository = userRepository;
 	}
 
+	@Transactional(readOnly = false)
 	Appointment createAppointment(Authentication authentication, AppointmentDTO appointmentDTO) {
 		Appointment confirmed = null;
 		final Set<Block> blocks = blockService.get(appointmentDTO.getBlocks());
@@ -61,6 +62,7 @@ public class AppointmentService {
 		return confirmed;
 	}
 
+	@Transactional(readOnly = false)
 	Appointment update(Authentication authentication, AppointmentDTO appointment) {
 		final Optional<Appointment> maybeAppointment = this.get(appointment.getId());
 		Appointment modified = null;
