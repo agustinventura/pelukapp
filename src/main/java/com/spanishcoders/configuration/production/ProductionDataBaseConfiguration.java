@@ -87,7 +87,7 @@ public class ProductionDataBaseConfiguration {
 		final Properties hibernateProperties = new Properties();
 		hibernateProperties.setProperty("hibernate.show_sql", "false");
 		hibernateProperties.setProperty("hibernate.format_sql", "false");
-		hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
+		hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "validate");
 		return hibernateProperties;
 	}
 

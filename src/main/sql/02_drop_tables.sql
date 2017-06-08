@@ -1,0 +1,10 @@
+drop table if exists agenda cascade;
+drop table if exists app_user cascade;
+drop table if exists appointment cascade;
+drop table if exists appointment_work cascade;
+drop table if exists block cascade;
+drop table if exists non_working_days cascade;
+drop table if exists stretch cascade;
+drop table if exists timetable cascade;
+drop table if exists work cascade;
+drop table if exists working_day cascade;
