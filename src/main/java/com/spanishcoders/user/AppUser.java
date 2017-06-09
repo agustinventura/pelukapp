@@ -174,6 +174,7 @@ public class AppUser {
 	}
 
 	public void addAppointment(Appointment appointment) {
+		appointment.setUser(this);
 		this.appointments.add(appointment);
 	}
 }

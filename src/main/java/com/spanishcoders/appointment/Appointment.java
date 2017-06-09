@@ -159,7 +159,6 @@ public class Appointment implements Comparable<Appointment> {
 		int result = 1;
 		result = prime * result + ((date == null) ? 0 : date.hashCode());
 		result = prime * result + ((duration == null) ? 0 : duration.hashCode());
-		result = prime * result + ((status == null) ? 0 : status.hashCode());
 		result = prime * result + ((user == null) ? 0 : user.hashCode());
 		result = prime * result + ((works == null) ? 0 : works.hashCode());
 		return result;
@@ -189,9 +188,6 @@ public class Appointment implements Comparable<Appointment> {
 				return false;
 			}
 		} else if (!duration.equals(other.duration)) {
-			return false;
-		}
-		if (status != other.status) {
 			return false;
 		}
 		if (user == null) {

@@ -15,19 +15,22 @@ public class Stretch {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Integer id;
+	private final Integer id;
 
 	@NotNull
-	private LocalTime startTime;
+	private final LocalTime startTime;
 
 	@NotNull
-	private LocalTime endTime;
+	private final LocalTime endTime;
 
 	public Stretch() {
+		id = null;
+		startTime = null;
+		endTime = null;
 	}
 
 	public Stretch(LocalTime startTime, LocalTime endTime) {
-		this();
+		this.id = null;
 		this.startTime = startTime;
 		this.endTime = endTime;
 	}
@@ -36,24 +39,12 @@ public class Stretch {
 		return id;
 	}
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
 	public LocalTime getStartTime() {
 		return startTime;
 	}
 
-	public void setStartTime(LocalTime startTime) {
-		this.startTime = startTime;
-	}
-
 	public LocalTime getEndTime() {
 		return endTime;
-	}
-
-	public void setEndTime(LocalTime endTime) {
-		this.endTime = endTime;
 	}
 
 	@Override
