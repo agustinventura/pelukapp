@@ -20,6 +20,7 @@ public class WorkService {
 	}
 
 	Set<Work> getAvailableWorks(Authentication userAuthentication) {
+		Set<WorkDTO> 
 		if (userAuthentication != null
 				&& userAuthentication.getAuthorities().contains(Role.WORKER.getGrantedAuthority())) {
 			return Sets.newHashSet(workRepository.findAll());
