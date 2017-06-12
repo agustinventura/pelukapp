@@ -1,7 +1,6 @@
 package com.spanishcoders.work;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,7 +22,6 @@ public class WorkController {
 	@PreAuthorize("authenticated")
 	@RequestMapping(method = RequestMethod.GET)
 	public Collection<WorkDTO> getWorks(Authentication authentication) {
-		return workService.getAvailableWorks(authentication).stream().map(work -> new WorkDTO(work))
-				.collect(Collectors.toList());
+		return workService.getAvailableWorks(authentication);
 	}
 }

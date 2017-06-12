@@ -10,8 +10,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.time.Duration;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +34,7 @@ public class WorkControllerTests extends PelukaapUnitTest {
 
 	@Before
 	public void setUp() {
-		given(workService.getAvailableWorks(any(Authentication.class)))
-				.willReturn(Sets.newHashSet(new Work("Corte", Duration.ofMinutes(30L), WorkKind.PUBLIC)));
+		given(workService.getAvailableWorks(any(Authentication.class))).willReturn(Sets.newHashSet(new WorkDTO()));
 	}
 
 	@Test
