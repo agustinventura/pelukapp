@@ -39,9 +39,6 @@ import com.spanishcoders.workingday.WorkingDay;
 import com.spanishcoders.workingday.block.Block;
 import com.spanishcoders.workingday.block.BlockService;
 
-/**
- * Created by agustin on 7/07/16.
- */
 public class AppointmentServiceTests extends PelukaapUnitTest {
 
 	@MockBean

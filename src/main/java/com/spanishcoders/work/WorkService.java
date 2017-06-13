@@ -15,14 +15,11 @@ public class WorkService {
 
 	private final WorkRepository workRepository;
 
-	private final WorkMapper workMapper;
-
-	public WorkService(WorkRepository workRepository, WorkMapper workMapper) {
+	public WorkService(WorkRepository workRepository) {
 		this.workRepository = workRepository;
-		this.workMapper = workMapper;
 	}
 
-	Set<WorkDTO> getAvailableWorks(Authentication userAuthentication) {
+	Set<Work> get(Authentication userAuthentication) {
 		Set<Work> availableWorks = null;
 		if (userAuthentication != null
 				&& userAuthentication.getAuthorities().contains(Role.WORKER.getGrantedAuthority())) {
@@ -30,7 +27,7 @@ public class WorkService {
 		} else {
 			availableWorks = Sets.newHashSet(workRepository.findByKind(WorkKind.PUBLIC));
 		}
-		return workMapper.asDTOs(availableWorks);
+		return availableWorks;
 	}
 
 	public Set<Work> get(Set<Integer> workIds) {

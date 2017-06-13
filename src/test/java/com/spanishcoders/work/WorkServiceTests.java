@@ -27,26 +27,22 @@ public class WorkServiceTests extends PelukaapUnitTest {
 	private WorkRepository workRepository;
 
 	@MockBean
-	private WorkMapper workMapper;
-
-	@MockBean
 	private Authentication authentication;
 
 	private WorkService workService;
 
 	@Before
 	public void setUp() {
-		workService = new WorkService(workRepository, workMapper);
+		workService = new WorkService(workRepository);
 	}
 
 	@Test
 	public void getAvailableWorksForWorker() throws Exception {
 		final Collection authorities = mock(Collection.class);
 		when(workRepository.findAll()).thenReturn(Sets.newHashSet(new Work()));
-		when(workMapper.asDTOs(any(Set.class))).thenReturn(Sets.newHashSet(new WorkDTO()));
 		when(authentication.getAuthorities()).thenReturn(authorities);
 		when(authorities.contains(any(GrantedAuthority.class))).thenReturn(true);
-		final Set<WorkDTO> availableWorks = workService.getAvailableWorks(authentication);
+		final Set<Work> availableWorks = workService.get(authentication);
 		assertThat(availableWorks, hasSize(1));
 	}
 
@@ -54,27 +50,17 @@ public class WorkServiceTests extends PelukaapUnitTest {
 	public void getAvailableWorksForClient() throws Exception {
 		final Collection authorities = mock(Collection.class);
 		when(workRepository.findByKind(WorkKind.PUBLIC)).thenReturn(Sets.newHashSet(new Work()));
-		when(workMapper.asDTOs(any(Set.class))).thenReturn(Sets.newHashSet(new WorkDTO()));
 		when(authentication.getAuthorities()).thenReturn(authorities);
 		when(authorities.contains(any(GrantedAuthority.class))).thenReturn(false);
-		final Set<WorkDTO> availableWorks = workService.getAvailableWorks(authentication);
+		final Set<Work> availableWorks = workService.get(authentication);
 		assertThat(availableWorks, hasSize(1));
 	}
 
 	@Test
 	public void getAvailableWorksWithoutAuthorities() throws Exception {
 		when(workRepository.findByKind(WorkKind.PUBLIC)).thenReturn(Sets.newHashSet(new Work()));
-		when(workMapper.asDTOs(any(Set.class))).thenReturn(Sets.newHashSet(new WorkDTO()));
 		when(authentication.getAuthorities()).thenReturn(Collections.EMPTY_SET);
-		final Set<WorkDTO> availableWorks = workService.getAvailableWorks(authentication);
-		assertThat(availableWorks, hasSize(1));
-	}
-
-	@Test
-	public void getAvailableWorksWithNullAuthentication() throws Exception {
-		when(workRepository.findByKind(WorkKind.PUBLIC)).thenReturn(Sets.newHashSet(new Work()));
-		when(workMapper.asDTOs(any(Set.class))).thenReturn(Sets.newHashSet(new WorkDTO()));
-		final Set<WorkDTO> availableWorks = workService.getAvailableWorks(null);
+		final Set<Work> availableWorks = workService.get(authentication);
 		assertThat(availableWorks, hasSize(1));
 	}
 
@@ -90,11 +76,4 @@ public class WorkServiceTests extends PelukaapUnitTest {
 		final Set<Work> works = workService.get(Sets.newHashSet());
 		assertThat(works, is(empty()));
 	}
-
-	@Test
-	public void getWorksByNullId() {
-		final Set<Work> works = workService.get(null);
-		assertThat(works, is(empty()));
-	}
-
 }

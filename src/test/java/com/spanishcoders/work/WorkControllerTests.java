@@ -27,14 +27,14 @@ import com.spanishcoders.PelukaapUnitTest;
 public class WorkControllerTests extends PelukaapUnitTest {
 
 	@MockBean
-	private WorkService workService;
+	private WorkServiceFacade workServiceFacade;
 
 	@Autowired
 	private MockMvc mockMvc;
 
 	@Before
 	public void setUp() {
-		given(workService.getAvailableWorks(any(Authentication.class))).willReturn(Sets.newHashSet(new WorkDTO()));
+		given(workServiceFacade.get(any(Authentication.class))).willReturn(Sets.newHashSet(new WorkDTO()));
 	}
 
 	@Test

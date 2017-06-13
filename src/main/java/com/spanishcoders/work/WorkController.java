@@ -13,15 +13,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/works", produces = MediaType.APPLICATION_JSON_VALUE)
 public class WorkController {
 
-	private final WorkService workService;
+	private final WorkServiceFacade workServiceFacade;
 
-	public WorkController(WorkService workService) {
-		this.workService = workService;
+	public WorkController(WorkServiceFacade workServiceFacade) {
+		this.workServiceFacade = workServiceFacade;
 	}
 
 	@PreAuthorize("authenticated")
 	@RequestMapping(method = RequestMethod.GET)
 	public Collection<WorkDTO> getWorks(Authentication authentication) {
-		return workService.getAvailableWorks(authentication);
+		return workServiceFacade.get(authentication);
 	}
 }
