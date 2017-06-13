@@ -1,9 +1,11 @@
 package com.spanishcoders.work;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.util.Set;
@@ -29,11 +31,6 @@ public class WorkServiceFacadeTests extends PelukaapUnitTest {
 	@Before
 	public void setUp() {
 		workServiceFacade = new WorkServiceFacade(workService, workMapper);
-	}
-
-	@Test
-	public void getWithNullAuthentication() {
-		when(workService.get(any(Authentication.class))).thenReturn(Sets.newHashSet());
 		when(workMapper.asDTOs(any(Set.class))).then(invocation -> {
 			final Set<Work> works = invocation.getArgumentAt(0, Set.class);
 			final Set<WorkDTO> dtos = Sets.newHashSet();
@@ -42,7 +39,24 @@ public class WorkServiceFacadeTests extends PelukaapUnitTest {
 			}
 			return dtos;
 		});
-		final Set<WorkDTO> workDTOs = workServiceFacade.get(null);
+	}
+
+	@Test
+	public void getWithoutData() {
+		final Authentication authentication = mock(Authentication.class);
+		when(workService.get(any(Authentication.class))).thenReturn(Sets.newHashSet());
+		final Set<WorkDTO> workDTOs = workServiceFacade.get(authentication);
 		assertThat(workDTOs, is(empty()));
+	}
+
+	@Test
+	public void getWithData() {
+		final Authentication authentication = mock(Authentication.class);
+		final Work work = new Work();
+		final Set<Work> works = Sets.newHashSet();
+		works.add(work);
+		when(workService.get(any(Authentication.class))).thenReturn(works);
+		final Set<WorkDTO> workDTOs = workServiceFacade.get(null);
+		assertThat(workDTOs, hasSize(1));
 	}
 }
