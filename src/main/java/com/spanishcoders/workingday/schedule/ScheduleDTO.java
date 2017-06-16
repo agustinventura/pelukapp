@@ -45,6 +45,22 @@ public class ScheduleDTO implements Comparable<ScheduleDTO> {
 		notes = "";
 	}
 
+	public ScheduleDTO(Integer blockId, LocalTime start, Duration length, LocalDate workingDay, Integer hairdresserId,
+			Integer appointmentId, String client, Set<Integer> worksIds, String notes) {
+		super();
+		this.blockId = blockId;
+		this.start = start;
+		this.length = length;
+		this.workingDay = workingDay;
+		this.hairdresserId = hairdresserId;
+		this.appointmentId = appointmentId;
+		this.client = client;
+		this.worksIds = worksIds;
+		this.notes = notes;
+	}
+
+
+
 	public ScheduleDTO(Authentication authentication, Block block) {
 		blockId = block.getId();
 		start = block.getStart();

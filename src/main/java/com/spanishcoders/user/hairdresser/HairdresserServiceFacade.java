@@ -33,7 +33,7 @@ public class HairdresserServiceFacade {
 
 	public Set<HairdresserScheduleDTO> getSchedule(LocalDate day) {
 		final Set<Schedule> schedules = hairdresserService.getSchedule(day);
-		return scheduleMapper.toDTO(schedules);
+		return scheduleMapper.toDTOs(schedules);
 	}
 
 }

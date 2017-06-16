@@ -12,4 +12,10 @@ public interface WorkMapper {
 	WorkDTO asDTO(Work work);
 
 	Set<WorkDTO> asDTOs(Set<Work> works);
+	
+	Set<Integer> asIntegers (Set<Work> works);
+	
+	default Integer asInteger (Work work) {
+		return work.getId();
+	}
 }
