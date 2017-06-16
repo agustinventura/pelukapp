@@ -34,9 +34,13 @@ public class UserService {
 		return user;
 	}
 
+	public AppUser get(Integer id) {
+		return userRepository.findOne(id);
+	}
+
 	private void checkUsername(AppUser user) {
 		final String username = user.getUsername();
-		final AppUser existingUser = userRepository.findByUsername(username);
+		final AppUser existingUser = get(username);
 		if (existingUser != null) {
 			throw new IllegalArgumentException("There's an user with username " + username);
 		}
@@ -54,5 +58,9 @@ public class UserService {
 			appointments = appointmentService.getNextAppointments(user);
 		}
 		return appointments;
+	}
+
+	public AppUser get(String username) {
+		return userRepository.findByUsername(username);
 	}
 }

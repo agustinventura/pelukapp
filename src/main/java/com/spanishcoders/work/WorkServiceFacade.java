@@ -5,6 +5,8 @@ import java.util.Set;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
+import com.google.common.collect.Sets;
+
 @Component
 public class WorkServiceFacade {
 
@@ -19,6 +21,10 @@ public class WorkServiceFacade {
 	}
 
 	public Set<WorkDTO> get(Authentication authentication) {
-		return workMapper.asDTOs(workService.get(authentication));
+		final Set<WorkDTO> dtos = Sets.newHashSet();
+		if (authentication != null) {
+			dtos.addAll(workMapper.asDTOs(workService.get(authentication)));
+		}
+		return dtos;
 	}
 }

@@ -10,11 +10,6 @@ public class ClientDTO extends UserDTO {
 		super();
 	}
 
-	public ClientDTO(Client client) {
-		super(client);
-		this.distance = client.getDistance();
-	}
-
 	public String getDistance() {
 		return distance;
 	}

@@ -35,10 +35,18 @@ public class WorkServiceFacadeTests extends PelukaapUnitTest {
 			final Set<Work> works = invocation.getArgumentAt(0, Set.class);
 			final Set<WorkDTO> dtos = Sets.newHashSet();
 			for (final Work work : works) {
-				dtos.add(new WorkDTO(work));
+				final WorkDTO dto = new WorkDTO();
+				dto.setId(work.getId());
+				dtos.add(dto);
 			}
 			return dtos;
 		});
+	}
+
+	@Test
+	public void getWithoutAuthentication() {
+		final Set<WorkDTO> workDTOs = workServiceFacade.get(null);
+		assertThat(workDTOs, is(empty()));
 	}
 
 	@Test
@@ -56,7 +64,7 @@ public class WorkServiceFacadeTests extends PelukaapUnitTest {
 		final Set<Work> works = Sets.newHashSet();
 		works.add(work);
 		when(workService.get(any(Authentication.class))).thenReturn(works);
-		final Set<WorkDTO> workDTOs = workServiceFacade.get(null);
+		final Set<WorkDTO> workDTOs = workServiceFacade.get(authentication);
 		assertThat(workDTOs, hasSize(1));
 	}
 }

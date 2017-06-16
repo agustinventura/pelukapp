@@ -1,4 +1,4 @@
-package com.spanishcoders.workingday;
+package com.spanishcoders.workingday.schedule;
 
 import java.util.Set;
 

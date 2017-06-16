@@ -2,7 +2,6 @@ package com.spanishcoders.appointment;
 
 import java.time.LocalDateTime;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
 
@@ -28,25 +27,17 @@ public class AppointmentDTO implements Comparable<AppointmentDTO> {
 		works = Sets.newTreeSet();
 	}
 
-	public AppointmentDTO(Appointment appointment) {
-		id = appointment.getId();
-		user = appointment.getUser() != null ? appointment.getUser().getId() : null;
-		status = appointment.getStatus();
-		blocks = Sets.newTreeSet();
-		date = appointment.getDate();
-		if (appointment.getBlocks() != null && !appointment.getBlocks().isEmpty()) {
-			blocks.addAll(appointment.getBlocks().stream().map(block -> block.getId()).collect(Collectors.toSet()));
-		}
-		works = Sets.newTreeSet();
-		if (appointment.getWorks() != null && !appointment.getWorks().isEmpty()) {
-			works.addAll(appointment.getWorks().stream().map(work -> work.getId()).collect(Collectors.toSet()));
-			final Long worksLength = appointment.getWorks().stream().mapToLong(work -> work.getDuration().toMinutes())
-					.sum();
-			duration = worksLength;
-		} else {
-			duration = 0L;
-		}
-		notes = appointment.getNotes();
+	public AppointmentDTO(Integer id, Set<Integer> blocks, Set<Integer> works, Integer user, LocalDateTime date,
+			Long duration, AppointmentStatus status, String notes) {
+		super();
+		this.id = id;
+		this.blocks = blocks;
+		this.works = works;
+		this.user = user;
+		this.date = date;
+		this.duration = duration;
+		this.status = status;
+		this.notes = notes;
 	}
 
 	public Integer getId() {
@@ -89,11 +80,8 @@ public class AppointmentDTO implements Comparable<AppointmentDTO> {
 		if (o == null || getClass() != o.getClass()) {
 			return false;
 		}
-
 		final AppointmentDTO that = (AppointmentDTO) o;
-
 		return id != null ? id.equals(that.id) : that.id == null;
-
 	}
 
 	@Override

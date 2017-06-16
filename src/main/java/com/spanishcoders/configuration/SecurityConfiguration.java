@@ -17,7 +17,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import com.spanishcoders.user.UserRepository;
+import com.spanishcoders.user.UserServiceFacade;
 import com.spanishcoders.user.security.StatelessAuthenticationFilter;
 import com.spanishcoders.user.security.StatelessLoginFilter;
 import com.spanishcoders.user.security.TokenAuthenticationService;
@@ -30,13 +30,13 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	private final UserDetailsService userDetailsService;
 
-	private final UserRepository userRepository;
+	private final UserServiceFacade userServiceFacade;
 
 	@Autowired
 	public SecurityConfiguration(@Qualifier("pelukappUserDetailsService") UserDetailsService userDetailsService,
-			UserRepository userRepository) {
+			UserServiceFacade userServiceFacade) {
 		this.userDetailsService = userDetailsService;
-		this.userRepository = userRepository;
+		this.userServiceFacade = userServiceFacade;
 	}
 
 	@Override
@@ -95,7 +95,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	public TokenAuthenticationService tokenAuthenticationService() {
-		return new TokenAuthenticationService(tokenHandler(), userRepository);
+		return new TokenAuthenticationService(tokenHandler(), userServiceFacade);
 	}
 
 	@Bean

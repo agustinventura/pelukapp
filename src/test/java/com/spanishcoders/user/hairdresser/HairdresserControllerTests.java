@@ -5,6 +5,7 @@ import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -13,9 +14,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -31,20 +30,17 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
 
-import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
-import com.spanishcoders.agenda.Agenda;
-import com.spanishcoders.user.UserStatus;
 import com.spanishcoders.work.WorkService;
-import com.spanishcoders.workingday.WorkingDay;
-import com.spanishcoders.workingday.block.Block;
+import com.spanishcoders.workingday.schedule.HairdresserScheduleDTO;
+import com.spanishcoders.workingday.schedule.ScheduleDTO;
 
 @WebMvcTest(controllers = HairdresserController.class)
 public class HairdresserControllerTests extends PelukaapUnitTest {
 
 	@MockBean
-	private HairdresserService hairdresserService;
+	private HairdresserServiceFacade hairdresserServiceFacade;
 
 	@MockBean
 	private WorkService workService;
@@ -62,10 +58,9 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
 	public void registerWorkerAsWorker() throws Exception {
-		given(hairdresserService.registerHairdresser(any(Authentication.class), any(Hairdresser.class)))
-				.will(invocation -> {
-					return invocation.getArguments()[1];
-				});
+		given(hairdresserServiceFacade.create(any(Authentication.class), any(Hairdresser.class))).will(invocation -> {
+			return invocation.getArguments()[1];
+		});
 		final HairdresserDTO dto = new HairdresserDTO();
 		dto.setUsername("client");
 		this.mockMvc
@@ -78,7 +73,7 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "client", roles = { "USER", "CLIENT" })
 	public void registerWorkerAsClient() throws Exception {
-		given(hairdresserService.registerHairdresser(any(Authentication.class), any(Hairdresser.class)))
+		given(hairdresserServiceFacade.create(any(Authentication.class), any(Hairdresser.class)))
 				.willThrow(AccessDeniedException.class);
 		final HairdresserDTO dto = new HairdresserDTO();
 		dto.setUsername("client");
@@ -101,7 +96,7 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
 	public void getTodayScheduleWithoutWorks() throws Exception {
-		given(hairdresserService.getDayBlocks(any(LocalDate.class))).willReturn(Maps.newHashMap());
+		given(hairdresserServiceFacade.getSchedule(any(LocalDate.class))).willReturn(Sets.newHashSet());
 		this.mockMvc
 				.perform(get("/hairdresser/schedule/today")
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -112,22 +107,14 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
 	public void getTodayScheduleWithOneWork() throws Exception {
-		given(hairdresserService.getDayBlocks(any(LocalDate.class))).willAnswer(invocation -> {
-			final Map<Hairdresser, Set<Block>> answer = Maps.newHashMap();
-			final Block block = mock(Block.class);
-			final WorkingDay workingDay = mock(WorkingDay.class);
-			final Agenda agenda = mock(Agenda.class);
-			final Hairdresser hairdresser = mock(Hairdresser.class);
-			given(hairdresser.getId()).willReturn(1);
-			given(hairdresser.getStatus()).willReturn(UserStatus.ACTIVE);
-			given(agenda.getHairdresser()).willReturn(hairdresser);
-			given(workingDay.getAgenda()).willReturn(agenda);
-			given(workingDay.getDate()).willReturn(LocalDate.now());
-			given(block.getStart()).willReturn(LocalTime.now());
-			given(block.getLength()).willReturn(Block.DEFAULT_BLOCK_LENGTH);
-			given(block.getWorkingDay()).willReturn(workingDay);
-			final Set<Block> blocks = Sets.newHashSet(block);
-			answer.put(hairdresser, blocks);
+		given(hairdresserServiceFacade.getSchedule(any(LocalDate.class))).willAnswer(invocation -> {
+			final LocalDate day = invocation.getArgumentAt(0, LocalDate.class);
+			final ScheduleDTO schedule = mock(ScheduleDTO.class);
+			when(schedule.getWorkingDay()).thenReturn(day);
+			final Set<ScheduleDTO> schedules = Sets.newHashSet(schedule);
+			final HairdresserDTO hairdresser = mock(HairdresserDTO.class);
+			final HairdresserScheduleDTO hairdresserSchedule = new HairdresserScheduleDTO(hairdresser, schedules);
+			final Set<HairdresserScheduleDTO> answer = Sets.newHashSet(hairdresserSchedule);
 			return answer;
 		});
 		this.mockMvc
@@ -140,7 +127,7 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
 	public void getDayScheduleWithoutWorks() throws Exception {
-		given(hairdresserService.getDayBlocks(any(LocalDate.class))).willReturn(Maps.newHashMap());
+		given(hairdresserServiceFacade.getSchedule(any(LocalDate.class))).willReturn(Sets.newHashSet());
 		final LocalDate date = LocalDate.now();
 		final String isoDate = date.format(DateTimeFormatter.ISO_DATE);
 		this.mockMvc
@@ -153,22 +140,14 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
 	public void getDayScheduleWithOneWork() throws Exception {
-		given(hairdresserService.getDayBlocks(any(LocalDate.class))).willAnswer(invocation -> {
-			final Map<Hairdresser, Set<Block>> answer = Maps.newHashMap();
-			final Block block = mock(Block.class);
-			final WorkingDay workingDay = mock(WorkingDay.class);
-			final Agenda agenda = mock(Agenda.class);
-			final Hairdresser hairdresser = mock(Hairdresser.class);
-			given(hairdresser.getId()).willReturn(1);
-			given(hairdresser.getStatus()).willReturn(UserStatus.ACTIVE);
-			given(agenda.getHairdresser()).willReturn(hairdresser);
-			given(workingDay.getAgenda()).willReturn(agenda);
-			given(workingDay.getDate()).willReturn(LocalDate.now());
-			given(block.getStart()).willReturn(LocalTime.now());
-			given(block.getLength()).willReturn(Block.DEFAULT_BLOCK_LENGTH);
-			given(block.getWorkingDay()).willReturn(workingDay);
-			final Set<Block> blocks = Sets.newHashSet(block);
-			answer.put(hairdresser, blocks);
+		given(hairdresserServiceFacade.getSchedule(any(LocalDate.class))).willAnswer(invocation -> {
+			final LocalDate day = invocation.getArgumentAt(0, LocalDate.class);
+			final ScheduleDTO schedule = mock(ScheduleDTO.class);
+			when(schedule.getWorkingDay()).thenReturn(day);
+			final Set<ScheduleDTO> schedules = Sets.newHashSet(schedule);
+			final HairdresserDTO hairdresser = mock(HairdresserDTO.class);
+			final HairdresserScheduleDTO hairdresserSchedule = new HairdresserScheduleDTO(hairdresser, schedules);
+			final Set<HairdresserScheduleDTO> answer = Sets.newHashSet(hairdresserSchedule);
 			return answer;
 		});
 		final LocalDate date = LocalDate.now();

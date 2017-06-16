@@ -16,11 +16,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.spanishcoders.appointment.Appointment;
 import com.spanishcoders.appointment.AppointmentDTO;
 import com.spanishcoders.appointment.AppointmentStatus;
 import com.spanishcoders.work.WorkDTO;
-import com.spanishcoders.workingday.ScheduleDTO;
+import com.spanishcoders.workingday.schedule.ScheduleDTO;
 
 public class AppointmentTests extends IntegrationTests {
 
@@ -180,11 +179,10 @@ public class AppointmentTests extends IntegrationTests {
 		final String clientAuth = loginAsClient();
 		final AppointmentDTO toBeCancelled = confirmAppointmentWithOneWork(clientAuth);
 		final String adminAuth = loginAsWorker();
-		final Appointment appointment = new Appointment();
-		appointment.setId(toBeCancelled.getId());
-		appointment.cancel();
-		final AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, adminAuth,
-				new AppointmentDTO(appointment), typeRef);
+		final AppointmentDTO appointment = new AppointmentDTO(toBeCancelled.getId(), null, null, null, null, null,
+				AppointmentStatus.CANCELLED, null);
+		final AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, adminAuth, appointment,
+				typeRef);
 		assertThat(cancelled, notNullValue());
 		assertThat(cancelled.getStatus(), is(AppointmentStatus.CANCELLED));
 	}
@@ -192,24 +190,21 @@ public class AppointmentTests extends IntegrationTests {
 	@Test
 	public void cancelAppointmentWithPeriodExpiredAsClient() throws JsonProcessingException {
 		final String auth = loginAsClient();
-		final AppointmentDTO appointmentDTO = integrationDataFactory.getAppointment(auth);
-		final Appointment appointment = new Appointment();
-		appointment.setId(appointmentDTO.getId());
-		appointment.cancel();
+		final AppointmentDTO toBeCancelled = integrationDataFactory.getAppointment(auth);
+		final AppointmentDTO appointment = new AppointmentDTO(toBeCancelled.getId(), null, null, null, null, null,
+				AppointmentStatus.CANCELLED, null);
 		final ResponseEntity<String> response = errorClient.putResponseEntityWithAuthorizationHeader(APPOINTMENT_URL,
-				auth, toJSON(new AppointmentDTO(appointment)), errorTypeRef);
+				auth, toJSON(appointment), errorTypeRef);
 		assertThat(response.getStatusCode(), is(HttpStatus.UNAUTHORIZED));
 	}
 
 	@Test
 	public void cancelAppointmentWithPeriodExpiredAsAdmin() {
 		final String auth = loginAsWorker();
-		final AppointmentDTO appointmentDTO = integrationDataFactory.getAppointment(auth);
-		final Appointment appointment = new Appointment();
-		appointment.setId(appointmentDTO.getId());
-		appointment.cancel();
-		final AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth,
-				new AppointmentDTO(appointment), typeRef);
+		final AppointmentDTO toBeCancelled = integrationDataFactory.getAppointment(auth);
+		final AppointmentDTO appointment = new AppointmentDTO(toBeCancelled.getId(), null, null, null, null, null,
+				AppointmentStatus.CANCELLED, null);
+		final AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth, appointment, typeRef);
 		assertThat(cancelled, notNullValue());
 		assertThat(cancelled.getStatus(), is(AppointmentStatus.CANCELLED));
 	}
@@ -246,11 +241,9 @@ public class AppointmentTests extends IntegrationTests {
 	}
 
 	private void cancelAppointment(String auth, AppointmentDTO appointmentDTO) {
-		final Appointment appointment = new Appointment();
-		appointment.setId(appointmentDTO.getId());
-		appointment.cancel();
-		final AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth,
-				new AppointmentDTO(appointment), typeRef);
+		final AppointmentDTO appointment = new AppointmentDTO(appointmentDTO.getId(), null, null, null, null, null,
+				AppointmentStatus.CANCELLED, null);
+		final AppointmentDTO cancelled = client.putWithAuthorizationHeader(APPOINTMENT_URL, auth, appointment, typeRef);
 		assertThat(cancelled, notNullValue());
 		assertThat(cancelled.getStatus(), is(AppointmentStatus.CANCELLED));
 	}

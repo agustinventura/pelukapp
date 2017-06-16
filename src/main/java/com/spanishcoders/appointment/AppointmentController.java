@@ -22,24 +22,22 @@ public class AppointmentController {
 
 	private static final Logger logger = LoggerFactory.getLogger(AppointmentController.class);
 
-	private final AppointmentService appointmentService;
+	private final AppointmentServiceFacade appointmentServiceFacade;
 
-	public AppointmentController(AppointmentService appointmentService) {
-		this.appointmentService = appointmentService;
+	public AppointmentController(AppointmentServiceFacade appointmentServiceFacade) {
+		this.appointmentServiceFacade = appointmentServiceFacade;
 	}
 
 	@PreAuthorize("authenticated")
 	@RequestMapping(method = RequestMethod.POST)
 	public AppointmentDTO create(Authentication authentication, @RequestBody AppointmentDTO appointment) {
-		final Appointment confirmed = appointmentService.createAppointment(authentication, appointment);
-		return new AppointmentDTO(confirmed);
+		return appointmentServiceFacade.create(authentication, appointment);
 	}
 
 	@PreAuthorize("authenticated")
 	@RequestMapping(method = RequestMethod.PUT)
 	public AppointmentDTO update(Authentication authentication, @RequestBody AppointmentDTO appointment) {
-		final Appointment modified = appointmentService.update(authentication, appointment);
-		return new AppointmentDTO(modified);
+		return appointmentServiceFacade.update(authentication, appointment);
 	}
 
 	@ExceptionHandler(IllegalArgumentException.class)

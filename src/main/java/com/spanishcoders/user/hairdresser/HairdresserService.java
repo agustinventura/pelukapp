@@ -1,7 +1,6 @@
 package com.spanishcoders.user.hairdresser;
 
 import java.time.LocalDate;
-import java.util.Map;
 import java.util.Set;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -9,13 +8,14 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
 import com.spanishcoders.agenda.AgendaService;
 import com.spanishcoders.user.AppUser;
 import com.spanishcoders.user.Role;
 import com.spanishcoders.user.UserService;
 import com.spanishcoders.user.UserStatus;
 import com.spanishcoders.workingday.block.Block;
+import com.spanishcoders.workingday.schedule.Schedule;
 
 @Service
 @Transactional(readOnly = true)
@@ -55,17 +55,17 @@ public class HairdresserService {
 		return hairdresser;
 	}
 
-	Map<Hairdresser, Set<Block>> getDayBlocks(LocalDate day) {
+	Set<Schedule> getSchedule(LocalDate day) {
 		final Set<Hairdresser> hairdressers = hairdresserRepository.findByStatus(UserStatus.ACTIVE);
-		return getDayBlocks(hairdressers, day);
+		return getBlocks(hairdressers, day);
 	}
 
-	private Map<Hairdresser, Set<Block>> getDayBlocks(Set<Hairdresser> hairdressers, LocalDate day) {
-		final Map<Hairdresser, Set<Block>> availableBlocks = Maps.newHashMap();
+	private Set<Schedule> getBlocks(Set<Hairdresser> hairdressers, LocalDate day) {
+		final Set<Schedule> schedules = Sets.newHashSet();
 		for (final Hairdresser hairdresser : hairdressers) {
 			final Set<Block> hairdresserBlocks = agendaService.getDayBlocks(hairdresser.getAgenda(), day);
-			availableBlocks.put(hairdresser, hairdresserBlocks);
+			schedules.add(new Schedule(hairdresser, day, hairdresserBlocks));
 		}
-		return availableBlocks;
+		return schedules;
 	}
 }

@@ -11,15 +11,15 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping(value = "/client", consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
 public class ClientController {
 
-	private final ClientService clientService;
+	private final ClientServiceFacade clientServiceFacade;
 
-	public ClientController(ClientService clientService) {
-		this.clientService = clientService;
+	public ClientController(ClientServiceFacade clientServiceFacade) {
+		this.clientServiceFacade = clientServiceFacade;
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
 	public ClientDTO registerClient(Authentication authentication, @RequestBody ClientDTO clientDTO) {
 		final Client client = new Client(clientDTO);
-		return new ClientDTO(clientService.createClient(authentication, client));
+		return clientServiceFacade.create(authentication, client);
 	}
 }

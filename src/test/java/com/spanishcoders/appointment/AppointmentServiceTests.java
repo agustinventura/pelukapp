@@ -172,7 +172,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 			return requestedAppointment;
 		});
 		given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
-		appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
+		appointment = appointmentService.update(authentication, new AppointmentDTO());
 		assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
 	}
 
@@ -185,7 +185,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 		given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
 		given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(23));
 		given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
-		appointmentService.update(authentication, new AppointmentDTO(appointment));
+		appointmentService.update(authentication, new AppointmentDTO());
 	}
 
 	@Test(expected = AccessDeniedException.class)
@@ -197,7 +197,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 		given(authentication.getAuthorities()).willAnswer(invocation -> clientAuthority);
 		given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(25));
 		given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
-		appointmentService.update(authentication, new AppointmentDTO(appointment));
+		appointmentService.update(authentication, new AppointmentDTO());
 	}
 
 	@Test
@@ -214,7 +214,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 			return requestedAppointment;
 		});
 		given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
-		appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
+		appointment = appointmentService.update(authentication, new AppointmentDTO());
 		assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
 	}
 
@@ -235,7 +235,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 		given(userRepository.findByUsername(any(String.class))).willReturn(user);
 		given(appointment.getUser()).willReturn(user);
 		given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
-		appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
+		appointment = appointmentService.update(authentication, new AppointmentDTO());
 		assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
 	}
 
@@ -250,7 +250,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 		given(appointmentRepository.save(any(Appointment.class))).will(invocation -> invocation.getArguments()[0]);
 		final String notes = "new notes";
 		given(appointment.getNotes()).willReturn(notes);
-		appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
+		appointment = appointmentService.update(authentication, new AppointmentDTO());
 		assertThat(appointment.getNotes(), is(notes));
 	}
 
@@ -268,7 +268,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 		final String notes = "new notes";
 		given(appointment.getNotes()).willReturn(notes);
 		given(appointment.getStatus()).willReturn(AppointmentStatus.VALID);
-		appointment = appointmentService.update(authentication, new AppointmentDTO(appointment));
+		appointment = appointmentService.update(authentication, new AppointmentDTO());
 		assertThat(appointment.getNotes(), is(notes));
 	}
 

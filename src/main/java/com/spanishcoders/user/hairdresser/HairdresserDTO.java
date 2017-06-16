@@ -10,11 +10,6 @@ public class HairdresserDTO extends UserDTO {
 		super();
 	}
 
-	public HairdresserDTO(Hairdresser hairdresser) {
-		super(hairdresser);
-		this.setAgenda(hairdresser.getAgenda() != null ? hairdresser.getAgenda().getId() : null);
-	}
-
 	public Integer getAgenda() {
 		return agenda;
 	}

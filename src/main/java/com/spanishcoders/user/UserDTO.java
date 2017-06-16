@@ -1,7 +1,6 @@
 package com.spanishcoders.user;
 
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.appointment.AppointmentDTO;
@@ -19,20 +18,6 @@ public class UserDTO {
 
 	public UserDTO() {
 		super();
-	}
-
-	public UserDTO(AppUser user) {
-		this();
-		this.setId(user.getId());
-		this.setName(user.getName());
-		this.setUsername(user.getUsername());
-		// we don't set the password here
-		this.setPhone(user.getPhone());
-		this.setStatus(user.getStatus());
-		this.setRole(user.getRole());
-		appointments.addAll(user.getAppointments().stream().map(appointment -> {
-			return new AppointmentDTO(appointment);
-		}).collect(Collectors.toSet()));
 	}
 
 	public Integer getId() {
@@ -89,6 +74,10 @@ public class UserDTO {
 
 	public void setStatus(UserStatus userStatus) {
 		this.status = userStatus;
+	}
+
+	public Set<AppointmentDTO> getAppointments() {
+		return appointments;
 	}
 
 	@Override

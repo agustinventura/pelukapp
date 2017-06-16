@@ -1,8 +1,8 @@
 package com.spanishcoders.integration;
 
 import com.spanishcoders.user.hairdresser.HairdresserDTO;
-import com.spanishcoders.workingday.HairdresserScheduleDTO;
-import com.spanishcoders.workingday.ScheduleDTO;
+import com.spanishcoders.workingday.schedule.HairdresserScheduleDTO;
+import com.spanishcoders.workingday.schedule.ScheduleDTO;
 
 import org.junit.Before;
 import org.junit.Test;

@@ -16,14 +16,6 @@ public class WorkDTO {
 		super();
 	}
 
-	public WorkDTO(Work work) {
-		super();
-		this.id = work.getId();
-		this.name = work.getName();
-		this.duration = work.getDuration();
-		this.workKind = work.getKind();
-	}
-
 	public Integer getId() {
 		return id;
 	}

@@ -11,7 +11,6 @@ import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
 import java.util.Collection;
-import java.util.Map;
 import java.util.Set;
 
 import org.junit.Before;
@@ -29,6 +28,7 @@ import com.spanishcoders.user.Role;
 import com.spanishcoders.user.UserService;
 import com.spanishcoders.user.UserStatus;
 import com.spanishcoders.workingday.block.Block;
+import com.spanishcoders.workingday.schedule.Schedule;
 
 public class HairdresserServiceTests extends PelukaapUnitTest {
 
@@ -85,8 +85,8 @@ public class HairdresserServiceTests extends PelukaapUnitTest {
 	@Test
 	public void getDayBlocksWithoutHairdressers() {
 		given(hairdresserRepository.findByStatus(any(UserStatus.class))).willReturn(Sets.newHashSet());
-		final Map<Hairdresser, Set<Block>> availableBlocks = hairdresserService.getDayBlocks(LocalDate.now());
-		assertThat(availableBlocks.size(), is(0));
+		final Set<Schedule> schedules = hairdresserService.getSchedule(LocalDate.now());
+		assertThat(schedules.size(), is(0));
 	}
 
 	@Test
@@ -95,9 +95,9 @@ public class HairdresserServiceTests extends PelukaapUnitTest {
 		given(hairdresserRepository.findByStatus(any(UserStatus.class))).willReturn(Sets.newHashSet(hairdresser));
 		final Set<Block> todaysBlocks = Sets.newHashSet();
 		given(agendaService.getDayBlocks(any(Agenda.class), any(LocalDate.class))).willReturn(todaysBlocks);
-		final Map<Hairdresser, Set<Block>> availableBlocks = hairdresserService.getDayBlocks(null);
-		assertThat(availableBlocks.entrySet(), not((empty())));
-		assertThat(availableBlocks.get(hairdresser).size(), is((todaysBlocks.size())));
+		final Set<Schedule> schedules = hairdresserService.getSchedule(null);
+		assertThat(schedules, not((empty())));
+		assertThat(schedules.iterator().next().getBlocks().size(), is((todaysBlocks.size())));
 	}
 
 	@Test
@@ -106,8 +106,8 @@ public class HairdresserServiceTests extends PelukaapUnitTest {
 		given(hairdresserRepository.findByStatus(any(UserStatus.class))).willReturn(Sets.newHashSet(hairdresser));
 		final Set<Block> todaysBlocks = Sets.newHashSet(mock(Block.class));
 		given(agendaService.getDayBlocks(any(Agenda.class), any(LocalDate.class))).willReturn(todaysBlocks);
-		final Map<Hairdresser, Set<Block>> availableBlocks = hairdresserService.getDayBlocks(LocalDate.now());
-		assertThat(availableBlocks.entrySet(), not((empty())));
-		assertThat(availableBlocks.get(hairdresser).size(), is((todaysBlocks.size())));
+		final Set<Schedule> schedules = hairdresserService.getSchedule(LocalDate.now());
+		assertThat(schedules, not((empty())));
+		assertThat(schedules.iterator().next().getBlocks().size(), is((todaysBlocks.size())));
 	}
 }

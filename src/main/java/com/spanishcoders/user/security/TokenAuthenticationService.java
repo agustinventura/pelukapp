@@ -12,9 +12,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.spanishcoders.user.AppUser;
 import com.spanishcoders.user.UserDTO;
-import com.spanishcoders.user.UserRepository;
+import com.spanishcoders.user.UserServiceFacade;
 
 public class TokenAuthenticationService {
 
@@ -24,20 +23,20 @@ public class TokenAuthenticationService {
 
 	private final TokenHandler tokenHandler;
 
-	private final UserRepository userRepository;
+	private final UserServiceFacade userServiceFacade;
 
-	public TokenAuthenticationService(TokenHandler tokenHandler, UserRepository userRepository) {
+	public TokenAuthenticationService(TokenHandler tokenHandler, UserServiceFacade userServiceFacade) {
 		this.tokenHandler = tokenHandler;
-		this.userRepository = userRepository;
+		this.userServiceFacade = userServiceFacade;
 	}
 
 	public void addAuthentication(HttpServletResponse response, UserAuthentication authentication) throws IOException {
 		// TODO: WTF ARE WE DOING MODIFYING RESPONSE IN A SERVICE??
 		final UserDetails user = authentication.getDetails();
 		response.addHeader(AUTH_HEADER_NAME, tokenHandler.createTokenForUser(user));
-		final AppUser applicationUser = userRepository.findByUsername(authentication.getName());
+		final UserDTO userDTO = userServiceFacade.get(authentication.getName());
 		response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-		new ObjectMapper().writeValue(response.getWriter(), new UserDTO(applicationUser));
+		new ObjectMapper().writeValue(response.getWriter(), userDTO);
 	}
 
 	public Authentication getAuthentication(HttpServletRequest request) {

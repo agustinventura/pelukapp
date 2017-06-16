@@ -17,8 +17,8 @@ import org.springframework.core.ParameterizedTypeReference;
 import com.google.common.collect.Sets;
 import com.spanishcoders.appointment.AppointmentDTO;
 import com.spanishcoders.work.WorkDTO;
-import com.spanishcoders.workingday.HairdresserScheduleDTO;
-import com.spanishcoders.workingday.ScheduleDTO;
+import com.spanishcoders.workingday.schedule.HairdresserScheduleDTO;
+import com.spanishcoders.workingday.schedule.ScheduleDTO;
 
 /**
  * Created by agustin on 11/08/16.
