@@ -31,12 +31,15 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private final UserDetailsService userDetailsService;
 
 	private final UserServiceFacade userServiceFacade;
+	
+	private final PasswordEncoder passwordEncoder;
 
 	@Autowired
 	public SecurityConfiguration(@Qualifier("pelukappUserDetailsService") UserDetailsService userDetailsService,
-			UserServiceFacade userServiceFacade) {
+			UserServiceFacade userServiceFacade, PasswordEncoder passwordEncoder) {
 		this.userDetailsService = userDetailsService;
 		this.userServiceFacade = userServiceFacade;
+		this.passwordEncoder = passwordEncoder;
 	}
 
 	@Override
@@ -75,15 +78,10 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	}
 
 	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-
-	@Bean
 	public DaoAuthenticationProvider authenticationProvider() {
 		final DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
 		authenticationProvider.setUserDetailsService(userDetailsService);
-		authenticationProvider.setPasswordEncoder(passwordEncoder());
+		authenticationProvider.setPasswordEncoder(passwordEncoder);
 		return authenticationProvider;
 	}
 
