@@ -8,4 +8,6 @@ import com.spanishcoders.appointment.AppointmentMapper;
 public interface ClientMapper {
 
 	ClientDTO asDTO(Client client);
+
+	Client asEntity(ClientDTO clientDTO);
 }

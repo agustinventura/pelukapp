@@ -27,7 +27,8 @@ public class HairdresserServiceFacade {
 		this.scheduleMapper = scheduleMapper;
 	}
 
-	public HairdresserDTO create(Authentication authentication, Hairdresser hairdresser) {
+	public HairdresserDTO create(Authentication authentication, HairdresserDTO hairdresserDTO) {
+		Hairdresser hairdresser = hairdresserMapper.asEntity(hairdresserDTO);
 		return hairdresserMapper.asDTO(hairdresserService.registerHairdresser(authentication, hairdresser));
 	}
 

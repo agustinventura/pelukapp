@@ -19,7 +19,6 @@ public class ClientController {
 
 	@RequestMapping(method = RequestMethod.POST)
 	public ClientDTO registerClient(Authentication authentication, @RequestBody ClientDTO clientDTO) {
-		final Client client = new Client(clientDTO);
-		return clientServiceFacade.create(authentication, client);
+		return clientServiceFacade.create(authentication, clientDTO);
 	}
 }

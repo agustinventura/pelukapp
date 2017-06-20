@@ -16,11 +16,6 @@ public class Client extends AppUser {
 		this.setRole(Role.CLIENT);
 	}
 
-	public Client(ClientDTO clientDTO) {
-		super(clientDTO);
-		this.distance = clientDTO.getDistance();
-	}
-
 	public String getDistance() {
 		return distance;
 	}

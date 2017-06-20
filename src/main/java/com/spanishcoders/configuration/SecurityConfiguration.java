@@ -13,10 +13,10 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.spanishcoders.user.UserServiceFacade;
 import com.spanishcoders.user.security.StatelessAuthenticationFilter;
 import com.spanishcoders.user.security.StatelessLoginFilter;
@@ -31,15 +31,18 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	private final UserDetailsService userDetailsService;
 
 	private final UserServiceFacade userServiceFacade;
-	
+
 	private final PasswordEncoder passwordEncoder;
+
+	private final ObjectMapper objectMapper;
 
 	@Autowired
 	public SecurityConfiguration(@Qualifier("pelukappUserDetailsService") UserDetailsService userDetailsService,
-			UserServiceFacade userServiceFacade, PasswordEncoder passwordEncoder) {
+			UserServiceFacade userServiceFacade, PasswordEncoder passwordEncoder, ObjectMapper objectMapper) {
 		this.userDetailsService = userDetailsService;
 		this.userServiceFacade = userServiceFacade;
 		this.passwordEncoder = passwordEncoder;
+		this.objectMapper = objectMapper;
 	}
 
 	@Override
@@ -60,7 +63,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 				// {"username":"<name>","password":"<password>"} which sets the
 				// token header upon authentication
 				.addFilterBefore(new StatelessLoginFilter("/login", tokenAuthenticationService(), userDetailsService,
-						authenticationManager()), UsernamePasswordAuthenticationFilter.class)
+						authenticationManager(), objectMapper), UsernamePasswordAuthenticationFilter.class)
 
 				// Custom Token based authentication based on the header
 				// previously given to the client
@@ -93,7 +96,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
 	@Bean
 	public TokenAuthenticationService tokenAuthenticationService() {
-		return new TokenAuthenticationService(tokenHandler(), userServiceFacade);
+		return new TokenAuthenticationService(tokenHandler(), userServiceFacade, objectMapper);
 	}
 
 	@Bean

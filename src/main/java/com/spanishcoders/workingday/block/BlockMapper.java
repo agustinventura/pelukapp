@@ -20,6 +20,14 @@ public interface BlockMapper {
 	
 	Set<Integer> asIntegers (Set<Block> blocks);
 	
+	default Block asBlock (Integer id) {
+		Block block = new Block();
+		block.setId(id);
+		return block;
+	}
+	
+	Set<Block> asBlocks (Set<Integer> ids);
+	
 	Set<ScheduleDTO> asScheduleDTOs (Set<Block> blocks);
 	
 	default ScheduleDTO asScheduleDTO (Block block) {

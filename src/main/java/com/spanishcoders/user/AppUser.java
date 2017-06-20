@@ -79,14 +79,6 @@ public class AppUser {
 		this.password = password;
 	}
 
-	public AppUser(UserDTO userDTO) {
-		this();
-		this.username = userDTO.getUsername();
-		this.password = userDTO.getPassword();
-		this.phone = userDTO.getPhone();
-		this.name = userDTO.getName();
-	}
-
 	public String getUsername() {
 		return username;
 	}
@@ -121,6 +113,10 @@ public class AppUser {
 
 	public Integer getId() {
 		return id;
+	}
+	
+	public void setId(Integer id) {
+		this.id = id;
 	}
 
 	public String getPhone() {

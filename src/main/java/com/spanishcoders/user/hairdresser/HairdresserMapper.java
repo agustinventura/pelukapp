@@ -9,4 +9,6 @@ import com.spanishcoders.appointment.AppointmentMapper;
 public interface HairdresserMapper {
 
 	HairdresserDTO asDTO(Hairdresser hairdresser);
+
+	Hairdresser asEntity(HairdresserDTO hairdresserDTO);
 }

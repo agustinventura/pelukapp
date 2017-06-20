@@ -246,6 +246,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 		final Authentication authentication = mock(Authentication.class);
 		final Collection<GrantedAuthority> workerAuthority = Sets.newHashSet(Role.WORKER.getGrantedAuthority());
 		given(authentication.getAuthorities()).willAnswer(invocation -> workerAuthority);
+		given(appointment.getDate()).willReturn(LocalDateTime.now());
 		given(appointment.getStatus()).willReturn(AppointmentStatus.VALID);
 		given(appointmentRepository.save(any(Appointment.class))).will(invocation -> invocation.getArguments()[0]);
 		final String notes = "new notes";
@@ -256,6 +257,8 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 
 	@Test
 	public void modifyAppointmentNotesAsClient() throws Exception {
+		final AppointmentDTO appointmentDTO = mock(AppointmentDTO.class);
+		given(appointmentDTO.getStatus()).willReturn(AppointmentStatus.VALID);
 		Appointment appointment = mock(Appointment.class);
 		given(appointmentRepository.findOne(any(Integer.class))).willReturn(appointment);
 		final Authentication authentication = mock(Authentication.class);
@@ -264,11 +267,13 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 		given(appointmentRepository.save(any(Appointment.class))).will(invocation -> invocation.getArguments()[0]);
 		final AppUser user = mock(AppUser.class);
 		given(userRepository.findByUsername(any(String.class))).willReturn(user);
+		given(appointment.getDate()).willReturn(LocalDateTime.now());
 		given(appointment.getUser()).willReturn(user);
 		final String notes = "new notes";
-		given(appointment.getNotes()).willReturn(notes);
+		given(appointmentDTO.getNotes()).willReturn(notes);
 		given(appointment.getStatus()).willReturn(AppointmentStatus.VALID);
-		appointment = appointmentService.update(authentication, new AppointmentDTO());
+		given(appointment.getNotes()).willReturn(notes);
+		appointment = appointmentService.update(authentication, appointmentDTO);
 		assertThat(appointment.getNotes(), is(notes));
 	}
 

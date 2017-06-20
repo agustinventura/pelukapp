@@ -25,10 +25,6 @@ public class Hairdresser extends AppUser {
 		super(username, password, phone);
 	}
 
-	public Hairdresser(UserDTO userDTO) {
-		super(userDTO);
-	}
-
 	public Agenda getAgenda() {
 		return agenda;
 	}

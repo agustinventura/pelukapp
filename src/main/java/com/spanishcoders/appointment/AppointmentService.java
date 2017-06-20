@@ -106,7 +106,7 @@ public class AppointmentService {
 					.getAuthorities();
 			if (!userAuthorities.stream()
 					.anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
-				throw new AccessDeniedException("To cancel another AppUser Appointments, AppUser needs to be Worker");
+				throw new AccessDeniedException("To modify another AppUser Appointments, AppUser needs to be Worker");
 			}
 		}
 	}

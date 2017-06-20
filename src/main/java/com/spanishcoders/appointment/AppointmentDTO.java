@@ -1,5 +1,6 @@
 package com.spanishcoders.appointment;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.Set;
 
@@ -7,20 +8,20 @@ import com.google.common.collect.Sets;
 
 public class AppointmentDTO implements Comparable<AppointmentDTO> {
 
-	private final Integer id;
-	private final Set<Integer> blocks;
-	private final Set<Integer> works;
-	private final Integer user;
-	private final LocalDateTime date;
-	private final Long duration;
-	private final AppointmentStatus status;
-	private final String notes;
+	private Integer id;
+	private Set<Integer> blocks;
+	private Set<Integer> works;
+	private Integer user;
+	private LocalDateTime date;
+	private Duration duration;
+	private AppointmentStatus status;
+	private String notes;
 
 	public AppointmentDTO() {
 		id = 0;
 		user = 0;
 		date = null;
-		duration = 0L;
+		duration = null;
 		status = AppointmentStatus.CANCELLED;
 		notes = "";
 		blocks = Sets.newTreeSet();
@@ -28,7 +29,7 @@ public class AppointmentDTO implements Comparable<AppointmentDTO> {
 	}
 
 	public AppointmentDTO(Integer id, Set<Integer> blocks, Set<Integer> works, Integer user, LocalDateTime date,
-			Long duration, AppointmentStatus status, String notes) {
+			Duration duration, AppointmentStatus status, String notes) {
 		super();
 		this.id = id;
 		this.blocks = blocks;
@@ -44,32 +45,64 @@ public class AppointmentDTO implements Comparable<AppointmentDTO> {
 		return id;
 	}
 
+	public void setId(Integer id) {
+		this.id = id;
+	}
+
 	public Set<Integer> getBlocks() {
 		return blocks;
+	}
+
+	public void setBlocks(Set<Integer> blocks) {
+		this.blocks = blocks;
 	}
 
 	public Set<Integer> getWorks() {
 		return works;
 	}
 
+	public void setWorks(Set<Integer> works) {
+		this.works = works;
+	}
+
 	public Integer getUser() {
 		return user;
+	}
+
+	public void setUser(Integer user) {
+		this.user = user;
 	}
 
 	public LocalDateTime getDate() {
 		return date;
 	}
 
-	public Long getDuration() {
+	public void setDate(LocalDateTime date) {
+		this.date = date;
+	}
+
+	public Duration getDuration() {
 		return duration;
+	}
+
+	public void setDuration(Duration duration) {
+		this.duration = duration;
 	}
 
 	public AppointmentStatus getStatus() {
 		return status;
 	}
 
+	public void setStatus(AppointmentStatus status) {
+		this.status = status;
+	}
+
 	public String getNotes() {
 		return notes;
+	}
+
+	public void setNotes(String notes) {
+		this.notes = notes;
 	}
 
 	@Override

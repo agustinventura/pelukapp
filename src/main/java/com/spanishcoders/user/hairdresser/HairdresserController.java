@@ -29,8 +29,7 @@ public class HairdresserController {
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	public HairdresserDTO registerHairdresser(Authentication authentication,
 			@RequestBody HairdresserDTO hairdresserDTO) {
-		final Hairdresser hairdresser = new Hairdresser(hairdresserDTO);
-		return hairdresserServiceFacade.create(authentication, hairdresser);
+		return hairdresserServiceFacade.create(authentication, hairdresserDTO);
 	}
 
 	@PreAuthorize("authenticated")

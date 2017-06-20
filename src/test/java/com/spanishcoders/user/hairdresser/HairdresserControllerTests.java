@@ -58,7 +58,7 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
 	public void registerWorkerAsWorker() throws Exception {
-		given(hairdresserServiceFacade.create(any(Authentication.class), any(Hairdresser.class))).will(invocation -> {
+		given(hairdresserServiceFacade.create(any(Authentication.class), any(HairdresserDTO.class))).will(invocation -> {
 			return invocation.getArguments()[1];
 		});
 		final HairdresserDTO dto = new HairdresserDTO();
@@ -73,7 +73,7 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "client", roles = { "USER", "CLIENT" })
 	public void registerWorkerAsClient() throws Exception {
-		given(hairdresserServiceFacade.create(any(Authentication.class), any(Hairdresser.class)))
+		given(hairdresserServiceFacade.create(any(Authentication.class), any(HairdresserDTO.class)))
 				.willThrow(AccessDeniedException.class);
 		final HairdresserDTO dto = new HairdresserDTO();
 		dto.setUsername("client");
@@ -107,16 +107,7 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
 	public void getTodayScheduleWithOneWork() throws Exception {
-		given(hairdresserServiceFacade.getSchedule(any(LocalDate.class))).willAnswer(invocation -> {
-			final LocalDate day = invocation.getArgumentAt(0, LocalDate.class);
-			final ScheduleDTO schedule = mock(ScheduleDTO.class);
-			when(schedule.getWorkingDay()).thenReturn(day);
-			final Set<ScheduleDTO> schedules = Sets.newHashSet(schedule);
-			final HairdresserDTO hairdresser = mock(HairdresserDTO.class);
-			final HairdresserScheduleDTO hairdresserSchedule = new HairdresserScheduleDTO(hairdresser, schedules);
-			final Set<HairdresserScheduleDTO> answer = Sets.newHashSet(hairdresserSchedule);
-			return answer;
-		});
+		answerSchedule();
 		this.mockMvc
 				.perform(get("/hairdresser/schedule/today")
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -140,16 +131,7 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
 	public void getDayScheduleWithOneWork() throws Exception {
-		given(hairdresserServiceFacade.getSchedule(any(LocalDate.class))).willAnswer(invocation -> {
-			final LocalDate day = invocation.getArgumentAt(0, LocalDate.class);
-			final ScheduleDTO schedule = mock(ScheduleDTO.class);
-			when(schedule.getWorkingDay()).thenReturn(day);
-			final Set<ScheduleDTO> schedules = Sets.newHashSet(schedule);
-			final HairdresserDTO hairdresser = mock(HairdresserDTO.class);
-			final HairdresserScheduleDTO hairdresserSchedule = new HairdresserScheduleDTO(hairdresser, schedules);
-			final Set<HairdresserScheduleDTO> answer = Sets.newHashSet(hairdresserSchedule);
-			return answer;
-		});
+		answerSchedule();
 		final LocalDate date = LocalDate.now();
 		final String isoDate = date.format(DateTimeFormatter.ISO_DATE);
 		this.mockMvc
@@ -157,5 +139,17 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
 				.andExpect(status().isOk()).andExpect(content().contentType("application/json;charset=UTF-8"))
 				.andExpect(jsonPath("$.*", hasSize(1))).andExpect(jsonPath("$[0].schedule.*", hasSize(1)));
+	}
+
+	private void answerSchedule() {
+		given(hairdresserServiceFacade.getSchedule(any(LocalDate.class))).willAnswer(invocation -> {
+			final LocalDate day = invocation.getArgumentAt(0, LocalDate.class);
+			final ScheduleDTO schedule = new ScheduleDTO(null, null, null, day, null, null, null, null, null);
+			final Set<ScheduleDTO> schedules = Sets.newHashSet(schedule);
+			final HairdresserDTO hairdresser = new HairdresserDTO();
+			final HairdresserScheduleDTO hairdresserSchedule = new HairdresserScheduleDTO(hairdresser, schedules);
+			final Set<HairdresserScheduleDTO> answer = Sets.newHashSet(hairdresserSchedule);
+			return answer;
+		});
 	}
 }

@@ -18,4 +18,12 @@ public interface WorkMapper {
 	default Integer asInteger (Work work) {
 		return work.getId();
 	}
+	
+	default Work asWork (Integer id) {
+		Work work = new Work();
+		work.setId(id);
+		return work;
+	}
+	
+	Set<Work> asWorks (Set<Integer> ids);
 }

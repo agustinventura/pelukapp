@@ -16,7 +16,8 @@ public class ClientServiceFacade {
 		this.clientMapper = clientMapper;
 	}
 
-	public ClientDTO create(Authentication authentication, Client client) {
+	public ClientDTO create(Authentication authentication, ClientDTO clientDTO) {
+		Client client = clientMapper.asEntity(clientDTO);
 		return clientMapper.asDTO(clientService.createClient(authentication, client));
 	}
 

@@ -27,12 +27,14 @@ public class StatelessLoginFilter extends AbstractAuthenticationProcessingFilter
 
 	private final TokenAuthenticationService tokenAuthenticationService;
 	private final UserDetailsService userDetailsService;
+	private final ObjectMapper objectMapper;
 
 	public StatelessLoginFilter(String urlMapping, TokenAuthenticationService tokenAuthenticationService,
-			UserDetailsService userDetailsService, AuthenticationManager authManager) {
+			UserDetailsService userDetailsService, AuthenticationManager authManager, ObjectMapper objectMapper) {
 		super(new AntPathRequestMatcher(urlMapping));
 		this.userDetailsService = userDetailsService;
 		this.tokenAuthenticationService = tokenAuthenticationService;
+		this.objectMapper = objectMapper;
 		setAuthenticationManager(authManager);
 	}
 
@@ -40,7 +42,7 @@ public class StatelessLoginFilter extends AbstractAuthenticationProcessingFilter
 	public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) {
 		UsernamePasswordAuthenticationToken loginToken = null;
 		try {
-			final UserDTO user = new ObjectMapper().readValue(request.getInputStream(), UserDTO.class);
+			final UserDTO user = objectMapper.readValue(request.getInputStream(), UserDTO.class);
 			loginToken = new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword());
 		} catch (final IOException ioe) {
 			logger.error("Error reading user from request : " + ioe.getLocalizedMessage());

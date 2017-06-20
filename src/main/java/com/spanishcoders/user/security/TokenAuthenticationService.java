@@ -25,9 +25,13 @@ public class TokenAuthenticationService {
 
 	private final UserServiceFacade userServiceFacade;
 
-	public TokenAuthenticationService(TokenHandler tokenHandler, UserServiceFacade userServiceFacade) {
+	private final ObjectMapper objectMapper;
+
+	public TokenAuthenticationService(TokenHandler tokenHandler, UserServiceFacade userServiceFacade,
+			ObjectMapper objectMapper) {
 		this.tokenHandler = tokenHandler;
 		this.userServiceFacade = userServiceFacade;
+		this.objectMapper = objectMapper;
 	}
 
 	public void addAuthentication(HttpServletResponse response, UserAuthentication authentication) throws IOException {
@@ -36,7 +40,7 @@ public class TokenAuthenticationService {
 		response.addHeader(AUTH_HEADER_NAME, tokenHandler.createTokenForUser(user));
 		final UserDTO userDTO = userServiceFacade.get(authentication.getName());
 		response.setContentType(MediaType.APPLICATION_JSON_UTF8_VALUE);
-		new ObjectMapper().writeValue(response.getWriter(), userDTO);
+		objectMapper.writeValue(response.getWriter(), userDTO);
 	}
 
 	public Authentication getAuthentication(HttpServletRequest request) {
