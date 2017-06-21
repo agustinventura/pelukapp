@@ -1,5 +1,6 @@
 package com.spanishcoders.agenda;
 
+import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 import javax.persistence.Entity;
@@ -23,16 +24,27 @@ public class Stretch {
 	@NotNull
 	private final LocalTime endTime;
 
+	private final DayOfWeek dayOfWeek;
+
 	public Stretch() {
 		id = null;
 		startTime = null;
 		endTime = null;
+		dayOfWeek = null;
 	}
 
 	public Stretch(LocalTime startTime, LocalTime endTime) {
 		this.id = null;
 		this.startTime = startTime;
 		this.endTime = endTime;
+		dayOfWeek = null;
+	}
+
+	public Stretch(LocalTime startTime, LocalTime endTime, DayOfWeek dayOfWeek) {
+		this.id = null;
+		this.startTime = startTime;
+		this.endTime = endTime;
+		this.dayOfWeek = dayOfWeek;
 	}
 
 	public Integer getId() {
@@ -47,15 +59,21 @@ public class Stretch {
 		return endTime;
 	}
 
+	public DayOfWeek getDayOfWeek() {
+		return dayOfWeek;
+	}
+
 	@Override
 	public String toString() {
-		return "Stretch{" + "id=" + id + ", startTime=" + startTime + ", endTime=" + endTime + '}';
+		return "Stretch [id=" + id + ", startTime=" + startTime + ", endTime=" + endTime + ", dayOfWeek=" + dayOfWeek
+				+ "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((dayOfWeek == null) ? 0 : dayOfWeek.hashCode());
 		result = prime * result + ((endTime == null) ? 0 : endTime.hashCode());
 		result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
 		return result;
@@ -73,6 +91,9 @@ public class Stretch {
 			return false;
 		}
 		final Stretch other = (Stretch) obj;
+		if (dayOfWeek != other.dayOfWeek) {
+			return false;
+		}
 		if (endTime == null) {
 			if (other.endTime != null) {
 				return false;

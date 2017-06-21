@@ -11,7 +11,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -38,7 +37,7 @@ import com.spanishcoders.workingday.block.BlockService;
 public class AppointmentControllerTests extends PelukaapUnitTest {
 
 	public static final String APPOINTMENT_URL = "/appointment";
-	
+
 	@MockBean
 	private AppointmentServiceFacade appointmentServiceFacade;
 
@@ -79,10 +78,10 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
 	public void getAppointmentWithOneWork() throws Exception {
-		answerCreatedAppointment();
 		final AppointmentDTO appointmentDTO = new AppointmentDTO();
 		appointmentDTO.getWorks().add(1);
 		appointmentDTO.getBlocks().add(1);
+		answerCreatedAppointment();
 		this.mockMvc
 				.perform(post(APPOINTMENT_URL).content(toJSON(appointmentDTO)).contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -93,25 +92,10 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
 
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
-	public void getAppointmentWithTwoWorks() throws Exception {
-		answerCreatedAppointment();
-		final AppointmentDTO appointmentDTO = new AppointmentDTO();
-		appointmentDTO.getWorks().addAll(Arrays.asList(1, 2));
-		appointmentDTO.getBlocks().addAll(Arrays.asList(1, 2));
-		this.mockMvc
-				.perform(post(APPOINTMENT_URL).content(toJSON(appointmentDTO)).contentType(MediaType.APPLICATION_JSON)
-						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
-				.andExpect(status().isOk()).andExpect(content().contentType("application/json;charset=UTF-8"))
-				.andExpect(jsonPath("$.*", hasSize(8))).andExpect(jsonPath("$.blocks", hasSize(2)))
-				.andExpect(jsonPath("$.works", hasSize(2)));
-	}
-
-	@Test
-	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
 	public void getAppointmentWithInvalidPairingWorkBlock() throws Exception {
-		given(appointmentServiceFacade.create(any(Authentication.class), any(AppointmentDTO.class)))
-				.willThrow(new IllegalArgumentException());
 		final AppointmentDTO appointmentDTO = new AppointmentDTO();
+		given(appointmentServiceFacade.create(any(Authentication.class), any(AppointmentDTO.class)))
+				.willThrow(IllegalArgumentException.class);
 		this.mockMvc
 				.perform(post(APPOINTMENT_URL).content(toJSON(appointmentDTO)).contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -121,9 +105,9 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "client", roles = { "USER", "CLIENT" })
 	public void getAppointmentWithPrivateWorkAsClient() throws Exception {
-		given(appointmentServiceFacade.create(any(Authentication.class), any(AppointmentDTO.class)))
-				.willThrow(new AccessDeniedException("Access denied"));
 		final AppointmentDTO appointmentDTO = new AppointmentDTO();
+		given(appointmentServiceFacade.create(any(Authentication.class), any(AppointmentDTO.class)))
+				.willThrow(AccessDeniedException.class);
 		this.mockMvc
 				.perform(post(APPOINTMENT_URL).content(toJSON(appointmentDTO)).contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -132,10 +116,23 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
 
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
-	public void cancelInvalidAppointment() throws Exception {
-		given(appointmentServiceFacade.update(any(Authentication.class), any(AppointmentDTO.class)))
-				.willThrow(IllegalArgumentException.class);
+	public void changeAppointmentNotes() throws Exception {
 		final AppointmentDTO appointmentDTO = new AppointmentDTO();
+		appointmentDTO.setNotes("notes");
+		answerModifiedAppointment();
+		this.mockMvc
+				.perform(put(APPOINTMENT_URL).content(toJSON(appointmentDTO)).contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+				.andExpect(status().isOk()).andExpect(content().contentType("application/json;charset=UTF-8"))
+				.andExpect(jsonPath("$.*", hasSize(8))).andExpect(jsonPath("$.notes", is(appointmentDTO.getNotes())));
+	}
+
+	@Test
+	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
+	public void changeInvalidAppointmentNotes() throws Exception {
+		final AppointmentDTO appointmentDTO = new AppointmentDTO();
+		appointmentDTO.setNotes("notes");
+		answerInvalidAppointmentModification();
 		this.mockMvc
 				.perform(put(APPOINTMENT_URL).content(toJSON(appointmentDTO)).contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -144,9 +141,25 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
 
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
-	public void cancelAppointmentWithMoreThan24Hours() throws Exception {
-		answerCancelledAppointment();
+	public void cancelInvalidAppointment() throws Exception {
 		final AppointmentDTO appointmentDTO = new AppointmentDTO();
+		answerInvalidAppointmentModification();
+		this.mockMvc
+				.perform(put(APPOINTMENT_URL).content(toJSON(appointmentDTO)).contentType(MediaType.APPLICATION_JSON)
+						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
+				.andExpect(status().isBadRequest());
+	}
+
+	private void answerInvalidAppointmentModification() {
+		given(appointmentServiceFacade.update(any(Authentication.class), any(AppointmentDTO.class)))
+				.willThrow(IllegalArgumentException.class);
+	}
+
+	@Test
+	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
+	public void cancelAppointmentWithMoreThanMaxHoursToCancelAsWorker() throws Exception {
+		final AppointmentDTO appointmentDTO = new AppointmentDTO();
+		answerCancelledAppointment();
 		this.mockMvc
 				.perform(put(APPOINTMENT_URL).content(toJSON(appointmentDTO)).contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -156,9 +169,9 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
 
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
-	public void cancelAppointmentAsWorker() throws Exception {
-		answerCancelledAppointment();
+	public void cancelAppointmentWithLessThanMaxHoursToCancelAsWorker() throws Exception {
 		final AppointmentDTO appointmentDTO = new AppointmentDTO();
+		answerCancelledAppointment();
 		this.mockMvc
 				.perform(put(APPOINTMENT_URL).content(toJSON(appointmentDTO)).contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -168,10 +181,10 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
 
 	@Test
 	@WithMockUser(username = "client", roles = { "USER", "CLIENT" })
-	public void cancelAppointmentWithLessThan24HoursAsClient() throws Exception {
+	public void cancelAppointmentWithLessThanMaxHoursToCancelAsClient() throws Exception {
+		final AppointmentDTO appointmentDTO = new AppointmentDTO();
 		given(appointmentServiceFacade.update(any(Authentication.class), any(AppointmentDTO.class)))
 				.willThrow(AccessDeniedException.class);
-		final AppointmentDTO appointmentDTO = new AppointmentDTO();
 		this.mockMvc
 				.perform(put(APPOINTMENT_URL).content(toJSON(appointmentDTO)).contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -180,9 +193,9 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
 
 	@Test
 	@WithMockUser(username = "client", roles = { "USER", "CLIENT" })
-	public void cancelAppointmentWithMoreThan24HoursAsClient() throws Exception {
-		answerCancelledAppointment();
+	public void cancelAppointmentWithMoreThanMaxHoursToCancelAsClient() throws Exception {
 		final AppointmentDTO appointmentDTO = new AppointmentDTO();
+		answerCancelledAppointment();
 		this.mockMvc
 				.perform(put(APPOINTMENT_URL).content(toJSON(appointmentDTO)).contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -190,11 +203,20 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
 				.andExpect(jsonPath("$.*", hasSize(8))).andExpect(jsonPath("$.status", is("CANCELLED")));
 	}
 
+	private void answerModifiedAppointment() {
+		given(appointmentServiceFacade.update(any(Authentication.class), any(AppointmentDTO.class)))
+				.willAnswer(invocation -> {
+					final AppointmentDTO appointmentDTO = (AppointmentDTO) invocation.getArguments()[1];
+					return appointmentDTO;
+				});
+	}
+
 	private void answerCancelledAppointment() {
 		given(appointmentServiceFacade.update(any(Authentication.class), any(AppointmentDTO.class)))
 				.willAnswer(invocation -> {
-					final AppointmentDTO appointment = new AppointmentDTO(null, null, null, null, null, null, AppointmentStatus.CANCELLED, null);
-					return appointment;
+					final AppointmentDTO appointmentDTO = (AppointmentDTO) invocation.getArguments()[1];
+					appointmentDTO.setStatus(AppointmentStatus.CANCELLED);
+					return appointmentDTO;
 				});
 	}
 
