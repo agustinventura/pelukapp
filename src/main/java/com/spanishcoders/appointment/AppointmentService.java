@@ -1,134 +1,81 @@
 package com.spanishcoders.appointment;
 
 import java.time.LocalDateTime;
-import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.user.AppUser;
 import com.spanishcoders.user.Role;
-import com.spanishcoders.user.UserRepository;
 import com.spanishcoders.work.Work;
-import com.spanishcoders.work.WorkService;
 import com.spanishcoders.workingday.block.Block;
-import com.spanishcoders.workingday.block.BlockService;
-
-import io.jsonwebtoken.lang.Collections;
 
 @Service
 @Transactional(readOnly = true)
 public class AppointmentService {
 
-	private static final Logger logger = LoggerFactory.getLogger(AppointmentService.class);
-
 	private final AppointmentRepository appointmentRepository;
-
-	private final BlockService blockService;
-
-	private final WorkService workService;
-
-	private final UserRepository userRepository;
 
 	@Value("${max_hours_to_cancel_as_client:24}")
 	private int maxHoursToCancelAsClient;
 
-	public AppointmentService(AppointmentRepository appointmentRepository, BlockService blockService,
-			WorkService workService, UserRepository userRepository) {
+	public AppointmentService(AppointmentRepository appointmentRepository) {
 		this.appointmentRepository = appointmentRepository;
-		this.blockService = blockService;
-		this.workService = workService;
-		this.userRepository = userRepository;
 	}
 
 	@Transactional(readOnly = false)
-	Appointment createAppointment(Authentication authentication, AppointmentDTO appointmentDTO) {
-		Appointment confirmed = null;
-		final Set<Block> blocks = blockService.get(appointmentDTO.getBlocks());
-		final Set<Work> works = Sets.newHashSet(workService.get(appointmentDTO.getWorks()));
-		final AppUser requestUser = authentication != null ? userRepository.findByUsername(authentication.getName())
-				: null;
-		confirmed = new Appointment(requestUser, works, blocks, appointmentDTO.getNotes());
+	Appointment createAppointment(AppUser user, Set<Block> blocks, Set<Work> works, String notes) {
+		Appointment confirmed = new Appointment(user, works, blocks, notes);
 		confirmed = appointmentRepository.save(confirmed);
 		return confirmed;
 	}
 
 	@Transactional(readOnly = false)
-	Appointment update(Authentication authentication, AppointmentDTO appointment) {
-		final Optional<Appointment> maybeAppointment = this.get(appointment.getId());
-		Appointment modified = null;
-		if (maybeAppointment.isPresent()) {
-			modified = modifyNotesOrCancel(authentication, maybeAppointment.get(), appointment);
-		} else {
-			logger.error(
-					"AppUser " + authentication.getName() + " tried to update non-existing appointment " + appointment);
-			throw new IllegalArgumentException("There's no Appointment which matches " + appointment);
-		}
+	Appointment update(AppUser user, AppointmentStatus newStatus, String notes, Appointment appointment) {
+		final Appointment modified = modifyNotesOrCancel(user, newStatus, notes, appointment);
 		return modified;
 	}
 
-	private Appointment modifyNotesOrCancel(Authentication authentication, Appointment appointment,
-			AppointmentDTO appointmentDTO) {
-		checkIfUserIsProprietaryOrAdmin(authentication, appointment);
-		final AppointmentStatus dtoStatus = appointmentDTO.getStatus();
-		if (dtoStatus == AppointmentStatus.CANCELLED) {
-			cancelAppointment(authentication, appointment);
+	private Appointment modifyNotesOrCancel(AppUser user, AppointmentStatus newStatus, String notes,
+			Appointment appointment) {
+		checkIfUserIsProprietaryOrAdmin(user, appointment);
+		if (newStatus == AppointmentStatus.CANCELLED) {
+			cancelAppointment(user, appointment);
 		} else {
-			modifyNotes(appointment, appointmentDTO);
+			modifyNotes(notes, appointment);
 		}
 		return appointmentRepository.save(appointment);
 	}
 
-	private void modifyNotes(Appointment appointment, AppointmentDTO appointmentDTO) {
-		appointment.setNotes(appointmentDTO.getNotes());
+	private void modifyNotes(String notes, Appointment appointment) {
+		appointment.setNotes(notes);
 	}
 
-	private void cancelAppointment(Authentication authentication, Appointment appointment) {
-		checkUserPermissionToCancel(authentication, appointment);
-		appointment.setBlocks(refreshBlocks(appointment.getBlocks()));
+	private void cancelAppointment(AppUser user, Appointment appointment) {
+		checkUserPermissionToCancel(user, appointment);
 		appointment.cancel();
 	}
 
-	private void checkIfUserIsProprietaryOrAdmin(Authentication authentication, Appointment appointment) {
-		final AppUser requestUser = authentication != null ? userRepository.findByUsername(authentication.getName())
-				: null;
-		if (!requestUser.equals(appointment.getUser())) {
-			final Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication
-					.getAuthorities();
-			if (!userAuthorities.stream()
-					.anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
+	private void checkIfUserIsProprietaryOrAdmin(AppUser user, Appointment appointment) {
+		if (!user.equals(appointment.getUser())) {
+			if (!user.getRole().equals(Role.WORKER)) {
 				throw new AccessDeniedException("To modify another AppUser Appointments, AppUser needs to be Worker");
 			}
 		}
 	}
 
-	private void checkUserPermissionToCancel(Authentication authentication, Appointment appointment) {
+	private void checkUserPermissionToCancel(AppUser user, Appointment appointment) {
 		if (appointment.getDate().isBefore(LocalDateTime.now().plusHours(maxHoursToCancelAsClient))) {
-			final Collection<GrantedAuthority> userAuthorities = (Collection<GrantedAuthority>) authentication
-					.getAuthorities();
-			if (!userAuthorities.stream()
-					.anyMatch(grantedAuthority -> grantedAuthority.equals(Role.WORKER.getGrantedAuthority()))) {
+			if (!user.getRole().equals(Role.WORKER)) {
 				throw new AccessDeniedException(
 						"To cancel an Appointment in less than 24 hours, AppUser needs to be Worker");
 			}
 		}
-	}
-
-	private Set<Block> refreshBlocks(Set<Block> requestedBlocks) {
-		if (requestedBlocks != null && !requestedBlocks.isEmpty()) {
-			final int[] blocksIds = requestedBlocks.stream().mapToInt(block -> block.getId()).toArray();
-			requestedBlocks = blockService.get(Collections.arrayToList(blocksIds));
-		}
-		return requestedBlocks;
 	}
 
 	Optional<Appointment> get(Integer appointmentId) {

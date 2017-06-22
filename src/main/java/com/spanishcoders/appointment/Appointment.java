@@ -84,7 +84,7 @@ public class Appointment implements Comparable<Appointment> {
 		checkAuthorization(user, works);
 		checkWorkLength(works, blocks);
 		this.user = user;
-		user.addAppointment(this);
+		this.user.addAppointment(this);
 		this.works = works;
 		this.blocks.addAll(blocks);
 		this.blocks.stream().forEach(block -> block.setAppointment(this));
@@ -237,7 +237,7 @@ public class Appointment implements Comparable<Appointment> {
 
 	private void checkAuthorization(AppUser user, Set<Work> requestedWorks) {
 		if (requestedWorks.stream().anyMatch(work -> work.getKind() == WorkKind.PRIVATE)) {
-			if (Role.getRole(user) != Role.WORKER) {
+			if (!user.getRole().equals(Role.WORKER)) {
 				throw new AccessDeniedException("A Client can't create an Appointment with private Works");
 			}
 		}

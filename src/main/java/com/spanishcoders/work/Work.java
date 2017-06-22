@@ -9,6 +9,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "work")
@@ -18,10 +19,13 @@ public class Work implements Comparable<Work> {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
 
+	@NotNull
 	private String name;
 
+	@NotNull
 	private Duration duration;
 
+	@NotNull
 	@Enumerated(EnumType.STRING)
 	private WorkKind kind;
 
