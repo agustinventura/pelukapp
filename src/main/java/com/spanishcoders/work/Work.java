@@ -29,13 +29,20 @@ public class Work implements Comparable<Work> {
 	@Enumerated(EnumType.STRING)
 	private WorkKind kind;
 
+	@NotNull
+	@Enumerated(EnumType.STRING)
+	private WorkStatus status;
+
 	public Work() {
+		kind = WorkKind.PUBLIC;
+		status = WorkStatus.ENABLED;
 	}
 
-	public Work(String name, Duration duration, WorkKind kind) {
+	public Work(String name, Duration duration, WorkKind kind, WorkStatus status) {
 		this.name = name;
 		this.duration = duration;
 		this.kind = kind;
+		this.status = status;
 	}
 
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,6 +80,14 @@ public class Work implements Comparable<Work> {
 		this.kind = kind;
 	}
 
+	public WorkStatus getStatus() {
+		return status;
+	}
+
+	public void setStatus(WorkStatus status) {
+		this.status = status;
+	}
+
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
@@ -85,11 +100,24 @@ public class Work implements Comparable<Work> {
 			return false;
 		}
 		final Work other = (Work) obj;
-		if (id == null) {
-			if (other.id != null) {
+		if (duration == null) {
+			if (other.duration != null) {
 				return false;
 			}
-		} else if (!id.equals(other.id)) {
+		} else if (!duration.equals(other.duration)) {
+			return false;
+		}
+		if (kind != other.kind) {
+			return false;
+		}
+		if (name == null) {
+			if (other.name != null) {
+				return false;
+			}
+		} else if (!name.equals(other.name)) {
+			return false;
+		}
+		if (status != other.status) {
 			return false;
 		}
 		return true;
@@ -99,13 +127,17 @@ public class Work implements Comparable<Work> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((id == null) ? 0 : id.hashCode());
+		result = prime * result + ((duration == null) ? 0 : duration.hashCode());
+		result = prime * result + ((kind == null) ? 0 : kind.hashCode());
+		result = prime * result + ((name == null) ? 0 : name.hashCode());
+		result = prime * result + ((status == null) ? 0 : status.hashCode());
 		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "Work [id=" + id + ", name=" + name + ", duration=" + duration + ", kind=" + kind + "]";
+		return "Work [id=" + id + ", name=" + name + ", duration=" + duration + ", kind=" + kind + ", status=" + status
+				+ "]";
 	}
 
 	@Override

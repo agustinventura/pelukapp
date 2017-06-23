@@ -34,6 +34,7 @@ import com.spanishcoders.user.hairdresser.Hairdresser;
 import com.spanishcoders.work.Work;
 import com.spanishcoders.work.WorkKind;
 import com.spanishcoders.work.WorkRepository;
+import com.spanishcoders.work.WorkStatus;
 
 @Configuration
 @Profile(value = "production")
@@ -149,9 +150,9 @@ public class ProductionDataBaseConfiguration {
 	}
 
 	private void createWorks(WorkRepository workRepository) {
-		final Work cut = new Work("Corte", Duration.ofMinutes(30), WorkKind.PUBLIC);
-		final Work shave = new Work("Afeitado", Duration.ofMinutes(30), WorkKind.PUBLIC);
-		final Work regulation = new Work("Regulacion", Duration.ofMinutes(30), WorkKind.PRIVATE);
+		final Work cut = new Work("Corte", Duration.ofMinutes(30), WorkKind.PUBLIC, WorkStatus.ENABLED);
+		final Work shave = new Work("Afeitado", Duration.ofMinutes(30), WorkKind.PUBLIC, WorkStatus.ENABLED);
+		final Work regulation = new Work("Regulacion", Duration.ofMinutes(30), WorkKind.PRIVATE, WorkStatus.ENABLED);
 		workRepository.save(cut);
 		workRepository.save(shave);
 		workRepository.save(regulation);

@@ -16,6 +16,7 @@ import com.spanishcoders.appointment.Appointment;
 import com.spanishcoders.user.hairdresser.Hairdresser;
 import com.spanishcoders.work.Work;
 import com.spanishcoders.work.WorkKind;
+import com.spanishcoders.work.WorkStatus;
 import com.spanishcoders.workingday.WorkingDay;
 import com.spanishcoders.workingday.block.Block;
 
@@ -32,18 +33,18 @@ public class TestDataFactory {
 	}
 
 	public static Set<Work> mockPrivateWorks() {
-		final Work regulation = new Work("Regulacion", Duration.ofMinutes(30), WorkKind.PRIVATE);
+		final Work regulation = new Work("Regulacion", Duration.ofMinutes(30), WorkKind.PRIVATE, WorkStatus.ENABLED);
 		return Sets.newHashSet(regulation);
 	}
 
 	public static Set<Work> mockPublicWorks() {
-		final Work cut = new Work("Corte", Duration.ofMinutes(30), WorkKind.PUBLIC);
-		final Work shave = new Work("Afeitado", Duration.ofMinutes(30), WorkKind.PUBLIC);
+		final Work cut = new Work("Corte", Duration.ofMinutes(30), WorkKind.PUBLIC, WorkStatus.ENABLED);
+		final Work shave = new Work("Afeitado", Duration.ofMinutes(30), WorkKind.PUBLIC, WorkStatus.ENABLED);
 		return Sets.newHashSet(cut, shave);
 	}
 
 	public static Set<Work> mockPublicWork() {
-		final Work cut = new Work("Corte", Duration.ofMinutes(30), WorkKind.PUBLIC);
+		final Work cut = new Work("Corte", Duration.ofMinutes(30), WorkKind.PUBLIC, WorkStatus.ENABLED);
 		return Sets.newHashSet(cut);
 	}
 
