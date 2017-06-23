@@ -34,6 +34,7 @@ import com.spanishcoders.user.hairdresser.Hairdresser;
 import com.spanishcoders.work.Work;
 import com.spanishcoders.work.WorkKind;
 import com.spanishcoders.work.WorkService;
+import com.spanishcoders.work.WorkStatus;
 import com.spanishcoders.workingday.WorkingDay;
 import com.spanishcoders.workingday.block.Block;
 import com.spanishcoders.workingday.block.BlockService;
@@ -90,12 +91,24 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 		appointmentService.createAppointment(user, null, Sets.newHashSet(), null);
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void confirmAppointmentWithDisabledWork() {
+		final AppUser user = mock(AppUser.class);
+		final Work disabledWork = mock(Work.class);
+		given(disabledWork.getStatus()).willReturn(WorkStatus.DISABLED);
+		final Block block = mock(Block.class);
+		final Set<Block> blocks = Sets.newHashSet(block);
+		final Set<Work> works = Sets.newHashSet(disabledWork);
+		appointmentService.createAppointment(user, blocks, works, null);
+	}
+
 	@Test(expected = AccessDeniedException.class)
 	public void confirmAppointmentWithPrivateWorkAsClient() {
 		final AppUser user = mock(Client.class);
 		when(user.getRole()).thenReturn(Role.CLIENT);
 		final Work privateWork = mock(Work.class);
-		given(privateWork.getKind()).willReturn(WorkKind.PRIVATE);
+		given(privateWork.getStatus()).willReturn(WorkStatus.ENABLED);
+		when(privateWork.getKind()).thenReturn(WorkKind.PRIVATE);
 		final Block block = mock(Block.class);
 		final Set<Block> blocks = Sets.newHashSet(block);
 		final Set<Work> works = Sets.newHashSet(privateWork);
@@ -106,6 +119,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 	public void confirmAppointmentWithoutEnoughBlocks() {
 		final AppUser user = mock(Client.class);
 		final Work work = mock(Work.class);
+		given(work.getStatus()).willReturn(WorkStatus.ENABLED);
 		given(work.getDuration()).willReturn(Duration.ofMinutes(60));
 		final Block block = mock(Block.class);
 		given(block.getLength()).willReturn(Duration.ofMinutes(30));
@@ -120,6 +134,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 		when(user.getRole()).thenReturn(Role.CLIENT);
 		final Work work = mock(Work.class);
 		given(work.getDuration()).willReturn(Duration.ofMinutes(30));
+		given(work.getStatus()).willReturn(WorkStatus.ENABLED);
 		given(work.getKind()).willReturn(WorkKind.PUBLIC);
 		final Block block = mock(Block.class);
 		given(block.getLength()).willReturn(Duration.of(30, ChronoUnit.MINUTES));

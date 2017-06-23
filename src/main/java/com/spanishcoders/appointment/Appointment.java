@@ -34,6 +34,7 @@ import com.spanishcoders.user.AppUser;
 import com.spanishcoders.user.Role;
 import com.spanishcoders.work.Work;
 import com.spanishcoders.work.WorkKind;
+import com.spanishcoders.work.WorkStatus;
 import com.spanishcoders.workingday.block.Block;
 
 @Entity
@@ -274,6 +275,17 @@ public class Appointment implements Comparable<Appointment> {
 	}
 
 	private void checkWorks(Set<Work> requestedWorks) {
+		checkEmptyWorks(requestedWorks);
+		checkDisabledWorks(requestedWorks);
+	}
+
+	private void checkDisabledWorks(Set<Work> requestedWorks) {
+		if (requestedWorks.stream().anyMatch(work -> work.getStatus().equals(WorkStatus.DISABLED))) {
+			throw new IllegalArgumentException("An Appointment can't be created with disabled Works");
+		}
+	}
+
+	private void checkEmptyWorks(Set<Work> requestedWorks) {
 		if (CollectionUtils.isEmpty(requestedWorks)) {
 			throw new IllegalArgumentException("Can't create an Appointment without Works");
 		}
