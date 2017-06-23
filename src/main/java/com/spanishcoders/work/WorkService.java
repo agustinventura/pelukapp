@@ -2,11 +2,11 @@ package com.spanishcoders.work;
 
 import java.util.Set;
 
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Sets;
+import com.spanishcoders.user.AppUser;
 import com.spanishcoders.user.Role;
 
 @Service
@@ -19,13 +19,12 @@ public class WorkService {
 		this.workRepository = workRepository;
 	}
 
-	Set<Work> get(Authentication userAuthentication) {
+	Set<Work> get(AppUser user) {
 		Set<Work> availableWorks = null;
-		if (userAuthentication != null
-				&& userAuthentication.getAuthorities().contains(Role.WORKER.getGrantedAuthority())) {
+		if (user != null && user.getRole().equals(Role.WORKER)) {
 			availableWorks = Sets.newHashSet(workRepository.findAll());
 		} else {
-			availableWorks = Sets.newHashSet(workRepository.findByKind(WorkKind.PUBLIC));
+			availableWorks = Sets.newHashSet(workRepository.findByKindAndStatus(WorkKind.PUBLIC, WorkStatus.ENABLED));
 		}
 		return availableWorks;
 	}

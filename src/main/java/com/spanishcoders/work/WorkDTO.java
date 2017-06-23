@@ -12,6 +12,8 @@ public class WorkDTO {
 
 	private WorkKind workKind;
 
+	private WorkStatus workStatus;
+
 	public WorkDTO() {
 		super();
 	}
@@ -48,6 +50,14 @@ public class WorkDTO {
 		this.workKind = workKind;
 	}
 
+	public WorkStatus getWorkStatus() {
+		return workStatus;
+	}
+
+	public void setWorkStatus(WorkStatus workStatus) {
+		this.workStatus = workStatus;
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -55,6 +65,7 @@ public class WorkDTO {
 		result = prime * result + ((duration == null) ? 0 : duration.hashCode());
 		result = prime * result + ((name == null) ? 0 : name.hashCode());
 		result = prime * result + ((workKind == null) ? 0 : workKind.hashCode());
+		result = prime * result + ((workStatus == null) ? 0 : workStatus.hashCode());
 		return result;
 	}
 
@@ -87,12 +98,15 @@ public class WorkDTO {
 		if (workKind != other.workKind) {
 			return false;
 		}
+		if (workStatus != other.workStatus) {
+			return false;
+		}
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return "WorkDTO [id=" + id + ", name=" + name + ", duration=" + duration + ", workKind=" + workKind + "]";
+		return "WorkDTO [id=" + id + ", name=" + name + ", duration=" + duration + ", workKind=" + workKind
+				+ ", workStatus=" + workStatus + "]";
 	}
-
 }

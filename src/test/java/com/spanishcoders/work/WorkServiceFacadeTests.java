@@ -17,6 +17,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.core.Authentication;
 
 import com.spanishcoders.PelukaapUnitTest;
+import com.spanishcoders.user.AppUser;
+import com.spanishcoders.user.UserService;
 
 public class WorkServiceFacadeTests extends PelukaapUnitTest {
 
@@ -26,21 +28,14 @@ public class WorkServiceFacadeTests extends PelukaapUnitTest {
 	@MockBean
 	private WorkMapper workMapper;
 
+	@MockBean
+	private UserService userService;
+
 	private WorkServiceFacade workServiceFacade;
 
 	@Before
 	public void setUp() {
-		workServiceFacade = new WorkServiceFacade(workService, workMapper);
-		when(workMapper.asDTOs(any(Set.class))).then(invocation -> {
-			final Set<Work> works = invocation.getArgumentAt(0, Set.class);
-			final Set<WorkDTO> dtos = Sets.newHashSet();
-			for (final Work work : works) {
-				final WorkDTO dto = new WorkDTO();
-				dto.setId(work.getId());
-				dtos.add(dto);
-			}
-			return dtos;
-		});
+		workServiceFacade = new WorkServiceFacade(workService, workMapper, userService);
 	}
 
 	@Test
@@ -50,9 +45,19 @@ public class WorkServiceFacadeTests extends PelukaapUnitTest {
 	}
 
 	@Test
+	public void getWithoutUser() {
+		final Authentication authentication = mock(Authentication.class);
+		when(userService.get(any(String.class))).thenReturn(null);
+		final Set<WorkDTO> workDTOs = workServiceFacade.get(authentication);
+		assertThat(workDTOs, is(empty()));
+	}
+
+	@Test
 	public void getWithoutData() {
 		final Authentication authentication = mock(Authentication.class);
-		when(workService.get(any(Authentication.class))).thenReturn(Sets.newHashSet());
+		final AppUser user = mock(AppUser.class);
+		when(userService.get(any(String.class))).thenReturn(user);
+		when(workService.get(any(AppUser.class))).thenReturn(Sets.newHashSet());
 		final Set<WorkDTO> workDTOs = workServiceFacade.get(authentication);
 		assertThat(workDTOs, is(empty()));
 	}
@@ -60,10 +65,25 @@ public class WorkServiceFacadeTests extends PelukaapUnitTest {
 	@Test
 	public void getWithData() {
 		final Authentication authentication = mock(Authentication.class);
+		final AppUser user = mock(AppUser.class);
+		when(userService.get(any(String.class))).thenReturn(user);
+		when(workMapper.asDTOs(any(Set.class))).then(invocation -> {
+			final Set<Work> works = invocation.getArgumentAt(0, Set.class);
+			final Set<WorkDTO> dtos = Sets.newHashSet();
+			for (final Work work : works) {
+				final WorkDTO dto = new WorkDTO();
+				dto.setId(work.getId());
+				dto.setDuration(work.getDuration());
+				dto.setWorkKind(work.getKind());
+				dto.setWorkStatus(work.getStatus());
+				dtos.add(dto);
+			}
+			return dtos;
+		});
 		final Work work = new Work();
 		final Set<Work> works = Sets.newHashSet();
 		works.add(work);
-		when(workService.get(any(Authentication.class))).thenReturn(works);
+		when(workService.get(any(AppUser.class))).thenReturn(works);
 		final Set<WorkDTO> workDTOs = workServiceFacade.get(authentication);
 		assertThat(workDTOs, hasSize(1));
 	}
