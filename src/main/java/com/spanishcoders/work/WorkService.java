@@ -36,4 +36,8 @@ public class WorkService {
 		}
 		return works;
 	}
+
+	 Work create(Work newWork) {
+		return workRepository.save(newWork);
+	}
 }

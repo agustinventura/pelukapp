@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.Set;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spanishcoders.workingday.schedule.HairdresserScheduleDTO;
@@ -27,6 +29,7 @@ public class HairdresserController {
 
 	@PreAuthorize("authenticated")
 	@RequestMapping(method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseStatus(HttpStatus.CREATED)
 	public HairdresserDTO registerHairdresser(Authentication authentication,
 			@RequestBody HairdresserDTO hairdresserDTO) {
 		return hairdresserServiceFacade.create(authentication, hairdresserDTO);

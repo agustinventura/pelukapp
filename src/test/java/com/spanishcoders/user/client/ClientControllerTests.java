@@ -51,7 +51,7 @@ public class ClientControllerTests extends PelukaapUnitTest {
 		this.mockMvc
 				.perform(post("/client").content(toJSON(dto)).contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
-				.andExpect(status().isOk()).andExpect(content().contentType("application/json;charset=UTF-8"))
+				.andExpect(status().isCreated()).andExpect(content().contentType("application/json;charset=UTF-8"))
 				.andExpect(jsonPath("$.username", is(dto.getUsername())));
 	}
 
@@ -62,7 +62,7 @@ public class ClientControllerTests extends PelukaapUnitTest {
 		this.mockMvc
 				.perform(post("/client").content(toJSON(dto)).contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
-				.andExpect(status().isOk()).andExpect(content().contentType("application/json;charset=UTF-8"))
+				.andExpect(status().isCreated()).andExpect(content().contentType("application/json;charset=UTF-8"))
 				.andExpect(jsonPath("$.username", is(dto.getUsername())));
 	}
 }

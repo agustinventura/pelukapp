@@ -7,8 +7,10 @@ import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
+import java.time.Duration;
 import java.util.Collection;
 import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -62,5 +64,21 @@ public class WorkServiceTests extends PelukaapUnitTest {
 	public void getWorksByEmptyId() {
 		final Set<Work> works = workService.get(Sets.newHashSet());
 		assertThat(works, is(empty()));
+	}
+	
+	@Test
+	public void createWork() {
+		final int generatedId = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
+		Work work = new Work();
+		work.setDuration(Duration.ofMinutes(30L));
+		work.setName("test");
+		when(workRepository.save(any(Work.class))).then(invocation -> {
+			Work created = invocation.getArgumentAt(0, Work.class);
+			created.setId(generatedId);
+			return created;
+		});
+		Work created = workService.create(work);
+		assertThat(created, is(work));
+		assertThat(created.getId(), is (generatedId));
 	}
 }

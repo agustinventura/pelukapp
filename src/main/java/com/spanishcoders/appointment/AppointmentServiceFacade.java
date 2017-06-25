@@ -42,14 +42,14 @@ public class AppointmentServiceFacade {
 	}
 
 	public AppointmentDTO create(Authentication authentication, AppointmentDTO appointmentDTO) {
-		final AppUser user = getUser(authentication);
+		final AppUser user = checkUser(authentication);
 		final Set<Block> blocks = blockService.get(appointmentDTO.getBlocks());
 		final Set<Work> works = Sets.newHashSet(workService.get(appointmentDTO.getWorks()));
 		return appointmentMapper
 				.asDTO(appointmentService.createAppointment(user, blocks, works, appointmentDTO.getNotes()));
 	}
 
-	private AppUser getUser(Authentication authentication) {
+	private AppUser checkUser(Authentication authentication) {
 		final AppUser user = authentication != null ? userService.get(authentication.getName()) : null;
 		if (user == null) {
 			logger.error("Can't create an Appointment without AppUser");
@@ -59,7 +59,7 @@ public class AppointmentServiceFacade {
 	}
 
 	public AppointmentDTO update(Authentication authentication, AppointmentDTO appointment) {
-		final AppUser user = getUser(authentication);
+		final AppUser user = checkUser(authentication);
 		final Optional<Appointment> original = appointmentService.get(appointment.getId());
 		Appointment modified = null;
 		if (original.isPresent()) {

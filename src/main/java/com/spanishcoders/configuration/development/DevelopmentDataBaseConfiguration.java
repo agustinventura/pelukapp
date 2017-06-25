@@ -116,12 +116,6 @@ public class DevelopmentDataBaseConfiguration {
 		agenda.addNonWorkingDay(LocalDate.of(LocalDate.now().getYear(), 01, 06));
 		agenda.addNonWorkingDay(LocalDate.of(LocalDate.now().getYear(), 02, 28));
 		agenda.addNonWorkingDay(LocalDate.of(LocalDate.now().getYear(), 8, 15));
-		for (int i = 0; i < 366; i++) {
-			final LocalDate day = LocalDate.now().plusDays(i);
-			if (day.getDayOfWeek() == DayOfWeek.SUNDAY) {
-				agenda.addNonWorkingDay(day);
-			}
-		}
 	}
 
 	private void createWorks(WorkRepository workRepository) {

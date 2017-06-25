@@ -85,7 +85,7 @@ public class AppointmentControllerTests extends PelukaapUnitTest {
 		this.mockMvc
 				.perform(post(APPOINTMENT_URL).content(toJSON(appointmentDTO)).contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
-				.andExpect(status().isOk()).andExpect(content().contentType("application/json;charset=UTF-8"))
+				.andExpect(status().isCreated()).andExpect(content().contentType("application/json;charset=UTF-8"))
 				.andExpect(jsonPath("$.*", hasSize(8))).andExpect(jsonPath("$.blocks", hasSize(1)))
 				.andExpect(jsonPath("$.works", hasSize(1)));
 	}
