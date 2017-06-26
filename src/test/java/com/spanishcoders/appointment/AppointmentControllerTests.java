@@ -19,6 +19,8 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
@@ -33,7 +35,8 @@ import com.spanishcoders.work.WorkService;
 import com.spanishcoders.workingday.block.Block;
 import com.spanishcoders.workingday.block.BlockService;
 
-@WebMvcTest(controllers = AppointmentController.class)
+@WebMvcTest(controllers = AppointmentController.class, excludeFilters = {
+		@ComponentScan.Filter(type = FilterType.REGEX, pattern = "com.spanishcoders.error.*") })
 public class AppointmentControllerTests extends PelukaapUnitTest {
 
 	public static final String APPOINTMENT_URL = "/appointment";

@@ -39,6 +39,7 @@ public class Work implements Comparable<Work> {
 	}
 
 	public Work(String name, Duration duration, WorkKind kind, WorkStatus status) {
+		this();
 		this.name = name;
 		this.duration = duration;
 		this.kind = kind;

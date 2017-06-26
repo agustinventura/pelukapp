@@ -23,9 +23,6 @@ import com.spanishcoders.user.hairdresser.HairdresserDTO;
 import com.spanishcoders.workingday.schedule.HairdresserScheduleDTO;
 import com.spanishcoders.workingday.schedule.ScheduleDTO;
 
-/**
- * Created by agustin on 8/08/16.
- */
 public class HairdresserTests extends IntegrationTests {
 
 	public static final String TODAY_SCHEDULE_URL = "/hairdresser/schedule/today";
