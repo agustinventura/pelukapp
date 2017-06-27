@@ -45,6 +45,6 @@ public class HairdresserController {
 	@RequestMapping(value = "schedule/{day}", method = RequestMethod.GET)
 	public Set<HairdresserScheduleDTO> getSchedules(Authentication authentication,
 			@PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate day) {
-		return hairdresserServiceFacade.getSchedule(day);
+		return hairdresserServiceFacade.getSchedule(authentication, day);
 	}
 }

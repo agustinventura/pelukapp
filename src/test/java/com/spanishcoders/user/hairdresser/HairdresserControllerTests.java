@@ -98,7 +98,8 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
 	public void getTodayScheduleWithoutWorks() throws Exception {
-		given(hairdresserServiceFacade.getSchedule(any(LocalDate.class))).willReturn(Sets.newHashSet());
+		given(hairdresserServiceFacade.getSchedule(any(Authentication.class), any(LocalDate.class)))
+				.willReturn(Sets.newHashSet());
 		this.mockMvc
 				.perform(get("/hairdresser/schedule/today")
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
@@ -120,7 +121,8 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
 	public void getDayScheduleWithoutWorks() throws Exception {
-		given(hairdresserServiceFacade.getSchedule(any(LocalDate.class))).willReturn(Sets.newHashSet());
+		given(hairdresserServiceFacade.getSchedule(any(Authentication.class), any(LocalDate.class)))
+				.willReturn(Sets.newHashSet());
 		final LocalDate date = LocalDate.now();
 		final String isoDate = date.format(DateTimeFormatter.ISO_DATE);
 		this.mockMvc
@@ -144,14 +146,16 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 	}
 
 	private void answerSchedule() {
-		given(hairdresserServiceFacade.getSchedule(any(LocalDate.class))).willAnswer(invocation -> {
-			final LocalDate day = invocation.getArgumentAt(0, LocalDate.class);
-			final ScheduleDTO schedule = new ScheduleDTO(null, null, null, day, null, null, null, null, null);
-			final Set<ScheduleDTO> schedules = Sets.newHashSet(schedule);
-			final HairdresserDTO hairdresser = new HairdresserDTO();
-			final HairdresserScheduleDTO hairdresserSchedule = new HairdresserScheduleDTO(hairdresser, schedules);
-			final Set<HairdresserScheduleDTO> answer = Sets.newHashSet(hairdresserSchedule);
-			return answer;
-		});
+		given(hairdresserServiceFacade.getSchedule(any(Authentication.class), any(LocalDate.class)))
+				.willAnswer(invocation -> {
+					final LocalDate day = invocation.getArgumentAt(1, LocalDate.class);
+					final ScheduleDTO schedule = new ScheduleDTO(null, null, null, day, null, null, null, null, null);
+					final Set<ScheduleDTO> schedules = Sets.newHashSet(schedule);
+					final HairdresserDTO hairdresser = new HairdresserDTO();
+					final HairdresserScheduleDTO hairdresserSchedule = new HairdresserScheduleDTO(hairdresser,
+							schedules);
+					final Set<HairdresserScheduleDTO> answer = Sets.newHashSet(hairdresserSchedule);
+					return answer;
+				});
 	}
 }
