@@ -5,13 +5,20 @@ import org.mapstruct.Mapper;
 @Mapper(componentModel = "spring")
 public interface AgendaMapper {
 
-	default Integer asInteger (Agenda agenda) {
-		return agenda.getId();
+	default Integer asInteger(Agenda agenda) {
+		Integer agendaId = null;
+		if (agenda != null) {
+			agendaId = agenda.getId();
+		}
+		return agendaId;
 	}
-	
-	default Agenda asAgenda (Integer id) {
-		Agenda agenda = new Agenda();
-		agenda.setId(id);
+
+	default Agenda asAgenda(Integer id) {
+		Agenda agenda = null;
+		if (id != null) {
+			agenda = new Agenda();
+			agenda.setId(id);
+		}
 		return agenda;
 	}
 }

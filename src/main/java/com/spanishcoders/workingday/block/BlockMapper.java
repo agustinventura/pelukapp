@@ -15,14 +15,21 @@ import com.spanishcoders.workingday.schedule.ScheduleDTO;
 public interface BlockMapper {
 
 	default Integer asInteger(Block block) {
-		return block.getId();
+		Integer blockId = null;
+		if (block != null) {
+			blockId = block.getId();
+		}
+		return blockId;
 	}
 
 	Set<Integer> asIntegers(Set<Block> blocks);
 
 	default Block asBlock(Integer id) {
-		final Block block = new Block();
-		block.setId(id);
+		Block block = null;
+		if (id != null) {
+			block = new Block();
+			block.setId(id);
+		}
 		return block;
 	}
 

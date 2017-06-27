@@ -7,9 +7,9 @@ import com.spanishcoders.user.hairdresser.HairdresserDTO;
 
 public class HairdresserScheduleDTO {
 
-	private final HairdresserDTO hairdresser;
+	private HairdresserDTO hairdresser;
 
-	private final Set<ScheduleDTO> schedule;
+	private Set<ScheduleDTO> schedule;
 
 	public HairdresserScheduleDTO() {
 		hairdresser = new HairdresserDTO();
@@ -25,8 +25,16 @@ public class HairdresserScheduleDTO {
 		return hairdresser;
 	}
 
+	public void setHairdresser(HairdresserDTO hairdresser) {
+		this.hairdresser = hairdresser;
+	}
+
 	public Set<ScheduleDTO> getSchedule() {
 		return schedule;
+	}
+
+	public void setSchedule(Set<ScheduleDTO> schedule) {
+		this.schedule = schedule;
 	}
 
 	@Override

@@ -12,12 +12,19 @@ public interface UserMapper {
 	UserDTO asDTO(AppUser user);
 
 	default AppUser asUser(Integer id) {
-		final AppUser user = new AppUser();
-		user.setId(id);
+		AppUser user = null;
+		if (id != null) {
+			user = new AppUser();
+			user.setId(id);
+		}
 		return user;
 	}
 
 	default Integer asInteger(AppUser user) {
-		return user.getId();
+		Integer userId = null;
+		if (user != null) {
+			userId = user.getId();
+		}
+		return userId;
 	}
 }

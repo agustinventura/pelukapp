@@ -12,21 +12,28 @@ public interface WorkMapper {
 
 	@Mappings({ @Mapping(source = "kind", target = "workKind"), @Mapping(source = "status", target = "workStatus") })
 	WorkDTO asDTO(Work work);
-	
+
 	@InheritInverseConfiguration
-	Work asWork (WorkDTO dto);
+	Work asWork(WorkDTO dto);
 
 	Set<WorkDTO> asDTOs(Set<Work> works);
 
 	Set<Integer> asIntegers(Set<Work> works);
 
 	default Integer asInteger(Work work) {
-		return work.getId();
+		Integer workId = null;
+		if (work != null) {
+			workId = work.getId();
+		}
+		return workId;
 	}
 
 	default Work asWork(Integer id) {
-		Work work = new Work();
-		work.setId(id);
+		Work work = null;
+		if (id != null) {
+			work = new Work();
+			work.setId(id);
+		}
 		return work;
 	}
 
