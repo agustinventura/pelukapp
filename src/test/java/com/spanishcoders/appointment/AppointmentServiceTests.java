@@ -229,7 +229,6 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 			requestedAppointment.setStatus(AppointmentStatus.CANCELLED);
 			return requestedAppointment;
 		});
-		final AppUser anotherUser = mock(AppUser.class);
 		given(userRepository.findByUsername(any(String.class))).willReturn(user);
 		given(appointment.getUser()).willReturn(user);
 		given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);

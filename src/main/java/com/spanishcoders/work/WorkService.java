@@ -3,6 +3,7 @@ package com.spanishcoders.work;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,6 +14,8 @@ import com.spanishcoders.user.Role;
 @Service
 @Transactional(readOnly = true)
 public class WorkService {
+
+	private static final Logger logger = Logger.getLogger(WorkService.class);
 
 	private final WorkRepository workRepository;
 
@@ -51,7 +54,18 @@ public class WorkService {
 	}
 
 	public Work update(String name, WorkKind workKind, WorkStatus workStatus, Work work) {
-		// TODO Auto-generated method stub
-		return null;
+		Work modified = null;
+		final Optional<Work> toBeModified = this.get(work.getId());
+		if (toBeModified.isPresent()) {
+			modified = toBeModified.get();
+			modified.setName(name);
+			modified.setKind(workKind);
+			modified.setStatus(workStatus);
+			modified = workRepository.save(modified);
+		} else {
+			logger.error("Tried to update non existing Work: " + work);
+			throw new IllegalArgumentException("Tried to update non existing Work: " + work);
+		}
+		return modified;
 	}
 }

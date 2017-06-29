@@ -65,20 +65,44 @@ public class WorkServiceTests extends PelukaapUnitTest {
 		final Set<Work> works = workService.get(Sets.newHashSet());
 		assertThat(works, is(empty()));
 	}
-	
+
 	@Test
 	public void createWork() {
 		final int generatedId = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
-		Work work = new Work();
+		final Work work = new Work();
 		work.setDuration(Duration.ofMinutes(30L));
 		work.setName("test");
 		when(workRepository.save(any(Work.class))).then(invocation -> {
-			Work created = invocation.getArgumentAt(0, Work.class);
+			final Work created = invocation.getArgumentAt(0, Work.class);
 			created.setId(generatedId);
 			return created;
 		});
-		Work created = workService.create(work);
+		final Work created = workService.create(work);
 		assertThat(created, is(work));
-		assertThat(created.getId(), is (generatedId));
+		assertThat(created.getId(), is(generatedId));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void updateNonExistingWork() {
+		when(workRepository.findOne(any(Integer.class))).thenReturn(null);
+		workService.update(null, null, null, new Work());
+	}
+
+	@Test
+	public void updateWork() {
+		final Work work = new Work();
+		work.setId(1);
+		final String name = "test";
+		final WorkKind kind = WorkKind.PRIVATE;
+		final WorkStatus status = WorkStatus.DISABLED;
+		when(workRepository.findOne(any(Integer.class))).thenReturn(work);
+		when(workRepository.save(any(Work.class))).then(invocation -> {
+			final Work argument = invocation.getArgumentAt(0, Work.class);
+			return argument;
+		});
+		final Work modified = workService.update(name, kind, status, work);
+		assertThat(modified.getName(), is(name));
+		assertThat(modified.getKind(), is(kind));
+		assertThat(modified.getStatus(), is(status));
 	}
 }
