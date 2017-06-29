@@ -1,5 +1,7 @@
 package com.spanishcoders.user;
 
+import java.util.Optional;
+
 import org.springframework.stereotype.Component;
 
 @Component
@@ -16,6 +18,11 @@ public class UserServiceFacade {
 	}
 
 	public UserDTO get(String username) {
-		return userMapper.asDTO(userService.get(username));
+		UserDTO dto = null;
+		final Optional<AppUser> user = userService.get(username);
+		if (user.isPresent()) {
+			dto = userMapper.asDTO(user.get());
+		}
+		return dto;
 	}
 }

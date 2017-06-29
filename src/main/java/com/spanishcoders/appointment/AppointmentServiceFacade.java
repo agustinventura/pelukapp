@@ -50,12 +50,13 @@ public class AppointmentServiceFacade {
 	}
 
 	private AppUser checkUser(Authentication authentication) {
-		final AppUser user = authentication != null ? userService.get(authentication.getName()) : null;
-		if (user == null) {
+		final Optional<AppUser> user = authentication != null ? userService.get(authentication.getName())
+				: Optional.empty();
+		if (!user.isPresent()) {
 			logger.error("Can't create an Appointment without AppUser");
 			throw new AccessDeniedException("Can't create an Appointment without AppUser");
 		}
-		return user;
+		return user.get();
 	}
 
 	public AppointmentDTO update(Authentication authentication, AppointmentDTO appointment) {

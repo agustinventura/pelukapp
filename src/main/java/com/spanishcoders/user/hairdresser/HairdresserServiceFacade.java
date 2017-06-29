@@ -1,6 +1,7 @@
 package com.spanishcoders.user.hairdresser;
 
 import java.time.LocalDate;
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -68,11 +69,12 @@ public class HairdresserServiceFacade {
 	}
 
 	private AppUser checkUser(Authentication authentication) {
-		final AppUser user = authentication != null ? userService.get(authentication.getName()) : null;
-		if (user == null) {
+		final Optional<AppUser> user = authentication != null ? userService.get(authentication.getName())
+				: Optional.empty();
+		if (!user.isPresent()) {
 			logger.error("Can't access Schedule without AppUser");
 			throw new AccessDeniedException("Can't access Schedule without AppUser");
 		}
-		return user;
+		return user.get();
 	}
 }

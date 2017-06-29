@@ -33,9 +33,10 @@ public class WorkServiceFacade {
 
 	Set<WorkDTO> get(Authentication authentication) {
 		final Set<WorkDTO> dtos = Sets.newHashSet();
-		final AppUser user = authentication != null ? userService.get(authentication.getName()) : null;
-		if (user != null) {
-			dtos.addAll(workMapper.asDTOs(workService.get(user)));
+		final Optional<AppUser> user = authentication != null ? userService.get(authentication.getName())
+				: Optional.empty();
+		if (user.isPresent()) {
+			dtos.addAll(workMapper.asDTOs(workService.get(user.get())));
 		}
 		return dtos;
 	}
@@ -62,12 +63,13 @@ public class WorkServiceFacade {
 	}
 
 	private AppUser checkUser(Authentication authentication) {
-		final AppUser user = authentication != null ? userService.get(authentication.getName()) : null;
-		if (user == null || !user.getRole().equals(Role.WORKER)) {
+		final Optional<AppUser> user = authentication != null ? userService.get(authentication.getName())
+				: Optional.empty();
+		if (!user.isPresent() || !user.get().getRole().equals(Role.WORKER)) {
 			logger.error("Can't create a Work without role Worker");
 			throw new AccessDeniedException("Can't create a Work without role Worker");
 		}
-		return user;
+		return user.get();
 	}
 
 }

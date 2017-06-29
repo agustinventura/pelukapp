@@ -58,7 +58,7 @@ public class AppointmentServiceFacadeTests extends PelukaapUnitTest {
 	@Test(expected = AccessDeniedException.class)
 	public void createAppointmentWithInvalidUser() {
 		final Authentication authentication = mock(Authentication.class);
-		when(userService.get(any(String.class))).thenReturn(null);
+		when(userService.get(any(String.class))).thenReturn(Optional.empty());
 		appointmentServiceFacade.create(authentication, new AppointmentDTO());
 	}
 
@@ -66,7 +66,7 @@ public class AppointmentServiceFacadeTests extends PelukaapUnitTest {
 	public void createAppointment() {
 		final Authentication authentication = mock(Authentication.class);
 		final AppUser user = mock(AppUser.class);
-		when(userService.get(any(String.class))).thenReturn(user);
+		when(userService.get(any(String.class))).thenReturn(Optional.of(user));
 		final Set<Block> blocks = Sets.newHashSet();
 		when(blockService.get(any(Collection.class))).thenReturn(blocks);
 		final Set<Work> works = Sets.newHashSet();
@@ -98,7 +98,7 @@ public class AppointmentServiceFacadeTests extends PelukaapUnitTest {
 	@Test(expected = AccessDeniedException.class)
 	public void updateAppointmentWithInvalidUser() {
 		final Authentication authentication = mock(Authentication.class);
-		when(userService.get(any(String.class))).thenReturn(null);
+		when(userService.get(any(String.class))).thenReturn(Optional.empty());
 		appointmentServiceFacade.update(authentication, new AppointmentDTO());
 	}
 
@@ -106,7 +106,7 @@ public class AppointmentServiceFacadeTests extends PelukaapUnitTest {
 	public void updateNonExistingAppointment() {
 		final Authentication authentication = mock(Authentication.class);
 		final AppUser user = mock(AppUser.class);
-		when(userService.get(any(String.class))).thenReturn(user);
+		when(userService.get(any(String.class))).thenReturn(Optional.of(user));
 		when(appointmentService.get(any(Integer.class))).thenReturn(Optional.empty());
 		appointmentServiceFacade.update(authentication, new AppointmentDTO());
 	}
@@ -115,7 +115,7 @@ public class AppointmentServiceFacadeTests extends PelukaapUnitTest {
 	public void updateAppointment() {
 		final Authentication authentication = mock(Authentication.class);
 		final AppUser user = mock(AppUser.class);
-		when(userService.get(any(String.class))).thenReturn(user);
+		when(userService.get(any(String.class))).thenReturn(Optional.of(user));
 		final Appointment appointment = new Appointment();
 		when(appointmentService.get(any(Integer.class))).thenReturn(Optional.of(appointment));
 		when(appointmentService.update(any(AppUser.class), any(AppointmentStatus.class), any(String.class),

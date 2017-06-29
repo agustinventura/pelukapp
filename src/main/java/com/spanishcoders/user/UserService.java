@@ -1,5 +1,6 @@
 package com.spanishcoders.user;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.security.access.AccessDeniedException;
@@ -7,6 +8,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import com.spanishcoders.appointment.Appointment;
 import com.spanishcoders.appointment.AppointmentService;
@@ -40,8 +42,8 @@ public class UserService {
 
 	private void checkUsername(AppUser user) {
 		final String username = user.getUsername();
-		final AppUser existingUser = get(username);
-		if (existingUser != null) {
+		final Optional<AppUser> existingUser = get(username);
+		if (existingUser.isPresent()) {
 			throw new IllegalArgumentException("There's an user with username " + username);
 		}
 	}
@@ -60,7 +62,11 @@ public class UserService {
 		return appointments;
 	}
 
-	public AppUser get(String username) {
-		return userRepository.findByUsername(username);
+	public Optional<AppUser> get(String username) {
+		Optional<AppUser> user = Optional.empty();
+		if (!StringUtils.isEmpty(username)) {
+			user = Optional.ofNullable(userRepository.findByUsername(username));
+		}
+		return user;
 	}
 }
