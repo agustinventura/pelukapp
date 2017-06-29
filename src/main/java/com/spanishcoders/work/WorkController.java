@@ -19,11 +19,11 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping(value = "/works",consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+@RequestMapping(value = "/works", consumes = MediaType.APPLICATION_JSON_UTF8_VALUE, produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
 public class WorkController {
 
 	private static final Logger logger = Logger.getLogger(WorkController.class);
-	
+
 	private final WorkServiceFacade workServiceFacade;
 
 	public WorkController(WorkServiceFacade workServiceFacade) {
@@ -35,18 +35,31 @@ public class WorkController {
 	public Collection<WorkDTO> getWorks(Authentication authentication) {
 		return workServiceFacade.get(authentication);
 	}
-	
-	@PreAuthorize("authenticated")
+
+	@PreAuthorize("hasRole('ROLE_WORKER')")
 	@RequestMapping(method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
 	public WorkDTO create(Authentication authentication, @RequestBody WorkDTO workDTO) {
 		return workServiceFacade.create(authentication, workDTO);
 	}
-	
+
+	@PreAuthorize("hasRole('ROLE_WORKER')")
+	@RequestMapping(method = RequestMethod.PUT)
+	@ResponseStatus(HttpStatus.CREATED)
+	public WorkDTO update(Authentication authentication, @RequestBody WorkDTO workDTO) {
+		return workServiceFacade.update(authentication, workDTO);
+	}
+
 	@ExceptionHandler(AccessDeniedException.class)
 	public ResponseEntity accessDeniedExceptionExceptionHandler(HttpServletRequest req, Exception ex) {
-		logger.error("Caught AccessDeniedException processing Work request " + req.getRequestURL() + ": "
-				+ ex.getMessage());
+		logger.error(
+				"Caught AccessDeniedException processing Work request " + req.getRequestURL() + ": " + ex.getMessage());
 		return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ex.getMessage());
+	}
+
+	@ExceptionHandler(IllegalArgumentException.class)
+	public ResponseEntity illegalArgumentExceptionExceptionHandler(HttpServletRequest req, Exception ex) {
+		logger.error("Caught IllegalException processing Work request " + req.getRequestURL() + ": " + ex.getMessage());
+		return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getMessage());
 	}
 }

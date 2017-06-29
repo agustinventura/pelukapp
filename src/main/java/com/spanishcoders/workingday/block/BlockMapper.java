@@ -11,7 +11,7 @@ import org.mapstruct.Mapper;
 import com.google.common.collect.Sets;
 import com.spanishcoders.workingday.schedule.ScheduleDTO;
 
-@Mapper(componentModel = "spring")
+@Mapper
 public interface BlockMapper {
 
 	default Integer asInteger(Block block) {

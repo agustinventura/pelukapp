@@ -7,7 +7,7 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Mappings;
 
-@Mapper(componentModel = "spring")
+@Mapper
 public interface WorkMapper {
 
 	@Mappings({ @Mapping(source = "kind", target = "workKind"), @Mapping(source = "status", target = "workStatus") })

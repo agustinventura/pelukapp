@@ -154,6 +154,14 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 		assertThat(result.getBlocks(), is(requestedBlocks));
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void updateNonExistingAppointment() {
+		Appointment appointment = mock(Appointment.class);
+		final AppUser user = mock(Hairdresser.class);
+		when(appointmentRepository.findOne(any(Integer.class))).thenReturn(null);
+		appointment = appointmentService.update(user, null, null, appointment);
+	}
+
 	@Test
 	public void cancelAppointmentWithLessThan24HoursAsWorker() throws Exception {
 		Appointment appointment = mock(Appointment.class);
@@ -165,6 +173,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 			when(requestedAppointment.getStatus()).thenReturn(AppointmentStatus.CANCELLED);
 			return requestedAppointment;
 		});
+		given(appointmentRepository.findOne(any(Integer.class))).willReturn(appointment);
 		appointment = appointmentService.update(user, AppointmentStatus.CANCELLED, null, appointment);
 		assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
 	}
@@ -176,6 +185,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 		when(user.getRole()).thenReturn(Role.CLIENT);
 		given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(23));
 		given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
+		given(appointmentRepository.findOne(any(Integer.class))).willReturn(appointment);
 		appointmentService.update(user, AppointmentStatus.CANCELLED, null, appointment);
 	}
 
@@ -186,6 +196,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 		when(user.getRole()).thenReturn(Role.CLIENT);
 		given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(25));
 		given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
+		given(appointmentRepository.findOne(any(Integer.class))).willReturn(appointment);
 		appointmentService.update(user, AppointmentStatus.CANCELLED, null, appointment);
 	}
 
@@ -201,6 +212,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 			return requestedAppointment;
 		});
 		given(appointment.getStatus()).willReturn(AppointmentStatus.CANCELLED);
+		given(appointmentRepository.findOne(any(Integer.class))).willReturn(appointment);
 		appointment = appointmentService.update(user, AppointmentStatus.CANCELLED, null, appointment);
 		assertThat(appointment.getStatus(), is(AppointmentStatus.CANCELLED));
 	}
@@ -210,6 +222,7 @@ public class AppointmentServiceTests extends PelukaapUnitTest {
 		Appointment appointment = mock(Appointment.class);
 		final AppUser user = mock(Client.class);
 		when(user.getRole()).thenReturn(Role.CLIENT);
+		when(appointmentRepository.findOne(any(Integer.class))).thenReturn(appointment);
 		given(appointment.getDate()).willReturn(LocalDateTime.now().plusHours(25));
 		given(appointmentRepository.save(any(Appointment.class))).will(invocation -> {
 			final Appointment requestedAppointment = (Appointment) invocation.getArguments()[0];

@@ -1,5 +1,6 @@
 package com.spanishcoders.work;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.stereotype.Service;
@@ -37,7 +38,20 @@ public class WorkService {
 		return works;
 	}
 
-	 Work create(Work newWork) {
+	Work create(Work newWork) {
 		return workRepository.save(newWork);
+	}
+
+	Optional<Work> get(Integer id) {
+		Optional<Work> work = Optional.empty();
+		if (id != null) {
+			work = Optional.ofNullable(workRepository.findOne(id));
+		}
+		return work;
+	}
+
+	public Work update(String name, WorkKind workKind, WorkStatus workStatus, Work work) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

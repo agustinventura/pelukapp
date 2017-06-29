@@ -5,7 +5,7 @@ import javax.validation.ConstraintViolationException;
 
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper
 public interface ErrorMapper {
 
 	default ErrorsDTO toDTO(ConstraintViolationException ex) {

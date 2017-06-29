@@ -1,5 +1,6 @@
 package com.spanishcoders.work;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
@@ -16,7 +17,7 @@ import com.spanishcoders.user.UserService;
 public class WorkServiceFacade {
 
 	private final static Logger logger = Logger.getLogger(WorkServiceFacade.class);
-	
+
 	private final WorkService workService;
 
 	private final WorkMapper workMapper;
@@ -46,12 +47,27 @@ public class WorkServiceFacade {
 		return workMapper.asDTO(work);
 	}
 
-	private void checkUser(Authentication authentication) {
+	WorkDTO update(Authentication authentication, WorkDTO workDTO) {
+		final AppUser user = checkUser(authentication);
+		final Optional<Work> original = workService.get(workDTO.getId());
+		Work modified = null;
+		if (original.isPresent()) {
+			modified = workService.update(workDTO.getName(), workDTO.getWorkKind(), workDTO.getWorkStatus(),
+					original.get());
+		} else {
+			logger.error("AppUser " + user.getUsername() + " tried to update non-existing work " + workDTO);
+			throw new IllegalArgumentException("There's no Work which matches " + workDTO);
+		}
+		return workMapper.asDTO(modified);
+	}
+
+	private AppUser checkUser(Authentication authentication) {
 		final AppUser user = authentication != null ? userService.get(authentication.getName()) : null;
 		if (user == null || !user.getRole().equals(Role.WORKER)) {
 			logger.error("Can't create a Work without role Worker");
 			throw new AccessDeniedException("Can't create a Work without role Worker");
 		}
+		return user;
 	}
 
 }

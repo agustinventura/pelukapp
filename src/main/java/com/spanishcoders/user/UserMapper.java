@@ -5,7 +5,7 @@ import org.mapstruct.Mapping;
 
 import com.spanishcoders.appointment.AppointmentMapper;
 
-@Mapper(componentModel = "spring", uses = { AppointmentMapper.class })
+@Mapper(uses = { AppointmentMapper.class })
 public interface UserMapper {
 
 	@Mapping(target = "password", constant = "")

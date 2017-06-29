@@ -16,6 +16,8 @@ public class WorkDTO {
 
 	public WorkDTO() {
 		super();
+		this.workKind = WorkKind.PUBLIC;
+		this.workStatus = WorkStatus.ENABLED;
 	}
 
 	public Integer getId() {

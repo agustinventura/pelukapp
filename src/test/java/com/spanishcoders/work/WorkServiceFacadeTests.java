@@ -1,7 +1,6 @@
 package com.spanishcoders.work;
 
 import static org.hamcrest.CoreMatchers.is;
-
 import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.assertThat;
@@ -10,8 +9,11 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.Duration;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
+
+import javax.validation.ConstraintViolationException;
 
 import org.assertj.core.util.Sets;
 import org.junit.Before;
@@ -32,8 +34,7 @@ public class WorkServiceFacadeTests extends PelukaapUnitTest {
 	@MockBean
 	private WorkService workService;
 
-	@MockBean
-	private WorkMapper workMapper;
+	private final WorkMapper workMapper = new WorkMapperImpl();
 
 	@MockBean
 	private UserService userService;
@@ -74,19 +75,6 @@ public class WorkServiceFacadeTests extends PelukaapUnitTest {
 		final Authentication authentication = mock(Authentication.class);
 		final AppUser user = mock(AppUser.class);
 		when(userService.get(any(String.class))).thenReturn(user);
-		when(workMapper.asDTOs(any(Set.class))).then(invocation -> {
-			final Set<Work> works = invocation.getArgumentAt(0, Set.class);
-			final Set<WorkDTO> dtos = Sets.newHashSet();
-			for (final Work work : works) {
-				final WorkDTO dto = new WorkDTO();
-				dto.setId(work.getId());
-				dto.setDuration(work.getDuration());
-				dto.setWorkKind(work.getKind());
-				dto.setWorkStatus(work.getStatus());
-				dtos.add(dto);
-			}
-			return dtos;
-		});
 		final Work work = new Work();
 		final Set<Work> works = Sets.newHashSet();
 		works.add(work);
@@ -94,31 +82,22 @@ public class WorkServiceFacadeTests extends PelukaapUnitTest {
 		final Set<WorkDTO> workDTOs = workServiceFacade.get(authentication);
 		assertThat(workDTOs, hasSize(1));
 	}
-	
+
 	@Test(expected = AccessDeniedException.class)
 	public void createAsClient() {
-		Authentication authentication = mock(Authentication.class);
-		Client client = mock(Client.class);
+		final Authentication authentication = mock(Authentication.class);
+		final Client client = mock(Client.class);
 		when(client.getRole()).thenReturn(Role.CLIENT);
 		when(userService.get(any(String.class))).thenReturn(client);
 		workServiceFacade.create(authentication, new WorkDTO());
 	}
-	
+
 	@Test
 	public void createAsWorker() {
-		Authentication authentication = mock(Authentication.class);
-		Hairdresser worker = mock(Hairdresser.class);
+		final Authentication authentication = mock(Authentication.class);
+		final Hairdresser worker = mock(Hairdresser.class);
 		when(worker.getRole()).thenReturn(Role.WORKER);
 		when(userService.get(any(String.class))).thenReturn(worker);
-		when(workMapper.asWork(any(WorkDTO.class))).then(invocation -> {
-			WorkDTO dto = invocation.getArgumentAt(0, WorkDTO.class);
-			Work work = new Work();
-			work.setDuration(dto.getDuration());
-			work.setKind(dto.getWorkKind());
-			work.setName(dto.getName());
-			work.setStatus(dto.getWorkStatus());
-			return work;
-		});
 		final WorkDTO dto = new WorkDTO();
 		dto.setName("test");
 		dto.setDuration(Duration.ofMinutes(30L));
@@ -126,22 +105,86 @@ public class WorkServiceFacadeTests extends PelukaapUnitTest {
 		dto.setWorkStatus(WorkStatus.ENABLED);
 		final int generatedId = ThreadLocalRandom.current().nextInt(0, Integer.MAX_VALUE);
 		when(workService.create(any(Work.class))).then(invocation -> {
-			Work created = invocation.getArgumentAt(0, Work.class);
+			final Work created = invocation.getArgumentAt(0, Work.class);
 			created.setId(generatedId);
 			return created;
 		});
-		when(workMapper.asDTO(any(Work.class))).then(invocation -> {
-			Work work = invocation.getArgumentAt(0, Work.class);
-			WorkDTO createdDto = new WorkDTO();
-			createdDto.setDuration(work.getDuration());
-			createdDto.setId(work.getId());
-			createdDto.setName(work.getName());
-			createdDto.setWorkKind(work.getKind());
-			createdDto.setWorkStatus(work.getStatus());
-			return createdDto;
-		});
-		WorkDTO created = workServiceFacade.create(authentication, dto);
+		final WorkDTO created = workServiceFacade.create(authentication, dto);
 		assertThat(created, is(dto));
 		assertThat(created.getId(), is(generatedId));
+	}
+
+	private Object workFromDto(final WorkDTO dto) {
+		final Work work = new Work();
+		work.setDuration(dto.getDuration());
+		work.setKind(dto.getWorkKind());
+		work.setName(dto.getName());
+		work.setStatus(dto.getWorkStatus());
+		return work;
+	}
+
+	private WorkDTO dtoFromWork(final Work work) {
+		final WorkDTO createdDto = new WorkDTO();
+		createdDto.setDuration(work.getDuration());
+		createdDto.setId(work.getId());
+		createdDto.setName(work.getName());
+		createdDto.setWorkKind(work.getKind());
+		createdDto.setWorkStatus(work.getStatus());
+		return createdDto;
+	}
+
+	@Test(expected = AccessDeniedException.class)
+	public void updateAsClient() {
+		final Authentication authentication = mock(Authentication.class);
+		final AppUser user = mock(AppUser.class);
+		when(user.getRole()).thenReturn(Role.CLIENT);
+		when(userService.get(any(String.class))).thenReturn(user);
+		workServiceFacade.update(authentication, new WorkDTO());
+	}
+
+	@Test
+	public void updateAsWorker() {
+		final Authentication authentication = mock(Authentication.class);
+		final AppUser user = mock(AppUser.class);
+		when(user.getRole()).thenReturn(Role.WORKER);
+		when(userService.get(any(String.class))).thenReturn(user);
+		when(workService.get(any(Integer.class))).then(invocation -> {
+			return Optional.of(new Work());
+		});
+		final WorkDTO dto = new WorkDTO();
+		when(workService.update(any(String.class), any(WorkKind.class), any(WorkStatus.class), any(Work.class)))
+				.then(invocation -> {
+					return invocation.getArgumentAt(3, Work.class);
+				});
+		final WorkDTO updated = workServiceFacade.update(authentication, dto);
+		assertThat(updated, is(dto));
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void updateNonExistingAsAdmin() {
+		final Authentication authentication = mock(Authentication.class);
+		final AppUser user = mock(AppUser.class);
+		when(user.getRole()).thenReturn(Role.WORKER);
+		when(userService.get(any(String.class))).thenReturn(user);
+		when(workService.get(any(Integer.class))).then(invocation -> {
+			return Optional.empty();
+		});
+		when(workService.update(any(String.class), any(WorkKind.class), any(WorkStatus.class), any(Work.class)))
+				.thenThrow(IllegalArgumentException.class);
+		final WorkDTO updated = workServiceFacade.update(authentication, new WorkDTO());
+	}
+
+	@Test(expected = ConstraintViolationException.class)
+	public void updateWithInvalidDataAsAdmin() {
+		final Authentication authentication = mock(Authentication.class);
+		final AppUser user = mock(AppUser.class);
+		when(user.getRole()).thenReturn(Role.WORKER);
+		when(userService.get(any(String.class))).thenReturn(user);
+		when(workService.get(any(Integer.class))).then(invocation -> {
+			return Optional.of(new Work());
+		});
+		when(workService.update(any(String.class), any(WorkKind.class), any(WorkStatus.class), any(Work.class)))
+				.thenThrow(ConstraintViolationException.class);
+		final WorkDTO updated = workServiceFacade.update(authentication, new WorkDTO());
 	}
 }

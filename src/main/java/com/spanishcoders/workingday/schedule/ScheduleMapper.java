@@ -9,11 +9,11 @@ import org.mapstruct.Mappings;
 import com.spanishcoders.user.hairdresser.HairdresserMapper;
 import com.spanishcoders.workingday.block.BlockMapper;
 
-@Mapper(componentModel = "spring", uses = {HairdresserMapper.class, BlockMapper.class})
+@Mapper(uses = { HairdresserMapper.class, BlockMapper.class })
 public interface ScheduleMapper {
 
 	Set<HairdresserScheduleDTO> toDTOs(Set<Schedule> schedules);
 
-	@Mappings({@Mapping(source = "blocks", target="schedule")})
+	@Mappings({ @Mapping(source = "blocks", target = "schedule") })
 	HairdresserScheduleDTO toDTO(Schedule schedule);
 }

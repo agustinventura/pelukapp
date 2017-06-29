@@ -2,7 +2,7 @@ package com.spanishcoders.agenda;
 
 import org.mapstruct.Mapper;
 
-@Mapper(componentModel = "spring")
+@Mapper
 public interface AgendaMapper {
 
 	default Integer asInteger(Agenda agenda) {

@@ -9,6 +9,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -49,7 +50,7 @@ public class WorkControllerTests extends PelukaapUnitTest {
 
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
-	public void getWorksAdmin() throws Exception {
+	public void getWorksAsAdmin() throws Exception {
 		this.mockMvc
 				.perform(get("/works").contentType(MediaType.APPLICATION_JSON_UTF8)
 						.accept(MediaType.APPLICATION_JSON_UTF8))
@@ -59,7 +60,7 @@ public class WorkControllerTests extends PelukaapUnitTest {
 
 	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
-	public void createWork() throws Exception {
+	public void createWorkAsAdmin() throws Exception {
 		final WorkDTO dto = new WorkDTO();
 		dto.setName("test");
 		dto.setDuration(Duration.ofMinutes(30L));
@@ -85,6 +86,45 @@ public class WorkControllerTests extends PelukaapUnitTest {
 		when(workServiceFacade.create(any(Authentication.class), any(WorkDTO.class)))
 				.thenThrow(AccessDeniedException.class);
 		this.mockMvc.perform(post("/works").content(toJSON(dto)).contentType(MediaType.APPLICATION_JSON_UTF8)
+				.accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(status().isUnauthorized());
+	}
+
+	@Test
+	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
+	public void updateWorkAsAdmin() throws Exception {
+		final WorkDTO dto = new WorkDTO();
+		dto.setName("modified test");
+		dto.setWorkKind(WorkKind.PRIVATE);
+		dto.setWorkStatus(WorkStatus.ENABLED);
+		dto.setId(1);
+		when(workServiceFacade.update(any(Authentication.class), any(WorkDTO.class))).then(invocation -> {
+			final WorkDTO modified = invocation.getArgumentAt(1, WorkDTO.class);
+			return modified;
+		});
+		this.mockMvc
+				.perform(put("/works").content(toJSON(dto)).contentType(MediaType.APPLICATION_JSON_UTF8)
+						.accept(MediaType.APPLICATION_JSON_UTF8))
+				.andExpect(status().isCreated()).andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+				.andExpect(jsonPath("$", is(not(empty())))).andExpect(jsonPath("$.id", is(1)));
+	}
+
+	@Test
+	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
+	public void updateWorkWithInvalidDataAsAdmin() throws Exception {
+		final WorkDTO dto = new WorkDTO();
+		when(workServiceFacade.update(any(Authentication.class), any(WorkDTO.class)))
+				.thenThrow(IllegalArgumentException.class);
+		this.mockMvc.perform(put("/works").content(toJSON(dto)).contentType(MediaType.APPLICATION_JSON_UTF8)
+				.accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(status().isBadRequest());
+	}
+
+	@Test
+	@WithMockUser(username = "client", roles = { "USER", "CLIENT" })
+	public void updateWorkAsClient() throws Exception {
+		final WorkDTO dto = new WorkDTO();
+		when(workServiceFacade.update(any(Authentication.class), any(WorkDTO.class)))
+				.thenThrow(AccessDeniedException.class);
+		this.mockMvc.perform(put("/works").content(toJSON(dto)).contentType(MediaType.APPLICATION_JSON_UTF8)
 				.accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(status().isUnauthorized());
 	}
 }

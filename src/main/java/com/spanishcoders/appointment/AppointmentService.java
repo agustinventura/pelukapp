@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.Set;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -18,6 +19,8 @@ import com.spanishcoders.workingday.block.Block;
 @Service
 @Transactional(readOnly = true)
 public class AppointmentService {
+
+	private static final Logger logger = Logger.getLogger(AppointmentService.class);
 
 	private final AppointmentRepository appointmentRepository;
 
@@ -37,7 +40,14 @@ public class AppointmentService {
 
 	@Transactional(readOnly = false)
 	Appointment update(AppUser user, AppointmentStatus newStatus, String notes, Appointment appointment) {
-		final Appointment modified = modifyNotesOrCancel(user, newStatus, notes, appointment);
+		final Optional<Appointment> toModify = this.get(appointment.getId());
+		Appointment modified = null;
+		if (toModify.isPresent()) {
+			modified = modifyNotesOrCancel(user, newStatus, notes, appointment);
+		} else {
+			logger.error("Tried to update non existing Appointment: " + appointment);
+			throw new IllegalArgumentException("Tried to update non existing Appointment: " + appointment);
+		}
 		return modified;
 	}
 
