@@ -7,11 +7,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.spanishcoders.configuration.BeansConfiguration;
 import com.spanishcoders.configuration.development.DevelopmentSecurityConfiguration;
 
 @RunWith(SpringRunner.class)
 @ActiveProfiles("development")
-@Import(DevelopmentSecurityConfiguration.class)
+@Import({ DevelopmentSecurityConfiguration.class, BeansConfiguration.class })
 public abstract class PelukaapUnitTest {
 
 	protected String toJSON(Object dto) throws JsonProcessingException {

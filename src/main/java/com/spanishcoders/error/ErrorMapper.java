@@ -10,7 +10,7 @@ public interface ErrorMapper {
 
 	default ErrorsDTO toDTO(ConstraintViolationException ex) {
 		final ErrorsDTO errors = new ErrorsDTO();
-		if (ex != null) {
+		if (ex != null && ex.getConstraintViolations() != null) {
 			for (final ConstraintViolation violation : ex.getConstraintViolations()) {
 				errors.add(new ErrorDTO(violation.getPropertyPath().toString(), violation.getMessage()));
 			}

@@ -14,8 +14,6 @@ import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -26,8 +24,7 @@ import org.springframework.web.context.WebApplicationContext;
 import com.spanishcoders.PelukaapUnitTest;
 import com.spanishcoders.user.UserDTO;
 
-@WebMvcTest(controllers = ClientController.class, excludeFilters = {
-		@ComponentScan.Filter(type = FilterType.REGEX, pattern = "com.spanishcoders.error.*") })
+@WebMvcTest(controllers = ClientController.class)
 public class ClientControllerTests extends PelukaapUnitTest {
 
 	@MockBean
