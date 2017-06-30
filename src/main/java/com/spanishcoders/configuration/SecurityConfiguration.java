@@ -49,7 +49,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 	protected void configure(HttpSecurity http) throws Exception {
 		// Enable for h2-console access
 		http.headers().frameOptions().disable();
-		http.csrf().disable().authorizeRequests().antMatchers(HttpMethod.GET, "/").permitAll()
+		http.csrf().disable().authorizeRequests()
 				.antMatchers(HttpMethod.GET, "/*.html").permitAll().antMatchers(HttpMethod.GET, "/static/index.html")
 				.permitAll().antMatchers(HttpMethod.POST, "/login").permitAll().antMatchers(HttpMethod.POST, "/client")
 				.permitAll().antMatchers("/favicon.ico").permitAll()

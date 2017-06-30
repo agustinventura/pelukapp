@@ -49,6 +49,13 @@ public class WorkControllerTests extends PelukaapUnitTest {
 	}
 
 	@Test
+	public void getWorksWithoutAuthentication() throws Exception {
+		this.mockMvc.perform(
+				get("/works").contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
 	@WithMockUser(username = "admin", roles = { "USER", "WORKER" })
 	public void getWorksAsAdmin() throws Exception {
 		this.mockMvc
@@ -56,6 +63,20 @@ public class WorkControllerTests extends PelukaapUnitTest {
 						.accept(MediaType.APPLICATION_JSON_UTF8))
 				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
 				.andExpect(jsonPath("$.*", hasSize(1)));
+	}
+
+	@Test
+	public void getWorkByIdWithoutAuthentication() throws Exception {
+		this.mockMvc.perform(
+				get("/works/1").contentType(MediaType.APPLICATION_JSON_UTF8).accept(MediaType.APPLICATION_JSON_UTF8))
+				.andExpect(status().isForbidden());
+	}
+
+	@Test
+	public void createWorkWithoutAuthentication() throws Exception {
+		final WorkDTO dto = new WorkDTO();
+		this.mockMvc.perform(post("/works").content(toJSON(dto)).contentType(MediaType.APPLICATION_JSON_UTF8)
+				.accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(status().isForbidden());
 	}
 
 	@Test
@@ -83,8 +104,6 @@ public class WorkControllerTests extends PelukaapUnitTest {
 	@WithMockUser(username = "client", roles = { "USER", "CLIENT" })
 	public void createWorkAsClient() throws Exception {
 		final WorkDTO dto = new WorkDTO();
-		when(workServiceFacade.create(any(Authentication.class), any(WorkDTO.class)))
-				.thenThrow(AccessDeniedException.class);
 		this.mockMvc.perform(post("/works").content(toJSON(dto)).contentType(MediaType.APPLICATION_JSON_UTF8)
 				.accept(MediaType.APPLICATION_JSON_UTF8)).andExpect(status().isUnauthorized());
 	}
@@ -104,7 +123,7 @@ public class WorkControllerTests extends PelukaapUnitTest {
 		this.mockMvc
 				.perform(put("/works").content(toJSON(dto)).contentType(MediaType.APPLICATION_JSON_UTF8)
 						.accept(MediaType.APPLICATION_JSON_UTF8))
-				.andExpect(status().isCreated()).andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
+				.andExpect(status().isOk()).andExpect(content().contentType(MediaType.APPLICATION_JSON_UTF8))
 				.andExpect(jsonPath("$", is(not(empty())))).andExpect(jsonPath("$.id", is(1)));
 	}
 

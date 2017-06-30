@@ -1,6 +1,5 @@
 package com.spanishcoders.configuration.development;
 
-import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;

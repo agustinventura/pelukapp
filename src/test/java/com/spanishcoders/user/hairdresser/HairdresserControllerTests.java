@@ -92,7 +92,7 @@ public class HairdresserControllerTests extends PelukaapUnitTest {
 		this.mockMvc
 				.perform(post("/hairdresser").content(toJSON(dto)).contentType(MediaType.APPLICATION_JSON)
 						.accept(MediaType.parseMediaType("application/json;charset=UTF-8")))
-				.andExpect(status().isUnauthorized());
+				.andExpect(status().isForbidden());
 	}
 
 	@Test

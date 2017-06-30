@@ -41,6 +41,16 @@ public class WorkServiceFacade {
 		return dtos;
 	}
 
+	WorkDTO get(Authentication authentication, int id) {
+		final WorkDTO dto = null;
+		final Optional<AppUser> user = authentication != null ? userService.get(authentication.getName())
+				: Optional.empty();
+		if (user.isPresent()) {
+			// dto =
+		}
+		return dto;
+	}
+
 	WorkDTO create(Authentication authentication, WorkDTO workDTO) {
 		checkUser(authentication);
 		Work work = workMapper.asWork(workDTO);

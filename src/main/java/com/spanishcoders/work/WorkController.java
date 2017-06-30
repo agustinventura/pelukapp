@@ -12,6 +12,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,6 +37,12 @@ public class WorkController {
 		return workServiceFacade.get(authentication);
 	}
 
+	@PreAuthorize("authenticated")
+	@RequestMapping(path = "/{id}", method = RequestMethod.GET)
+	public WorkDTO get(Authentication authentication, @PathVariable Integer id) {
+		return workServiceFacade.get(authentication, id);
+	}
+
 	@PreAuthorize("hasRole('ROLE_WORKER')")
 	@RequestMapping(method = RequestMethod.POST)
 	@ResponseStatus(HttpStatus.CREATED)
@@ -45,7 +52,6 @@ public class WorkController {
 
 	@PreAuthorize("hasRole('ROLE_WORKER')")
 	@RequestMapping(method = RequestMethod.PUT)
-	@ResponseStatus(HttpStatus.CREATED)
 	public WorkDTO update(Authentication authentication, @RequestBody WorkDTO workDTO) {
 		return workServiceFacade.update(authentication, workDTO);
 	}
