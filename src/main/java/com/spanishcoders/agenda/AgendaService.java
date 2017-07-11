@@ -25,12 +25,12 @@ public class AgendaService {
 		Set<Block> dayBlocks = Sets.newTreeSet();
 		if (agenda != null && day != null) {
 			if (agenda.hasWorkingDay(day)) {
-				dayBlocks = agenda.getWorkingDayBlocks(day);
+				dayBlocks.addAll(agenda.getWorkingDayBlocks(day));
 			} else {
 				if (!agenda.isNonWorkingDay(day)) {
 					new WorkingDay(agenda, day);
 					agendaRepository.save(agenda);
-					dayBlocks = agenda.getWorkingDayBlocks(day);
+					dayBlocks.addAll(agenda.getWorkingDayBlocks(day));
 				}
 			}
 		}
