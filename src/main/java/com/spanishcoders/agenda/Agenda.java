@@ -48,8 +48,8 @@ public class Agenda {
 	private SortedMap<LocalDate, WorkingDay> workingDays;
 
 	@ElementCollection
-	@CollectionTable(name = "non_working_days", foreignKey = @ForeignKey(name = "non_working_days_agenda_fk"))
-	private Set<LocalDate> nonWorkingDays;
+	@CollectionTable(name = "closing_days", foreignKey = @ForeignKey(name = "closing_days_agenda_fk"))
+	private Set<LocalDate> closingDays;
 
 	@NotEmpty
 	@OneToMany(cascade = CascadeType.ALL)
@@ -59,7 +59,7 @@ public class Agenda {
 	public Agenda() {
 		this.workingDays = new TreeMap<>();
 		this.timetables = Sets.newHashSet();
-		this.nonWorkingDays = Sets.newHashSet();
+		this.closingDays = Sets.newHashSet();
 	}
 
 	public Agenda(Hairdresser hairdresser, Timetable... timetables) {
@@ -92,12 +92,12 @@ public class Agenda {
 		this.workingDays = workingDays;
 	}
 
-	public Set<LocalDate> getNonWorkingDays() {
-		return nonWorkingDays;
+	public Set<LocalDate> getClosingDays() {
+		return closingDays;
 	}
 
-	public void setNonWorkingDays(Set<LocalDate> nonWorkingDays) {
-		this.nonWorkingDays = nonWorkingDays;
+	public void setClosingDays(Set<LocalDate> closingDays) {
+		this.closingDays = closingDays;
 	}
 
 	public Set<Timetable> getTimetables() {
@@ -175,11 +175,11 @@ public class Agenda {
 	}
 
 	public void addNonWorkingDay(LocalDate nonWorkingDay) {
-		this.nonWorkingDays.add(nonWorkingDay);
+		this.closingDays.add(nonWorkingDay);
 	}
 
 	public boolean isNonWorkingDay(LocalDate today) {
-		return nonWorkingDays.contains(today);
+		return closingDays.contains(today);
 	}
 
 	public boolean hasWorkingDay(LocalDate today) {

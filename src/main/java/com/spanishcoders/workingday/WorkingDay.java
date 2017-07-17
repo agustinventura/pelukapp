@@ -52,7 +52,7 @@ public class WorkingDay implements Comparable<WorkingDay> {
 
 	public WorkingDay(Agenda agenda) {
 		this();
-		this.date = getNewWorkingDayDate(agenda.getNonWorkingDays(), agenda.getWorkingDays());
+		this.date = getNewWorkingDayDate(agenda.getClosingDays(), agenda.getWorkingDays());
 		final NavigableSet<Block> workingDayBlocks = createBlocksForDay(agenda.getCurrentTimetable());
 		this.setBlocks(workingDayBlocks);
 		this.agenda = agenda;
