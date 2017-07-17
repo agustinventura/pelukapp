@@ -65,7 +65,7 @@ public class AgendaServiceTests extends PelukaapUnitTest {
     public void getDayBlocksForNonExistingWorkingDay() {
         Agenda agenda = mock(Agenda.class);
         given(agenda.hasWorkingDay(any(LocalDate.class))).willReturn(false);
-        given(agenda.isNonWorkingDay(any(LocalDate.class))).willReturn(false);
+        given(agenda.isClosingDay(any(LocalDate.class))).willReturn(false);
         Stretch stretch = mock(Stretch.class);
         given(stretch.getStartTime()).willReturn(LocalTime.now());
         given(stretch.getEndTime()).willReturn(LocalTime.now().plusHours(2));
@@ -83,7 +83,7 @@ public class AgendaServiceTests extends PelukaapUnitTest {
     public void getDayBlocksForNonWorkingDay() {
         Agenda agenda = mock(Agenda.class);
         given(agenda.hasWorkingDay(any(LocalDate.class))).willReturn(false);
-        given(agenda.isNonWorkingDay(any(LocalDate.class))).willReturn(true);
+        given(agenda.isClosingDay(any(LocalDate.class))).willReturn(true);
         Set<Block> todaysBlocks = agendaService.getDayBlocks(agenda, LocalDate.now());
         assertThat(todaysBlocks, is(empty()));
     }

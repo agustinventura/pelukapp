@@ -100,12 +100,6 @@ public class Agenda {
 		this.closingDays = closingDays;
 	}
 
-	public void addClosingDay(LocalDate newClosingDay) {
-		if (newClosingDay != null) {
-			this.closingDays.add(newClosingDay);
-		}
-	}
-
 	public Set<Timetable> getTimetables() {
 		return timetables;
 	}
@@ -156,11 +150,28 @@ public class Agenda {
 		workingDays.put(workingDay.getDate(), workingDay);
 	}
 
+	public void addClosingDay(LocalDate newClosingDay) {
+		if (newClosingDay == null) {
+			throw new IllegalArgumentException("To add a closing day it can't be null");
+		}
+		this.closingDays.add(newClosingDay);
+	}
+
 	public void addTimetable(Timetable timetable) {
 		if (timetable == null) {
 			throw new IllegalArgumentException("Can't add an empty timetable to agenda");
 		}
+		checkTimetablesOverlapping(timetable);
 		this.timetables.add(timetable);
+	}
+
+	private void checkTimetablesOverlapping(Timetable newTimetable) {
+		for (final Timetable timetable : timetables) {
+			if (timetable.overlaps(newTimetable)) {
+				throw new IllegalArgumentException(
+						"New timetable " + newTimetable + " overlaps with timetable " + timetable);
+			}
+		}
 	}
 
 	public Timetable getCurrentTimetable() {
@@ -180,11 +191,7 @@ public class Agenda {
 		return currentTimetable;
 	}
 
-	public void addNonWorkingDay(LocalDate nonWorkingDay) {
-		this.closingDays.add(nonWorkingDay);
-	}
-
-	public boolean isNonWorkingDay(LocalDate today) {
+	public boolean isClosingDay(LocalDate today) {
 		return closingDays.contains(today);
 	}
 

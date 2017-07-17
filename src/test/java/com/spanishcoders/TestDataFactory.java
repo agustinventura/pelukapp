@@ -79,7 +79,7 @@ public class TestDataFactory {
 
 	public static Timetable mockTimetable() {
 		final LocalDate today = LocalDate.now();
-		final Timetable timetable = new Timetable(today.minusDays(1), today.plusDays(1));
+		final Timetable timetable = new Timetable(today.minusDays(1), today.plusDays(1), new Stretch());
 		return timetable;
 	}
 

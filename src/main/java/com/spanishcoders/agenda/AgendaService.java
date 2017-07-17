@@ -27,7 +27,7 @@ public class AgendaService {
 			if (agenda.hasWorkingDay(day)) {
 				dayBlocks.addAll(agenda.getWorkingDayBlocks(day));
 			} else {
-				if (!agenda.isNonWorkingDay(day)) {
+				if (!agenda.isClosingDay(day)) {
 					new WorkingDay(agenda, day);
 					agendaRepository.save(agenda);
 					dayBlocks.addAll(agenda.getWorkingDayBlocks(day));

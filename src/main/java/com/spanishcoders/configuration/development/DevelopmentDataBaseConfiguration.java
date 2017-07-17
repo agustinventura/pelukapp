@@ -111,10 +111,10 @@ public class DevelopmentDataBaseConfiguration {
 		final Timetable timetable = new Timetable(LocalDate.now().minusDays(365), LocalDate.now().plusDays(365),
 				morning, afternoon);
 		final Agenda agenda = new Agenda(admin, timetable);
-		agenda.addNonWorkingDay(LocalDate.of(LocalDate.now().getYear(), 01, 01));
-		agenda.addNonWorkingDay(LocalDate.of(LocalDate.now().getYear(), 01, 06));
-		agenda.addNonWorkingDay(LocalDate.of(LocalDate.now().getYear(), 02, 28));
-		agenda.addNonWorkingDay(LocalDate.of(LocalDate.now().getYear(), 8, 15));
+		agenda.addClosingDay(LocalDate.of(LocalDate.now().getYear(), 01, 01));
+		agenda.addClosingDay(LocalDate.of(LocalDate.now().getYear(), 01, 06));
+		agenda.addClosingDay(LocalDate.of(LocalDate.now().getYear(), 02, 28));
+		agenda.addClosingDay(LocalDate.of(LocalDate.now().getYear(), 8, 15));
 	}
 
 	private void createWorks(WorkRepository workRepository) {

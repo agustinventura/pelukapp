@@ -137,14 +137,14 @@ public class ProductionDataBaseConfiguration {
 		final Timetable timetable = new Timetable(LocalDate.now().minusDays(365), LocalDate.now().plusDays(365),
 				morning, afternoon);
 		final Agenda agenda = new Agenda(admin, timetable);
-		agenda.addNonWorkingDay(LocalDate.of(2016, 01, 01));
-		agenda.addNonWorkingDay(LocalDate.of(2016, 01, 06));
-		agenda.addNonWorkingDay(LocalDate.of(2016, 02, 28));
-		agenda.addNonWorkingDay(LocalDate.of(2016, 8, 15));
+		agenda.addClosingDay(LocalDate.of(2016, 01, 01));
+		agenda.addClosingDay(LocalDate.of(2016, 01, 06));
+		agenda.addClosingDay(LocalDate.of(2016, 02, 28));
+		agenda.addClosingDay(LocalDate.of(2016, 8, 15));
 		for (int i = 0; i < 366; i++) {
 			final LocalDate day = LocalDate.now().plusDays(i);
 			if (day.getDayOfWeek() == DayOfWeek.SUNDAY) {
-				agenda.addNonWorkingDay(day);
+				agenda.addClosingDay(day);
 			}
 		}
 	}

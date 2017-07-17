@@ -17,6 +17,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 
 @Entity
@@ -46,6 +47,9 @@ public class Timetable {
 		this();
 		this.startDay = startDay;
 		this.endDay = endDay;
+		if (stretchs == null || stretchs.length == 0) {
+			throw new IllegalArgumentException("Can't create a Timetable without stretches");
+		}
 		this.stretches.addAll(Arrays.asList(stretchs));
 	}
 
@@ -82,7 +86,19 @@ public class Timetable {
 	}
 
 	public void addStretch(Stretch stretch) {
+		if (stretch == null) {
+			throw new IllegalArgumentException("Can't add an empty stretch");
+		}
 		this.stretches.add(stretch);
+	}
+
+	public boolean overlaps(Timetable timetable) {
+		boolean overlaps = false;
+		if (timetable != null) {
+			final Range<LocalDate> dateRange = Range.closed(startDay, endDay);
+			overlaps = (dateRange.contains(timetable.getStartDay()) || dateRange.contains(timetable.getEndDay()));
+		}
+		return overlaps;
 	}
 
 	@Override

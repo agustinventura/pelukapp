@@ -16,6 +16,7 @@ import org.junit.Test;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.agenda.Agenda;
+import com.spanishcoders.agenda.Stretch;
 import com.spanishcoders.agenda.Timetable;
 import com.spanishcoders.workingday.WorkingDay;
 import com.spanishcoders.workingday.block.Block;
@@ -60,14 +61,38 @@ public class AgendaTests {
 		assertThat(agenda.getTimetables(), contains(timetable));
 	}
 
+	@Test(expected = IllegalArgumentException.class)
+	public void addOverlappingTimetable() {
+		final Agenda agenda = new Agenda();
+		final Timetable timetable = mockTimetable();
+		agenda.addTimetable(timetable);
+		agenda.addTimetable(timetable);
+	}
+
+	@Test
+	public void addNonOverlappingTimetable() {
+		final Agenda agenda = new Agenda();
+		final Timetable timetable = mockTimetable();
+		agenda.addTimetable(timetable);
+		assertThat(agenda.getTimetables().size(), is(1));
+		assertThat(agenda.getTimetables(), contains(timetable));
+		final LocalDate timetableEndDate = timetable.getEndDay();
+		final Timetable newTimetable = new Timetable(timetableEndDate.plusDays(1L), timetableEndDate.plusMonths(6L),
+				new Stretch());
+		agenda.addTimetable(newTimetable);
+		assertThat(agenda.getTimetables().size(), is(2));
+		assertThat(agenda.getTimetables().contains(timetable), is(true));
+		assertThat(agenda.getTimetables().contains(newTimetable), is(true));
+	}
+
 	@Test
 	public void getCurrentTimetable() throws Exception {
 		final LocalDate aMonthAgo = LocalDate.now().minusMonths(1);
 		final LocalDate nextMonth = LocalDate.now().plusMonths(1);
-		final Timetable current = new Timetable(aMonthAgo, nextMonth);
+		final Timetable current = new Timetable(aMonthAgo, nextMonth, new Stretch());
 		final LocalDate pastYearStartDate = aMonthAgo.minusYears(1);
 		final LocalDate pastYearEndDate = nextMonth.plusYears(1);
-		final Timetable past = new Timetable(pastYearStartDate, pastYearEndDate);
+		final Timetable past = new Timetable(pastYearStartDate, pastYearEndDate, new Stretch());
 		final Agenda agenda = new Agenda();
 		agenda.addTimetable(current);
 		agenda.addTimetable(past);
@@ -106,10 +131,9 @@ public class AgendaTests {
 		assertThat(agenda.getClosingDays(), contains(closingDay));
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void addNullClosingDay() {
 		final Agenda agenda = new Agenda();
 		agenda.addClosingDay(null);
-		assertThat(agenda.getClosingDays(), is(empty()));
 	}
 }
