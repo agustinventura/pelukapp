@@ -97,4 +97,19 @@ public class AgendaTests {
 		final Set<Block> workingDayBlocks = agenda.getWorkingDayBlocks(LocalDate.now());
 		assertThat(workingDayBlocks, is(empty()));
 	}
+
+	@Test
+	public void addClosingDay() {
+		final Agenda agenda = new Agenda();
+		final LocalDate closingDay = LocalDate.now();
+		agenda.addClosingDay(closingDay);
+		assertThat(agenda.getClosingDays(), contains(closingDay));
+	}
+
+	@Test
+	public void addNullClosingDay() {
+		final Agenda agenda = new Agenda();
+		agenda.addClosingDay(null);
+		assertThat(agenda.getClosingDays(), is(empty()));
+	}
 }

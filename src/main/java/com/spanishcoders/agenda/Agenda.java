@@ -100,6 +100,12 @@ public class Agenda {
 		this.closingDays = closingDays;
 	}
 
+	public void addClosingDay(LocalDate newClosingDay) {
+		if (newClosingDay != null) {
+			this.closingDays.add(newClosingDay);
+		}
+	}
+
 	public Set<Timetable> getTimetables() {
 		return timetables;
 	}
