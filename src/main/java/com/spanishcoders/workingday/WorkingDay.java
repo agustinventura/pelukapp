@@ -183,4 +183,8 @@ public class WorkingDay implements Comparable<WorkingDay> {
 	public int compareTo(WorkingDay o) {
 		return date.compareTo(o.getDate());
 	}
+
+	public boolean hasAppointment() {
+		return this.blocks.stream().anyMatch(block -> block.getAppointment() != null);
+	}
 }

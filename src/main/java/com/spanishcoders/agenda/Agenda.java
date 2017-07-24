@@ -117,7 +117,16 @@ public class Agenda {
 		if (newClosingDay == null) {
 			throw new IllegalArgumentException("To add a closing day it can't be null");
 		}
+		checkCurrentAppointments(newClosingDay);
 		this.closingDays.add(newClosingDay);
+	}
+
+	private void checkCurrentAppointments(LocalDate newClosingDay) {
+		if (this.workingDays.containsKey(newClosingDay)) {
+			if (this.workingDays.get(newClosingDay).hasAppointment()) {
+				throw new IllegalStateException("New closing day " + newClosingDay + " already has appointments");
+			}
+		}
 	}
 
 	public void addTimetable(Timetable timetable) {

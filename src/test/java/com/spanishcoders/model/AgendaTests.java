@@ -1,6 +1,7 @@
 package com.spanishcoders.model;
 
 import static com.spanishcoders.TestDataFactory.agenda;
+import static com.spanishcoders.TestDataFactory.publicWork;
 import static com.spanishcoders.TestDataFactory.timetable;
 import static com.spanishcoders.TestDataFactory.workingDay;
 import static org.hamcrest.Matchers.contains;
@@ -13,10 +14,12 @@ import java.util.Set;
 
 import org.junit.Test;
 
+import com.google.common.collect.Sets;
 import com.spanishcoders.agenda.Agenda;
 import com.spanishcoders.agenda.OpeningDay;
 import com.spanishcoders.agenda.OpeningHours;
 import com.spanishcoders.agenda.Timetable;
+import com.spanishcoders.appointment.Appointment;
 import com.spanishcoders.workingday.WorkingDay;
 import com.spanishcoders.workingday.block.Block;
 
@@ -119,6 +122,19 @@ public class AgendaTests {
 	public void addClosingDay() {
 		final Agenda agenda = agenda();
 		final LocalDate closingDay = LocalDate.now();
+		agenda.addClosingDay(closingDay);
+		assertThat(agenda.getClosingDays(), contains(closingDay));
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void addClosingDayWithPreviousAppointment() {
+		final Agenda agenda = agenda();
+		agenda.addTimetable(timetable());
+		final WorkingDay workingDay = new WorkingDay(agenda);
+		final Block block = workingDay.getBlocks().iterator().next();
+		final Appointment appointment = new Appointment(agenda.getHairdresser(), publicWork(), Sets.newHashSet(block),
+				"");
+		final LocalDate closingDay = appointment.getDate().toLocalDate();
 		agenda.addClosingDay(closingDay);
 		assertThat(agenda.getClosingDays(), contains(closingDay));
 	}

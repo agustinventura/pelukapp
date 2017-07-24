@@ -84,15 +84,15 @@ public class Appointment implements Comparable<Appointment> {
 		checkBlocks(blocks);
 		checkAuthorization(user, works);
 		checkWorkLength(works, blocks);
-		this.user = user;
-		this.user.addAppointment(this);
-		this.works = works;
 		this.blocks.addAll(blocks);
-		this.blocks.stream().forEach(block -> block.setAppointment(this));
 		final Block firstBlock = ((SortedSet<Block>) this.blocks).first();
 		final LocalTime appointmentTime = firstBlock.getStart();
 		final LocalDate appointmentDate = firstBlock.getWorkingDay().getDate();
 		this.date = LocalDateTime.of(appointmentDate, appointmentTime);
+		this.user = user;
+		this.user.addAppointment(this);
+		this.works = works;
+		this.blocks.stream().forEach(block -> block.setAppointment(this));
 		this.duration = Duration.of(works.stream().mapToLong(work -> work.getDuration().toMinutes()).sum(),
 				ChronoUnit.MINUTES);
 		this.notes = notes;
