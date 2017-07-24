@@ -5,8 +5,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
-import com.spanishcoders.agenda.AgendaMapper;
-import com.spanishcoders.agenda.AgendaMapperImpl;
 import com.spanishcoders.appointment.AppointmentMapper;
 import com.spanishcoders.appointment.AppointmentMapperImpl;
 import com.spanishcoders.error.ErrorMapper;
@@ -55,11 +53,6 @@ public class BeansConfiguration {
 	@Bean
 	public AppointmentMapper appointmentMapper() {
 		return new AppointmentMapperImpl();
-	}
-
-	@Bean
-	public AgendaMapper agendaMapper() {
-		return new AgendaMapperImpl();
 	}
 
 	@Bean

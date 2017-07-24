@@ -9,7 +9,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 
-import static com.spanishcoders.TestDataFactory.mockWorkingDay;
+import static com.spanishcoders.TestDataFactory.workingDay;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -37,7 +37,7 @@ public class WorkingDayServiceTests extends PelukaapUnitTest {
 
     @Test
     public void saveWorkingDay() {
-        WorkingDay workingDay = mockWorkingDay();
+        WorkingDay workingDay = workingDay();
         given(workingDayRepository.save(workingDay)).willReturn(workingDay);
         assertThat(workingDayService.save(workingDay), is(workingDay));
     }

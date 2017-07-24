@@ -1,5 +1,6 @@
 package com.spanishcoders.configuration.development;
 
+import java.time.DayOfWeek;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -22,7 +23,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.spanishcoders.agenda.Agenda;
-import com.spanishcoders.agenda.Stretch;
+import com.spanishcoders.agenda.OpeningHours;
 import com.spanishcoders.agenda.Timetable;
 import com.spanishcoders.user.UserRepository;
 import com.spanishcoders.user.UserStatus;
@@ -61,8 +62,8 @@ public class DevelopmentDataBaseConfiguration {
 	@Bean
 	public Properties getHibernateProperties() {
 		final Properties hibernateProperties = new Properties();
-		hibernateProperties.setProperty("hibernate.show_sql", "false");
-		hibernateProperties.setProperty("hibernate.format_sql", "false");
+		hibernateProperties.setProperty("hibernate.show_sql", "true");
+		hibernateProperties.setProperty("hibernate.format_sql", "true");
 		hibernateProperties.setProperty("hibernate.hbm2ddl.auto", "create-drop");
 		return hibernateProperties;
 	}
@@ -106,11 +107,20 @@ public class DevelopmentDataBaseConfiguration {
 	}
 
 	private void createAgenda(Hairdresser admin) {
-		final Stretch morning = new Stretch(LocalTime.of(10, 00), LocalTime.of(14, 00));
-		final Stretch afternoon = new Stretch(LocalTime.of(17, 00), LocalTime.of(21, 00));
-		final Timetable timetable = new Timetable(LocalDate.now().minusDays(365), LocalDate.now().plusDays(365),
-				morning, afternoon);
-		final Agenda agenda = new Agenda(admin, timetable);
+		final Agenda agenda = new Agenda(admin);
+		final LocalDate startDay = LocalDate.now().minusMonths(6L);
+		final LocalDate endDay = LocalDate.now().plusMonths(6);
+		final Timetable timetable = new Timetable(startDay, endDay);
+		for (final DayOfWeek weekDay : DayOfWeek.values()) {
+			final OpeningHours morning = new OpeningHours(LocalTime.of(10, 00), LocalTime.of(14, 00));
+			final OpeningHours afternoon = new OpeningHours(LocalTime.of(17, 00), LocalTime.of(21, 00));
+			if (weekDay == DayOfWeek.SATURDAY) {
+				timetable.addOpeningDay(weekDay, morning);
+			} else if (weekDay != DayOfWeek.SUNDAY) {
+				timetable.addOpeningDay(weekDay, morning, afternoon);
+			}
+		}
+		agenda.addTimetable(timetable);
 		agenda.addClosingDay(LocalDate.of(LocalDate.now().getYear(), 01, 01));
 		agenda.addClosingDay(LocalDate.of(LocalDate.now().getYear(), 01, 06));
 		agenda.addClosingDay(LocalDate.of(LocalDate.now().getYear(), 02, 28));

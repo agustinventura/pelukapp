@@ -1,7 +1,6 @@
 package com.spanishcoders.agenda;
 
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.SortedMap;
@@ -52,20 +51,18 @@ public class Agenda {
 	private Set<LocalDate> closingDays;
 
 	@NotEmpty
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(foreignKey = @ForeignKey(name = "agenda_timetable_fk"))
-	private Set<Timetable> timetables;
+	@OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL)
+	private final Set<Timetable> timetables;
 
-	public Agenda() {
+	private Agenda() {
 		this.workingDays = new TreeMap<>();
 		this.timetables = Sets.newHashSet();
 		this.closingDays = Sets.newHashSet();
 	}
 
-	public Agenda(Hairdresser hairdresser, Timetable... timetables) {
+	public Agenda(Hairdresser hairdresser) {
 		this();
 		hairdresser.setAgenda(this);
-		this.timetables.addAll(Arrays.asList(timetables));
 	}
 
 	public Integer getId() {
@@ -104,13 +101,74 @@ public class Agenda {
 		return timetables;
 	}
 
-	public void setTimetables(Set<Timetable> timetables) {
-		this.timetables = timetables;
-	}
-
 	@Override
 	public String toString() {
-		return "Agenda{" + "id=" + id + ", hairdresser=" + hairdresser + '}';
+		return "Agenda [id=" + id + ", hairdresser=" + hairdresser + "]";
+	}
+
+	public void addWorkingDay(WorkingDay workingDay) {
+		if (workingDay == null || workingDay.getDate() == null) {
+			throw new IllegalArgumentException("To add a working day it needs to have a date");
+		}
+		workingDays.put(workingDay.getDate(), workingDay);
+	}
+
+	public void addClosingDay(LocalDate newClosingDay) {
+		if (newClosingDay == null) {
+			throw new IllegalArgumentException("To add a closing day it can't be null");
+		}
+		this.closingDays.add(newClosingDay);
+	}
+
+	public void addTimetable(Timetable timetable) {
+		if (timetable == null) {
+			throw new IllegalArgumentException("Can't add an empty timetable to agenda");
+		}
+		checkTimetablesOverlapping(timetable);
+		this.timetables.add(timetable);
+		timetable.setAgenda(this);
+	}
+
+	private void checkTimetablesOverlapping(Timetable newTimetable) {
+		for (final Timetable timetable : timetables) {
+			if (timetable.overlaps(newTimetable)) {
+				throw new IllegalArgumentException(
+						"New timetable " + newTimetable + " overlaps with timetable " + timetable);
+			}
+		}
+	}
+
+	public Timetable getCurrentTimetable() {
+		boolean found = false;
+		final LocalDate today = LocalDate.now();
+		Timetable currentTimetable = null;
+		final Iterator<Timetable> timetablesIt = timetables.iterator();
+		while (!found && timetablesIt.hasNext()) {
+			currentTimetable = timetablesIt.next();
+			if (currentTimetable.contains(today)) {
+				found = true;
+			}
+		}
+		if (!found) {
+			throw new TimeTableNotFoundException("Couldn't find an active timetable for date " + today);
+		}
+		return currentTimetable;
+	}
+
+	public boolean isClosingDay(LocalDate today) {
+		return closingDays.contains(today);
+	}
+
+	public boolean hasWorkingDay(LocalDate today) {
+		return workingDays.containsKey(today);
+	}
+
+	public Set<Block> getWorkingDayBlocks(LocalDate day) {
+		Set<Block> blocks = Sets.newHashSet();
+		if (workingDays.containsKey(day)) {
+			blocks = workingDays.get(day).getBlocks();
+		}
+		return blocks;
 	}
 
 	@Override
@@ -141,69 +199,5 @@ public class Agenda {
 			return false;
 		}
 		return true;
-	}
-
-	public void addWorkingDay(WorkingDay workingDay) {
-		if (workingDay == null || workingDay.getDate() == null) {
-			throw new IllegalArgumentException("To add a working day it needs to have a date");
-		}
-		workingDays.put(workingDay.getDate(), workingDay);
-	}
-
-	public void addClosingDay(LocalDate newClosingDay) {
-		if (newClosingDay == null) {
-			throw new IllegalArgumentException("To add a closing day it can't be null");
-		}
-		this.closingDays.add(newClosingDay);
-	}
-
-	public void addTimetable(Timetable timetable) {
-		if (timetable == null) {
-			throw new IllegalArgumentException("Can't add an empty timetable to agenda");
-		}
-		checkTimetablesOverlapping(timetable);
-		this.timetables.add(timetable);
-	}
-
-	private void checkTimetablesOverlapping(Timetable newTimetable) {
-		for (final Timetable timetable : timetables) {
-			if (timetable.overlaps(newTimetable)) {
-				throw new IllegalArgumentException(
-						"New timetable " + newTimetable + " overlaps with timetable " + timetable);
-			}
-		}
-	}
-
-	public Timetable getCurrentTimetable() {
-		boolean found = false;
-		final LocalDate today = LocalDate.now();
-		Timetable currentTimetable = null;
-		final Iterator<Timetable> timetablesIt = timetables.iterator();
-		while (!found && timetablesIt.hasNext()) {
-			currentTimetable = timetablesIt.next();
-			if (currentTimetable.getStartDay().isBefore(today) && currentTimetable.getEndDay().isAfter(today)) {
-				found = true;
-			}
-		}
-		if (!found) {
-			throw new TimeTableNotFoundException("Couldn't find an active timetable for date " + today);
-		}
-		return currentTimetable;
-	}
-
-	public boolean isClosingDay(LocalDate today) {
-		return closingDays.contains(today);
-	}
-
-	public boolean hasWorkingDay(LocalDate today) {
-		return workingDays.containsKey(today);
-	}
-
-	public Set<Block> getWorkingDayBlocks(LocalDate day) {
-		Set<Block> blocks = Sets.newHashSet();
-		if (workingDays.containsKey(day)) {
-			blocks = workingDays.get(day).getBlocks();
-		}
-		return blocks;
 	}
 }

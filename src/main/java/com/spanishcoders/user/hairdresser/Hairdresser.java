@@ -8,7 +8,6 @@ import javax.persistence.OneToOne;
 import com.spanishcoders.agenda.Agenda;
 import com.spanishcoders.user.AppUser;
 import com.spanishcoders.user.Role;
-import com.spanishcoders.user.UserDTO;
 
 @Entity
 @DiscriminatorValue(value = Role.Values.WORKER)
@@ -36,8 +35,9 @@ public class Hairdresser extends AppUser {
 
 	@Override
 	public String toString() {
-		return "Hairdresser [agenda=" + agenda + ", getUsername()=" + getUsername() + ", getStatus()=" + getStatus()
-				+ ", getName()=" + getName() + ", getPassword()=" + getPassword() + ", getId()=" + getId()
-				+ ", getPhone()=" + getPhone() + ", getAppointments()=" + getAppointments() + "]";
+		return "Hairdresser [getUsername()=" + getUsername() + ", getStatus()=" + getStatus() + ", getName()="
+				+ getName() + ", getPassword()=" + getPassword() + ", getId()=" + getId() + ", getPhone()=" + getPhone()
+				+ ", getRole()=" + getRole() + ", getAppointments()=" + getAppointments() + ", toString()="
+				+ super.toString() + ", hashCode()=" + hashCode() + ", getClass()=" + getClass() + "]";
 	}
 }

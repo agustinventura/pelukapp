@@ -1,6 +1,6 @@
 package com.spanishcoders.model;
 
-import static com.spanishcoders.TestDataFactory.mockWorkingDay;
+import static com.spanishcoders.TestDataFactory.workingDay;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
@@ -18,13 +18,13 @@ public class WorkingDayTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void addNullBlock() {
-		final WorkingDay workingDay = new WorkingDay();
+		final WorkingDay workingDay = workingDay();
 		workingDay.addBlock(null);
 	}
 
 	@Test
 	public void addBlock() throws Exception {
-		final WorkingDay workingDay = mockWorkingDay();
+		final WorkingDay workingDay = workingDay();
 		final Block block = new Block(LocalTime.now(), workingDay);
 		workingDay.addBlock(block);
 		assertThat(workingDay.getBlocks(), is(not(empty())));

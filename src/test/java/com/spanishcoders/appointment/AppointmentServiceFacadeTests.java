@@ -11,13 +11,13 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
-import org.assertj.core.util.Sets;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 
+import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
 import com.spanishcoders.user.AppUser;
 import com.spanishcoders.user.UserService;

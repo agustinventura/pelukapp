@@ -1,50 +1,50 @@
 package com.spanishcoders.agenda;
 
-import java.time.DayOfWeek;
 import java.time.LocalTime;
 
 import javax.persistence.Entity;
+import javax.persistence.ForeignKey;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import org.hibernate.annotations.Immutable;
+
 @Entity
-@Table(name = "stretch")
-public class Stretch {
+@Immutable
+@Table(name = "opening_hours")
+public class OpeningHours implements Comparable<OpeningHours> {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private final Integer id;
 
 	@NotNull
-	private final LocalTime startTime;
+	private LocalTime startTime;
 
 	@NotNull
-	private final LocalTime endTime;
+	private LocalTime endTime;
 
-	private final DayOfWeek dayOfWeek;
+	@NotNull
+	@ManyToOne
+	@JoinColumn(foreignKey = @ForeignKey(name = "opening_hours_opening_day_fk"))
+	private OpeningDay openingDay;
 
-	public Stretch() {
-		id = null;
-		startTime = null;
-		endTime = null;
-		dayOfWeek = null;
+	private OpeningHours() {
+		this.id = null;
+		this.startTime = null;
+		this.endTime = null;
+		this.openingDay = null;
 	}
 
-	public Stretch(LocalTime startTime, LocalTime endTime) {
-		this.id = null;
+	public OpeningHours(LocalTime startTime, LocalTime endTime) {
+		this();
 		this.startTime = startTime;
 		this.endTime = endTime;
-		dayOfWeek = null;
-	}
-
-	public Stretch(LocalTime startTime, LocalTime endTime, DayOfWeek dayOfWeek) {
-		this.id = null;
-		this.startTime = startTime;
-		this.endTime = endTime;
-		this.dayOfWeek = dayOfWeek;
 	}
 
 	public Integer getId() {
@@ -59,21 +59,23 @@ public class Stretch {
 		return endTime;
 	}
 
-	public DayOfWeek getDayOfWeek() {
-		return dayOfWeek;
+	public OpeningDay getOpeningDay() {
+		return openingDay;
+	}
+
+	public void setOpeningDay(OpeningDay openingDay) {
+		this.openingDay = openingDay;
 	}
 
 	@Override
 	public String toString() {
-		return "Stretch [id=" + id + ", startTime=" + startTime + ", endTime=" + endTime + ", dayOfWeek=" + dayOfWeek
-				+ "]";
+		return "OpeningHours [id=" + id + ", startTime=" + startTime + ", endTime=" + endTime + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((dayOfWeek == null) ? 0 : dayOfWeek.hashCode());
 		result = prime * result + ((endTime == null) ? 0 : endTime.hashCode());
 		result = prime * result + ((startTime == null) ? 0 : startTime.hashCode());
 		return result;
@@ -90,10 +92,7 @@ public class Stretch {
 		if (getClass() != obj.getClass()) {
 			return false;
 		}
-		final Stretch other = (Stretch) obj;
-		if (dayOfWeek != other.dayOfWeek) {
-			return false;
-		}
+		final OpeningHours other = (OpeningHours) obj;
 		if (endTime == null) {
 			if (other.endTime != null) {
 				return false;
@@ -111,4 +110,8 @@ public class Stretch {
 		return true;
 	}
 
+	@Override
+	public int compareTo(OpeningHours o) {
+		return this.startTime.compareTo(o.startTime);
+	}
 }

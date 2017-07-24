@@ -25,7 +25,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.transaction.PlatformTransactionManager;
 
 import com.spanishcoders.agenda.Agenda;
-import com.spanishcoders.agenda.Stretch;
+import com.spanishcoders.agenda.OpeningHours;
 import com.spanishcoders.agenda.Timetable;
 import com.spanishcoders.user.UserRepository;
 import com.spanishcoders.user.UserStatus;
@@ -132,21 +132,24 @@ public class ProductionDataBaseConfiguration {
 	}
 
 	private void createAgenda(Hairdresser admin) {
-		final Stretch morning = new Stretch(LocalTime.of(10, 00), LocalTime.of(14, 00));
-		final Stretch afternoon = new Stretch(LocalTime.of(17, 00), LocalTime.of(21, 00));
-		final Timetable timetable = new Timetable(LocalDate.now().minusDays(365), LocalDate.now().plusDays(365),
-				morning, afternoon);
-		final Agenda agenda = new Agenda(admin, timetable);
-		agenda.addClosingDay(LocalDate.of(2016, 01, 01));
-		agenda.addClosingDay(LocalDate.of(2016, 01, 06));
-		agenda.addClosingDay(LocalDate.of(2016, 02, 28));
-		agenda.addClosingDay(LocalDate.of(2016, 8, 15));
-		for (int i = 0; i < 366; i++) {
-			final LocalDate day = LocalDate.now().plusDays(i);
-			if (day.getDayOfWeek() == DayOfWeek.SUNDAY) {
-				agenda.addClosingDay(day);
+		final Agenda agenda = new Agenda(admin);
+		final LocalDate startDay = LocalDate.now().minusMonths(6L);
+		final LocalDate endDay = LocalDate.now().plusMonths(6);
+		final Timetable timetable = new Timetable(startDay, endDay);
+		for (final DayOfWeek weekDay : DayOfWeek.values()) {
+			final OpeningHours morning = new OpeningHours(LocalTime.of(10, 00), LocalTime.of(14, 00));
+			final OpeningHours afternoon = new OpeningHours(LocalTime.of(17, 00), LocalTime.of(21, 00));
+			if (weekDay == DayOfWeek.SATURDAY) {
+				timetable.addOpeningDay(weekDay, morning);
+			} else if (weekDay != DayOfWeek.SUNDAY) {
+				timetable.addOpeningDay(weekDay, morning, afternoon);
 			}
 		}
+		agenda.addTimetable(timetable);
+		agenda.addClosingDay(LocalDate.of(LocalDate.now().getYear(), 01, 01));
+		agenda.addClosingDay(LocalDate.of(LocalDate.now().getYear(), 01, 06));
+		agenda.addClosingDay(LocalDate.of(LocalDate.now().getYear(), 02, 28));
+		agenda.addClosingDay(LocalDate.of(LocalDate.now().getYear(), 8, 15));
 	}
 
 	private void createWorks(WorkRepository workRepository) {

@@ -21,8 +21,9 @@ import javax.persistence.OrderBy;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
+import com.google.common.collect.Sets;
 import com.spanishcoders.agenda.Agenda;
-import com.spanishcoders.agenda.Stretch;
+import com.spanishcoders.agenda.OpeningHours;
 import com.spanishcoders.agenda.Timetable;
 import com.spanishcoders.workingday.block.Block;
 
@@ -44,17 +45,17 @@ public class WorkingDay implements Comparable<WorkingDay> {
 
 	@OneToMany(mappedBy = "workingDay", cascade = CascadeType.ALL)
 	@OrderBy("start asc")
-	private SortedSet<Block> blocks;
+	private final SortedSet<Block> blocks;
 
-	public WorkingDay() {
-		this.blocks = new TreeSet<>();
+	private WorkingDay() {
+		this.blocks = Sets.newTreeSet();
 	}
 
 	public WorkingDay(Agenda agenda) {
 		this();
 		this.date = getNewWorkingDayDate(agenda.getClosingDays(), agenda.getWorkingDays());
 		final NavigableSet<Block> workingDayBlocks = createBlocksForDay(agenda.getCurrentTimetable());
-		this.setBlocks(workingDayBlocks);
+		this.blocks.addAll(workingDayBlocks);
 		this.agenda = agenda;
 		agenda.addWorkingDay(this);
 	}
@@ -68,7 +69,7 @@ public class WorkingDay implements Comparable<WorkingDay> {
 		this.agenda = agenda;
 		this.date = date;
 		agenda.addWorkingDay(this);
-		this.setBlocks(createBlocksForDay(agenda.getCurrentTimetable()));
+		this.blocks.addAll(createBlocksForDay(agenda.getCurrentTimetable()));
 	}
 
 	public Integer getId() {
@@ -99,8 +100,40 @@ public class WorkingDay implements Comparable<WorkingDay> {
 		return blocks;
 	}
 
-	public void setBlocks(SortedSet<Block> blocks) {
-		this.blocks = blocks;
+	public void addBlock(Block block) {
+		if (block == null) {
+			throw new IllegalArgumentException("Can't add an empty block to working day");
+		}
+		this.blocks.add(block);
+	}
+
+	private LocalDate getNewWorkingDayDate(Set<LocalDate> nonWorkingDays,
+			SortedMap<LocalDate, WorkingDay> workingDays) {
+		LocalDate lastWorkingDayDate = null;
+		if (workingDays.isEmpty()) {
+			lastWorkingDayDate = LocalDate.now();
+		} else {
+			lastWorkingDayDate = workingDays.lastKey().plusDays(1);
+		}
+		if (nonWorkingDays != null && !nonWorkingDays.isEmpty()) {
+			while (nonWorkingDays.contains(lastWorkingDayDate)) {
+				lastWorkingDayDate = lastWorkingDayDate.plusDays(1);
+			}
+		}
+		return lastWorkingDayDate;
+	}
+
+	private NavigableSet<Block> createBlocksForDay(Timetable timetable) {
+		final NavigableSet<Block> newBlocks = new TreeSet<>();
+		for (final OpeningHours stretch : timetable.getOpeningHoursForDay(this.date)) {
+			LocalTime startTime = stretch.getStartTime();
+			while (startTime.isBefore(stretch.getEndTime())) {
+				final Block newBlock = new Block(startTime, this);
+				newBlocks.add(newBlock);
+				startTime = startTime.plus(Block.DEFAULT_BLOCK_LENGTH);
+			}
+		}
+		return newBlocks;
 	}
 
 	@Override
@@ -144,42 +177,6 @@ public class WorkingDay implements Comparable<WorkingDay> {
 			return false;
 		}
 		return true;
-	}
-
-	public void addBlock(Block block) {
-		if (block == null) {
-			throw new IllegalArgumentException("Can't add an empty block to working day");
-		}
-		this.blocks.add(block);
-	}
-
-	private LocalDate getNewWorkingDayDate(Set<LocalDate> nonWorkingDays,
-			SortedMap<LocalDate, WorkingDay> workingDays) {
-		LocalDate lastWorkingDayDate = null;
-		if (workingDays.isEmpty()) {
-			lastWorkingDayDate = LocalDate.now();
-		} else {
-			lastWorkingDayDate = workingDays.lastKey().plusDays(1);
-		}
-		if (nonWorkingDays != null && !nonWorkingDays.isEmpty()) {
-			while (nonWorkingDays.contains(lastWorkingDayDate)) {
-				lastWorkingDayDate = lastWorkingDayDate.plusDays(1);
-			}
-		}
-		return lastWorkingDayDate;
-	}
-
-	private NavigableSet<Block> createBlocksForDay(Timetable timetable) {
-		final NavigableSet<Block> newBlocks = new TreeSet<>();
-		for (final Stretch stretch : timetable.getStretches()) {
-			LocalTime startTime = stretch.getStartTime();
-			while (startTime.isBefore(stretch.getEndTime())) {
-				final Block newBlock = new Block(startTime, this);
-				newBlocks.add(newBlock);
-				startTime = startTime.plus(Block.DEFAULT_BLOCK_LENGTH);
-			}
-		}
-		return newBlocks;
 	}
 
 	@Override

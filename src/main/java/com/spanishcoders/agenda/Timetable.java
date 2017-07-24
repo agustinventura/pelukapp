@@ -1,8 +1,9 @@
 package com.spanishcoders.agenda;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.util.Arrays;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -11,6 +12,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -29,28 +31,33 @@ public class Timetable {
 	private Integer id;
 
 	@NotNull
-	private LocalDate startDay;
+	private LocalDate startDate;
 
 	@NotNull
-	private LocalDate endDay;
+	private LocalDate endDate;
 
 	@NotEmpty
-	@OneToMany(cascade = CascadeType.ALL)
-	@JoinColumn(foreignKey = @ForeignKey(name = "stretch_timetable_fk"))
-	private Set<Stretch> stretches;
+	@OneToMany(mappedBy = "timetable", cascade = CascadeType.ALL)
+	private final Set<OpeningDay> openingDays;
 
-	public Timetable() {
-		this.stretches = Sets.newHashSet();
+	@NotNull
+	@ManyToOne
+	@JoinColumn(foreignKey = @ForeignKey(name = "agenda_timetable_fk"))
+	private Agenda agenda;
+
+	private Timetable() {
+		this.startDate = null;
+		this.endDate = null;
+		this.openingDays = Sets.newTreeSet();
 	}
 
-	public Timetable(LocalDate startDay, LocalDate endDay, Stretch... stretchs) {
+	public Timetable(LocalDate startDate, LocalDate endDate) {
 		this();
-		this.startDay = startDay;
-		this.endDay = endDay;
-		if (stretchs == null || stretchs.length == 0) {
-			throw new IllegalArgumentException("Can't create a Timetable without stretches");
+		if (startDate.isAfter(endDate)) {
+			throw new IllegalArgumentException("Can't create a Timetable with start date after end date");
 		}
-		this.stretches.addAll(Arrays.asList(stretchs));
+		this.startDate = startDate;
+		this.endDate = endDate;
 	}
 
 	public Integer getId() {
@@ -61,59 +68,83 @@ public class Timetable {
 		this.id = id;
 	}
 
-	public LocalDate getStartDay() {
-		return startDay;
+	public LocalDate getStartDate() {
+		return startDate;
 	}
 
-	public void setStartDay(LocalDate startDay) {
-		this.startDay = startDay;
+	public void setStartDate(LocalDate startDate) {
+		this.startDate = startDate;
 	}
 
-	public LocalDate getEndDay() {
-		return endDay;
+	public LocalDate getEndDate() {
+		return endDate;
 	}
 
-	public void setEndDay(LocalDate endDay) {
-		this.endDay = endDay;
+	public void setEndDate(LocalDate endDate) {
+		this.endDate = endDate;
 	}
 
-	public Set<Stretch> getStretches() {
-		return stretches;
+	public Set<OpeningDay> getOpeningDays() {
+		return openingDays;
 	}
 
-	public void setStretches(Set<Stretch> stretches) {
-		this.stretches = stretches;
-	}
-
-	public void addStretch(Stretch stretch) {
-		if (stretch == null) {
-			throw new IllegalArgumentException("Can't add an empty stretch");
+	public void addOpeningDay(DayOfWeek weekDay, OpeningHours... openingHours) {
+		if (weekDay == null) {
+			throw new IllegalArgumentException("Can't add an opening day without week day");
 		}
-		this.stretches.add(stretch);
+		if (openingHours == null || openingHours.length == 0) {
+			throw new IllegalArgumentException("Can't add an opening day without opening hours");
+		}
+		if (this.openingDays.stream().anyMatch(openingDay -> openingDay.getWeekDay().equals(weekDay))) {
+			throw new IllegalArgumentException("Can't add an opening day for existing day of week: " + weekDay);
+		}
+		final OpeningDay openingDay = new OpeningDay(this, weekDay, openingHours);
+		this.openingDays.add(openingDay);
+	}
+
+	public Agenda getAgenda() {
+		return agenda;
+	}
+
+	public void setAgenda(Agenda agenda) {
+		this.agenda = agenda;
 	}
 
 	public boolean overlaps(Timetable timetable) {
 		boolean overlaps = false;
 		if (timetable != null) {
-			final Range<LocalDate> dateRange = Range.closed(startDay, endDay);
-			overlaps = (dateRange.contains(timetable.getStartDay()) || dateRange.contains(timetable.getEndDay()));
+			final Range<LocalDate> dateRange = Range.closed(startDate, endDate);
+			overlaps = (dateRange.contains(timetable.getStartDate()) || dateRange.contains(timetable.getEndDate()));
 		}
 		return overlaps;
 	}
 
-	@Override
-	public String toString() {
-		return "Timetable{" + "id=" + id + ", startDay=" + startDay + ", endDay=" + endDay + ", stretches=" + stretches
-				+ '}';
+	public boolean contains(LocalDate day) {
+		boolean contains = false;
+		if (day != null) {
+			final Range<LocalDate> dateRange = Range.closed(startDate, endDate);
+			contains = dateRange.contains(day);
+		}
+		return contains;
+	}
+
+	public Set<OpeningHours> getOpeningHoursForDay(LocalDate date) {
+		final Set<OpeningHours> openingHours = Sets.newHashSet();
+		if (date != null) {
+			final DayOfWeek weekDay = date.getDayOfWeek();
+			openingHours.addAll(openingDays.stream().filter(openingDay -> openingDay.getWeekDay().equals(weekDay))
+					.flatMap(openingDay -> openingDay.getOpeningHours().stream()).collect(Collectors.toSet()));
+		}
+		return openingHours;
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((endDay == null) ? 0 : endDay.hashCode());
-		result = prime * result + ((startDay == null) ? 0 : startDay.hashCode());
-		result = prime * result + ((stretches == null) ? 0 : stretches.hashCode());
+		result = prime * result + ((endDate == null) ? 0 : endDate.hashCode());
+		result = prime * result + ((openingDays == null) ? 0 : openingDays.hashCode());
+		result = prime * result + ((startDate == null) ? 0 : startDate.hashCode());
 		return result;
 	}
 
@@ -129,28 +160,33 @@ public class Timetable {
 			return false;
 		}
 		final Timetable other = (Timetable) obj;
-		if (endDay == null) {
-			if (other.endDay != null) {
+		if (endDate == null) {
+			if (other.endDate != null) {
 				return false;
 			}
-		} else if (!endDay.equals(other.endDay)) {
+		} else if (!endDate.equals(other.endDate)) {
 			return false;
 		}
-		if (startDay == null) {
-			if (other.startDay != null) {
+		if (openingDays == null) {
+			if (other.openingDays != null) {
 				return false;
 			}
-		} else if (!startDay.equals(other.startDay)) {
+		} else if (!openingDays.equals(other.openingDays)) {
 			return false;
 		}
-		if (stretches == null) {
-			if (other.stretches != null) {
+		if (startDate == null) {
+			if (other.startDate != null) {
 				return false;
 			}
-		} else if (!stretches.equals(other.stretches)) {
+		} else if (!startDate.equals(other.startDate)) {
 			return false;
 		}
 		return true;
+	}
+
+	@Override
+	public String toString() {
+		return "Timetable [id=" + id + ", startDate=" + startDate + ", endDate=" + endDate + ", agenda=" + agenda + "]";
 	}
 
 }
