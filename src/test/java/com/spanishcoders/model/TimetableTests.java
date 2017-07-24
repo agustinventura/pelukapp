@@ -126,4 +126,5 @@ public class TimetableTests {
 		final Set<OpeningHours> openingHours = timetable.getOpeningHoursForDay(null);
 		assertThat(openingHours, is(empty()));
 	}
+
 }
