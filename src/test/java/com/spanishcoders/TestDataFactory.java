@@ -26,7 +26,8 @@ public class TestDataFactory {
 	public static WorkingDay workingDay() {
 		final Agenda mockAgenda = agenda();
 		mockAgenda.addTimetable(timetable());
-		return new WorkingDay(mockAgenda);
+		mockAgenda.addWorkingDay(mockAgenda.getCurrentTimetable().getStartDate());
+		return mockAgenda.getWorkingDays().get(mockAgenda.getCurrentTimetable().getStartDate());
 	}
 
 	public static Set<Work> privateWorks() {

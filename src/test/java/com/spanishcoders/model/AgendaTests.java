@@ -33,19 +33,17 @@ public class AgendaTests {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void addNullDateWorkingDay() throws Exception {
-		final WorkingDay workingDay = workingDay();
-		workingDay.setDate(null);
 		final Agenda agenda = agenda();
-		agenda.addWorkingDay(workingDay);
+		agenda.addWorkingDay(null);
 	}
 
 	@Test
 	public void addWorkingDay() throws Exception {
-		final WorkingDay workingDay = workingDay();
 		final Agenda agenda = agenda();
-		agenda.addWorkingDay(workingDay);
+		agenda.addTimetable(timetable());
+		agenda.addWorkingDay(agenda.getCurrentTimetable().getEndDate());
 		assertThat(agenda.getWorkingDays().size(), is(1));
-		assertThat(agenda.getWorkingDays().values(), contains(workingDay));
+		assertThat(agenda.getWorkingDays().keySet(), contains(agenda.getCurrentTimetable().getEndDate()));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -106,7 +104,6 @@ public class AgendaTests {
 	public void getWorkingDayBlocksExistingWorkingDay() {
 		final WorkingDay workingDay = workingDay();
 		final Set<Block> blocks = workingDay.getBlocks();
-		workingDay.getAgenda().addWorkingDay(workingDay);
 		final Set<Block> workingDayBlocks = workingDay.getAgenda().getWorkingDayBlocks(workingDay.getDate());
 		assertThat(workingDayBlocks, is(blocks));
 	}
@@ -130,7 +127,8 @@ public class AgendaTests {
 	public void addClosingDayWithPreviousAppointment() {
 		final Agenda agenda = agenda();
 		agenda.addTimetable(timetable());
-		final WorkingDay workingDay = new WorkingDay(agenda);
+		agenda.addWorkingDay(agenda.getCurrentTimetable().getStartDate());
+		final WorkingDay workingDay = agenda.getWorkingDays().get(agenda.getCurrentTimetable().getStartDate());
 		final Block block = workingDay.getBlocks().iterator().next();
 		final Appointment appointment = new Appointment(agenda.getHairdresser(), publicWork(), Sets.newHashSet(block),
 				"");

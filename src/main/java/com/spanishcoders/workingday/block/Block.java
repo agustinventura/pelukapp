@@ -46,11 +46,9 @@ public class Block implements Comparable<Block> {
 		this.length = DEFAULT_BLOCK_LENGTH;
 	}
 
-	public Block(LocalTime start, WorkingDay workingDay) {
+	public Block(LocalTime start) {
 		this();
 		this.start = start;
-		this.workingDay = workingDay;
-		workingDay.addBlock(this);
 	}
 
 	public Integer getId() {
@@ -102,8 +100,8 @@ public class Block implements Comparable<Block> {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
+		result = prime * result + ((length == null) ? 0 : length.hashCode());
 		result = prime * result + ((start == null) ? 0 : start.hashCode());
-		result = prime * result + ((workingDay == null) ? 0 : workingDay.hashCode());
 		return result;
 	}
 
@@ -119,6 +117,13 @@ public class Block implements Comparable<Block> {
 			return false;
 		}
 		final Block other = (Block) obj;
+		if (length == null) {
+			if (other.length != null) {
+				return false;
+			}
+		} else if (!length.equals(other.length)) {
+			return false;
+		}
 		if (start == null) {
 			if (other.start != null) {
 				return false;
@@ -126,23 +131,12 @@ public class Block implements Comparable<Block> {
 		} else if (!start.equals(other.start)) {
 			return false;
 		}
-		if (workingDay == null) {
-			if (other.workingDay != null) {
-				return false;
-			}
-		} else if (!workingDay.equals(other.workingDay)) {
-			return false;
-		}
 		return true;
 	}
 
 	@Override
 	public int compareTo(Block o) {
-		if (start.equals(o.getStart())) {
-			return workingDay.compareTo(o.getWorkingDay());
-		} else {
-			return start.compareTo(o.getStart());
-		}
+		return start.compareTo(o.getStart());
 	}
 
 	public boolean isContiguousTo(Block nextBlock) {

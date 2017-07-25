@@ -1,10 +1,13 @@
 package com.spanishcoders.agenda;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Iterator;
+import java.util.NavigableSet;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -106,11 +109,30 @@ public class Agenda {
 		return "Agenda [id=" + id + ", hairdresser=" + hairdresser + "]";
 	}
 
-	public void addWorkingDay(WorkingDay workingDay) {
-		if (workingDay == null || workingDay.getDate() == null) {
+	public void addWorkingDay(LocalDate day) {
+		if (day == null) {
 			throw new IllegalArgumentException("To add a working day it needs to have a date");
 		}
-		workingDays.put(workingDay.getDate(), workingDay);
+		if (!isClosingDay(day)) {
+			final Set<Block> blocks = createBlocksForDay(day);
+			final WorkingDay workingDay = new WorkingDay(day, blocks);
+			workingDay.setAgenda(this);
+			workingDays.put(workingDay.getDate(), workingDay);
+		}
+	}
+
+	private NavigableSet<Block> createBlocksForDay(LocalDate date) {
+		final Timetable timetable = getCurrentTimetable();
+		final NavigableSet<Block> newBlocks = new TreeSet<>();
+		for (final OpeningHours openingHours : timetable.getOpeningHoursForDay(date)) {
+			LocalTime startTime = openingHours.getStartTime();
+			while (startTime.isBefore(openingHours.getEndTime())) {
+				final Block newBlock = new Block(startTime);
+				newBlocks.add(newBlock);
+				startTime = startTime.plus(Block.DEFAULT_BLOCK_LENGTH);
+			}
+		}
+		return newBlocks;
 	}
 
 	public void addClosingDay(LocalDate newClosingDay) {

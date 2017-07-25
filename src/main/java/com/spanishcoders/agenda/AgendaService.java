@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.google.common.collect.Sets;
-import com.spanishcoders.workingday.WorkingDay;
 import com.spanishcoders.workingday.block.Block;
 
 @Service
@@ -22,16 +21,14 @@ public class AgendaService {
 
 	@Transactional(readOnly = false)
 	public Set<Block> getDayBlocks(Agenda agenda, LocalDate day) {
-		Set<Block> dayBlocks = Sets.newTreeSet();
+		final Set<Block> dayBlocks = Sets.newTreeSet();
 		if (agenda != null && day != null) {
 			if (agenda.hasWorkingDay(day)) {
 				dayBlocks.addAll(agenda.getWorkingDayBlocks(day));
 			} else {
-				if (!agenda.isClosingDay(day)) {
-					new WorkingDay(agenda, day);
-					agendaRepository.save(agenda);
-					dayBlocks.addAll(agenda.getWorkingDayBlocks(day));
-				}
+				agenda.addWorkingDay(day);
+				agendaRepository.save(agenda);
+				dayBlocks.addAll(agenda.getWorkingDayBlocks(day));
 			}
 		}
 		return dayBlocks;

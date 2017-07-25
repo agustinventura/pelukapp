@@ -1,12 +1,8 @@
 package com.spanishcoders.workingday;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.NavigableSet;
 import java.util.Set;
-import java.util.SortedMap;
 import java.util.SortedSet;
-import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
@@ -23,8 +19,6 @@ import javax.validation.constraints.NotNull;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.agenda.Agenda;
-import com.spanishcoders.agenda.OpeningHours;
-import com.spanishcoders.agenda.Timetable;
 import com.spanishcoders.workingday.block.Block;
 
 @Entity
@@ -51,25 +45,11 @@ public class WorkingDay implements Comparable<WorkingDay> {
 		this.blocks = Sets.newTreeSet();
 	}
 
-	public WorkingDay(Agenda agenda) {
+	public WorkingDay(LocalDate date, Set<Block> blocks) {
 		this();
-		this.date = getNewWorkingDayDate(agenda.getClosingDays(), agenda.getWorkingDays());
-		final NavigableSet<Block> workingDayBlocks = createBlocksForDay(agenda.getCurrentTimetable());
-		this.blocks.addAll(workingDayBlocks);
-		this.agenda = agenda;
-		agenda.addWorkingDay(this);
-	}
-
-	public WorkingDay(Agenda agenda, LocalDate date) {
-		this();
-		if (agenda.isClosingDay(date)) {
-			throw new IllegalArgumentException(
-					"Can't create working day on agenda " + agenda + " non working day: " + date);
-		}
-		this.agenda = agenda;
 		this.date = date;
-		agenda.addWorkingDay(this);
-		this.blocks.addAll(createBlocksForDay(agenda.getCurrentTimetable()));
+		this.blocks.addAll(blocks);
+		this.blocks.stream().forEach(block -> block.setWorkingDay(this));
 	}
 
 	public Integer getId() {
@@ -98,42 +78,6 @@ public class WorkingDay implements Comparable<WorkingDay> {
 
 	public SortedSet<Block> getBlocks() {
 		return blocks;
-	}
-
-	public void addBlock(Block block) {
-		if (block == null) {
-			throw new IllegalArgumentException("Can't add an empty block to working day");
-		}
-		this.blocks.add(block);
-	}
-
-	private LocalDate getNewWorkingDayDate(Set<LocalDate> nonWorkingDays,
-			SortedMap<LocalDate, WorkingDay> workingDays) {
-		LocalDate lastWorkingDayDate = null;
-		if (workingDays.isEmpty()) {
-			lastWorkingDayDate = LocalDate.now();
-		} else {
-			lastWorkingDayDate = workingDays.lastKey().plusDays(1);
-		}
-		if (nonWorkingDays != null && !nonWorkingDays.isEmpty()) {
-			while (nonWorkingDays.contains(lastWorkingDayDate)) {
-				lastWorkingDayDate = lastWorkingDayDate.plusDays(1);
-			}
-		}
-		return lastWorkingDayDate;
-	}
-
-	private NavigableSet<Block> createBlocksForDay(Timetable timetable) {
-		final NavigableSet<Block> newBlocks = new TreeSet<>();
-		for (final OpeningHours stretch : timetable.getOpeningHoursForDay(this.date)) {
-			LocalTime startTime = stretch.getStartTime();
-			while (startTime.isBefore(stretch.getEndTime())) {
-				final Block newBlock = new Block(startTime, this);
-				newBlocks.add(newBlock);
-				startTime = startTime.plus(Block.DEFAULT_BLOCK_LENGTH);
-			}
-		}
-		return newBlocks;
 	}
 
 	@Override
