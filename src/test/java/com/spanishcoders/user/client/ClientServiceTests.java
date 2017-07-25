@@ -3,21 +3,16 @@ package com.spanishcoders.user.client;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
-import java.util.Collection;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
 
-import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
-import com.spanishcoders.user.Role;
 import com.spanishcoders.user.UserService;
+import com.spanishcoders.user.hairdresser.Hairdresser;
 
 public class ClientServiceTests extends PelukaapUnitTest {
 
@@ -39,40 +34,33 @@ public class ClientServiceTests extends PelukaapUnitTest {
 		when(userService.create(any(Client.class))).thenAnswer(invocation -> {
 			return invocation.getArguments()[0];
 		});
-		final Client client = mockClient();
-		when(userService.create(any(Client.class))).thenAnswer(invocation -> {
-			return invocation.getArguments()[0];
-		});
+		final Client client = getClient();
 		when(clientRepository.findOne(any(Integer.class))).thenReturn(client);
-		final Client savedClient = clientService.createClient(null, client);
+		final Client savedClient = clientService.createClient(client);
 		assertThat(client, is(savedClient));
 	}
 
-	private Client mockClient() {
-		final Client client = mock(Client.class);
-		when(client.getUsername()).thenReturn("client");
+	private Client getClient() {
+		final Client client = new Client();
+		client.setUsername("test");
 		return client;
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void clientRegistersClient() {
-		final Authentication authentication = mock(Authentication.class);
-		final Collection authorities = Sets.newHashSet(Role.CLIENT.getGrantedAuthority());
-		when(authentication.getAuthorities()).thenReturn(authorities);
-		clientService.createClient(authentication, mock(Client.class));
+		final Client loggedClient = new Client();
+		clientService.createClient(loggedClient, getClient());
 	}
 
 	@Test
 	public void workerRegistersClient() {
-		final Authentication authentication = mock(Authentication.class);
-		final Collection authorities = Sets.newHashSet(Role.WORKER.getGrantedAuthority());
-		final Client client = mockClient();
-		when(authentication.getAuthorities()).thenReturn(authorities);
+		final Hairdresser hairdresser = new Hairdresser();
+		final Client client = getClient();
 		when(userService.create(any(Client.class))).thenAnswer(invocation -> {
 			return invocation.getArguments()[0];
 		});
 		when(clientRepository.findOne(any(Integer.class))).thenReturn(client);
-		final Client savedClient = clientService.createClient(authentication, client);
+		final Client savedClient = clientService.createClient(hairdresser, client);
 		assertThat(client.getUsername(), is(savedClient.getUsername()));
 	}
 }
