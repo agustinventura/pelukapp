@@ -41,12 +41,24 @@ public class HairdresserServiceFacade {
 	}
 
 	public HairdresserDTO create(Authentication authentication, HairdresserDTO hairdresserDTO) {
-		final Hairdresser hairdresser = hairdresserMapper.asEntity(hairdresserDTO);
-		return hairdresserMapper.asDTO(hairdresserService.registerHairdresser(authentication, hairdresser));
+		Hairdresser hairdresser = hairdresserMapper.asEntity(hairdresserDTO);
+		if (authentication == null) {
+			throw new AccessDeniedException("AppUser needs to be logged to register a hairdresser");
+		} else {
+			final Optional<AppUser> user = userService.get(authentication.getName());
+			if (user.isPresent()) {
+				hairdresser = hairdresserService.registerHairdresser(user.get(), hairdresser);
+			} else {
+				logger.error("Unknown user " + authentication.getName() + " tried to register hairdresser "
+						+ hairdresserDTO);
+				throw new AccessDeniedException("Unknown users can't register clients");
+			}
+		}
+		return hairdresserMapper.asDTO(hairdresser);
 	}
 
 	public Set<HairdresserScheduleDTO> getSchedule(Authentication authentication, LocalDate day) {
-		final AppUser user = checkUser(authentication);
+		final AppUser user = getUser(authentication);
 		final Set<Schedule> schedules = hairdresserService.getSchedule(day);
 		clearSensitiveData(user, schedules);
 		final Set<HairdresserScheduleDTO> dtos = scheduleMapper.toDTOs(schedules);
@@ -68,7 +80,7 @@ public class HairdresserServiceFacade {
 		}
 	}
 
-	private AppUser checkUser(Authentication authentication) {
+	private AppUser getUser(Authentication authentication) {
 		final Optional<AppUser> user = authentication != null ? userService.get(authentication.getName())
 				: Optional.empty();
 		if (!user.isPresent()) {

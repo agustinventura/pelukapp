@@ -33,6 +33,9 @@ public class ClientService {
 
 	public Client createClient(Client client) {
 		// new user registering himself
+		if (client == null) {
+			throw new IllegalArgumentException("Can't create a client without data");
+		}
 		final AppUser user = userService.create(client);
 		client = clientRepository.findOne(user.getId());
 		return client;

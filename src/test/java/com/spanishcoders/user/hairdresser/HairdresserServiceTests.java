@@ -10,23 +10,21 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import java.time.LocalDate;
-import java.util.Collection;
 import java.util.Set;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.PelukaapUnitTest;
 import com.spanishcoders.agenda.Agenda;
 import com.spanishcoders.agenda.AgendaService;
 import com.spanishcoders.user.AppUser;
-import com.spanishcoders.user.Role;
 import com.spanishcoders.user.UserService;
 import com.spanishcoders.user.UserStatus;
+import com.spanishcoders.user.client.Client;
 import com.spanishcoders.workingday.block.Block;
 import com.spanishcoders.workingday.schedule.Schedule;
 
@@ -55,30 +53,29 @@ public class HairdresserServiceTests extends PelukaapUnitTest {
 
 	@Test(expected = IllegalArgumentException.class)
 	public void registerHairdresserWithoutData() {
-		final Authentication authentication = mock(Authentication.class);
-		hairdresserService.registerHairdresser(authentication, null);
+		final Hairdresser hairdresser = new Hairdresser();
+		hairdresserService.registerHairdresser(hairdresser, null);
 	}
 
 	@Test(expected = AccessDeniedException.class)
 	public void registerHairdresserAsClient() {
-		final Authentication authentication = mock(Authentication.class);
-		final Collection authorities = Sets.newHashSet(Role.CLIENT.getGrantedAuthority());
-		when(authentication.getAuthorities()).thenReturn(authorities);
-		final Hairdresser hairdresser = mock(Hairdresser.class);
-		hairdresserService.registerHairdresser(authentication, hairdresser);
+		final AppUser client = new Client();
+		final Hairdresser hairdresser = getHairdresser();
+		hairdresserService.registerHairdresser(client, hairdresser);
+	}
+
+	private Hairdresser getHairdresser() {
+		final Hairdresser hairdresser = new Hairdresser();
+		hairdresser.setUsername("test");
+		return hairdresser;
 	}
 
 	@Test
 	public void registerHairdresser() {
-		final Authentication authentication = mock(Authentication.class);
-		final Collection authorities = Sets.newHashSet(Role.WORKER.getGrantedAuthority());
-		when(authentication.getAuthorities()).thenReturn(authorities);
-		final Hairdresser hairdresser = mock(Hairdresser.class);
-		when(hairdresser.getId()).thenReturn(1);
-		when(hairdresser.getName()).thenReturn("hairdresser");
+		final Hairdresser hairdresser = getHairdresser();
 		when(userService.create(any(AppUser.class))).thenReturn(hairdresser);
 		when(hairdresserRepository.findOne(any(Integer.class))).thenReturn(hairdresser);
-		final Hairdresser newHairdresser = hairdresserService.registerHairdresser(authentication, hairdresser);
+		final Hairdresser newHairdresser = hairdresserService.registerHairdresser(new Hairdresser(), hairdresser);
 		assertThat(newHairdresser, is(hairdresser));
 	}
 

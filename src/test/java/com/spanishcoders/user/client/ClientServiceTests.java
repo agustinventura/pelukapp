@@ -63,4 +63,9 @@ public class ClientServiceTests extends PelukaapUnitTest {
 		final Client savedClient = clientService.createClient(hairdresser, client);
 		assertThat(client.getUsername(), is(savedClient.getUsername()));
 	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void registerNullClient() {
+		clientService.createClient(null);
+	}
 }
