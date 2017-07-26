@@ -18,6 +18,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Immutable;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 
 @Entity
@@ -74,7 +75,7 @@ public class OpeningDay implements Comparable<OpeningDay> {
 	}
 
 	public Set<OpeningHours> getOpeningHours() {
-		return openingHours;
+		return ImmutableSet.copyOf(openingHours);
 	}
 
 	@Override

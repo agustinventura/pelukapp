@@ -19,6 +19,7 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Range;
 import com.google.common.collect.Sets;
 
@@ -77,7 +78,7 @@ public class Timetable {
 	}
 
 	public Set<OpeningDay> getOpeningDays() {
-		return openingDays;
+		return ImmutableSet.copyOf(openingDays);
 	}
 
 	public void addOpeningDay(DayOfWeek weekDay, OpeningHours... openingHours) {
@@ -122,7 +123,7 @@ public class Timetable {
 
 	public Set<OpeningHours> getOpeningHoursForDay(LocalDate date) {
 		final Set<OpeningHours> openingHours = Sets.newHashSet();
-		if (date != null) {
+		if (date != null && contains(date)) {
 			final DayOfWeek weekDay = date.getDayOfWeek();
 			openingHours.addAll(openingDays.stream().filter(openingDay -> openingDay.getWeekDay().equals(weekDay))
 					.flatMap(openingDay -> openingDay.getOpeningHours().stream()).collect(Collectors.toSet()));

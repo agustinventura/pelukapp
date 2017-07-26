@@ -1,6 +1,7 @@
 package com.spanishcoders.workingday;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Set;
 import java.util.SortedSet;
 
@@ -19,6 +20,8 @@ import javax.validation.constraints.NotNull;
 
 import com.google.common.collect.Sets;
 import com.spanishcoders.agenda.Agenda;
+import com.spanishcoders.agenda.OpeningHours;
+import com.spanishcoders.appointment.AppointmentStatus;
 import com.spanishcoders.workingday.block.Block;
 
 @Entity
@@ -45,11 +48,9 @@ public class WorkingDay implements Comparable<WorkingDay> {
 		this.blocks = Sets.newTreeSet();
 	}
 
-	public WorkingDay(LocalDate date, Set<Block> blocks) {
+	public WorkingDay(LocalDate date) {
 		this();
 		this.date = date;
-		this.blocks.addAll(blocks);
-		this.blocks.stream().forEach(block -> block.setWorkingDay(this));
 	}
 
 	public Integer getId() {
@@ -128,7 +129,20 @@ public class WorkingDay implements Comparable<WorkingDay> {
 		return date.compareTo(o.getDate());
 	}
 
-	public boolean hasAppointment() {
-		return this.blocks.stream().anyMatch(block -> block.getAppointment() != null);
+	public boolean hasValidAppointment() {
+		return this.blocks.stream().anyMatch(block -> block.getAppointment() != null
+				&& block.getAppointment().getStatus() == AppointmentStatus.VALID);
+	}
+
+	public void createBlocks(Set<OpeningHours> openingHours) {
+		for (final OpeningHours openingHoursStretch : openingHours) {
+			LocalTime startTime = openingHoursStretch.getStartTime();
+			while (startTime.isBefore(openingHoursStretch.getEndTime())) {
+				final Block newBlock = new Block(startTime);
+				newBlock.setWorkingDay(this);
+				this.blocks.add(newBlock);
+				startTime = startTime.plusMinutes(Block.BLOCK_MINUTES);
+			}
+		}
 	}
 }

@@ -30,7 +30,6 @@ public class Hairdresser extends AppUser {
 
 	public void setAgenda(Agenda agenda) {
 		this.agenda = agenda;
-		agenda.setHairdresser(this);
 	}
 
 	@Override

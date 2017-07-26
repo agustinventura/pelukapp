@@ -229,7 +229,7 @@ public class Appointment implements Comparable<Appointment> {
 	}
 
 	private boolean tooManyblocks(long worksLength, long blocksLength) {
-		return (blocksLength - worksLength) > Block.DEFAULT_BLOCK_LENGTH.toMinutes();
+		return (blocksLength - worksLength) > Block.BLOCK_MINUTES;
 	}
 
 	private boolean notEnoughBlocks(long worksLength, long blocksLength) {

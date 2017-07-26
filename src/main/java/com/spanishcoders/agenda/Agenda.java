@@ -1,13 +1,11 @@
 package com.spanishcoders.agenda;
 
 import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Iterator;
-import java.util.NavigableSet;
+import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.TreeSet;
 
 import javax.persistence.CascadeType;
 import javax.persistence.CollectionTable;
@@ -26,6 +24,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.validator.constraints.NotEmpty;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.spanishcoders.user.hairdresser.Hairdresser;
 import com.spanishcoders.workingday.WorkingDay;
@@ -47,11 +47,11 @@ public class Agenda {
 	@OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL)
 	@MapKey(name = "date")
 	@OrderBy("date")
-	private SortedMap<LocalDate, WorkingDay> workingDays;
+	private final SortedMap<LocalDate, WorkingDay> workingDays;
 
 	@ElementCollection
 	@CollectionTable(name = "closing_days", foreignKey = @ForeignKey(name = "closing_days_agenda_fk"))
-	private Set<LocalDate> closingDays;
+	private final Set<LocalDate> closingDays;
 
 	@NotEmpty
 	@OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL)
@@ -65,6 +65,7 @@ public class Agenda {
 
 	public Agenda(Hairdresser hairdresser) {
 		this();
+		this.hairdresser = hairdresser;
 		hairdresser.setAgenda(this);
 	}
 
@@ -72,36 +73,20 @@ public class Agenda {
 		return id;
 	}
 
-	public void setId(Integer id) {
-		this.id = id;
-	}
-
 	public Hairdresser getHairdresser() {
 		return hairdresser;
 	}
 
-	public void setHairdresser(Hairdresser hairdresser) {
-		this.hairdresser = hairdresser;
-	}
-
-	public SortedMap<LocalDate, WorkingDay> getWorkingDays() {
-		return workingDays;
-	}
-
-	public void setWorkingDays(SortedMap<LocalDate, WorkingDay> workingDays) {
-		this.workingDays = workingDays;
+	public Map<LocalDate, WorkingDay> getWorkingDays() {
+		return ImmutableMap.copyOf(workingDays);
 	}
 
 	public Set<LocalDate> getClosingDays() {
-		return closingDays;
-	}
-
-	public void setClosingDays(Set<LocalDate> closingDays) {
-		this.closingDays = closingDays;
+		return ImmutableSet.copyOf(closingDays);
 	}
 
 	public Set<Timetable> getTimetables() {
-		return timetables;
+		return ImmutableSet.copyOf(timetables);
 	}
 
 	@Override
@@ -113,26 +98,26 @@ public class Agenda {
 		if (day == null) {
 			throw new IllegalArgumentException("To add a working day it needs to have a date");
 		}
-		if (!isClosingDay(day)) {
-			final Set<Block> blocks = createBlocksForDay(day);
-			final WorkingDay workingDay = new WorkingDay(day, blocks);
-			workingDay.setAgenda(this);
-			workingDays.put(workingDay.getDate(), workingDay);
+		if (!isClosingDay(day) && isInAnyTimetable(day)) {
+			createWorkingDay(day);
 		}
 	}
 
-	private NavigableSet<Block> createBlocksForDay(LocalDate date) {
-		final Timetable timetable = getCurrentTimetable();
-		final NavigableSet<Block> newBlocks = new TreeSet<>();
-		for (final OpeningHours openingHours : timetable.getOpeningHoursForDay(date)) {
-			LocalTime startTime = openingHours.getStartTime();
-			while (startTime.isBefore(openingHours.getEndTime())) {
-				final Block newBlock = new Block(startTime);
-				newBlocks.add(newBlock);
-				startTime = startTime.plus(Block.DEFAULT_BLOCK_LENGTH);
-			}
-		}
-		return newBlocks;
+	private void createWorkingDay(LocalDate day) {
+		final WorkingDay workingDay = new WorkingDay(day);
+		workingDay.setAgenda(this);
+		workingDays.put(workingDay.getDate(), workingDay);
+		createBlocks(workingDay);
+	}
+
+	private void createBlocks(WorkingDay workingDay) {
+		final Timetable applicableTimetable = this.timetables.stream()
+				.filter(timetable -> timetable.contains(workingDay.getDate())).findFirst().get();
+		workingDay.createBlocks(applicableTimetable.getOpeningHoursForDay(workingDay.getDate()));
+	}
+
+	private boolean isInAnyTimetable(LocalDate day) {
+		return this.timetables.stream().anyMatch(timetable -> timetable.contains(day));
 	}
 
 	public void addClosingDay(LocalDate newClosingDay) {
@@ -145,7 +130,7 @@ public class Agenda {
 
 	private void checkCurrentAppointments(LocalDate newClosingDay) {
 		if (this.workingDays.containsKey(newClosingDay)) {
-			if (this.workingDays.get(newClosingDay).hasAppointment()) {
+			if (this.workingDays.get(newClosingDay).hasValidAppointment()) {
 				throw new IllegalStateException("New closing day " + newClosingDay + " already has appointments");
 			}
 		}
@@ -199,7 +184,7 @@ public class Agenda {
 		if (workingDays.containsKey(day)) {
 			blocks = workingDays.get(day).getBlocks();
 		}
-		return blocks;
+		return ImmutableSet.copyOf(blocks);
 	}
 
 	@Override

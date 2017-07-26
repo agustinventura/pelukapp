@@ -20,13 +20,12 @@ public class WorkingDayTests {
 		final WorkingDay workingDay = workingDay();
 		final Block block = workingDay.getBlocks().iterator().next();
 		final Appointment appointment = new Appointment(hairdresser(), publicWork(), Sets.newHashSet(block), "");
-		assertThat(workingDay.hasAppointment(), is(true));
+		assertThat(workingDay.hasValidAppointment(), is(true));
 	}
 
 	@Test
 	public void hasAppointmentWorkingDayWithoutAppointment() {
 		final WorkingDay workingDay = workingDay();
-		final Block block = workingDay.getBlocks().iterator().next();
-		assertThat(workingDay.hasAppointment(), is(false));
+		assertThat(workingDay.hasValidAppointment(), is(false));
 	}
 }

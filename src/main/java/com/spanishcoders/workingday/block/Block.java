@@ -21,7 +21,7 @@ import com.spanishcoders.workingday.WorkingDay;
 @Table(name = "block")
 public class Block implements Comparable<Block> {
 
-	public final static Duration DEFAULT_BLOCK_LENGTH = Duration.of(30, ChronoUnit.MINUTES);
+	public static final int BLOCK_MINUTES = 30;
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -43,7 +43,7 @@ public class Block implements Comparable<Block> {
 	private Appointment appointment;
 
 	public Block() {
-		this.length = DEFAULT_BLOCK_LENGTH;
+		this.length = Duration.of(BLOCK_MINUTES, ChronoUnit.MINUTES);
 	}
 
 	public Block(LocalTime start) {
