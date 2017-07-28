@@ -73,6 +73,20 @@ public class Timetable {
 		return startDate;
 	}
 
+	void setStartDate(LocalDate startDate) {
+		if (startDate.isEqual(endDate) || startDate.isAfter(endDate)) {
+			throw new IllegalArgumentException("Can't set start date after end date");
+		}
+		this.startDate = startDate;
+	}
+
+	void setEndDate(LocalDate endDate) {
+		if (endDate.isEqual(startDate) || endDate.isBefore(startDate)) {
+			throw new IllegalArgumentException("Can't set end date before start date");
+		}
+		this.endDate = endDate;
+	}
+
 	public LocalDate getEndDate() {
 		return endDate;
 	}
@@ -99,7 +113,7 @@ public class Timetable {
 		return agenda;
 	}
 
-	public void setAgenda(Agenda agenda) {
+	void setAgenda(Agenda agenda) {
 		this.agenda = agenda;
 	}
 
@@ -128,7 +142,7 @@ public class Timetable {
 			openingHours.addAll(openingDays.stream().filter(openingDay -> openingDay.getWeekDay().equals(weekDay))
 					.flatMap(openingDay -> openingDay.getOpeningHours().stream()).collect(Collectors.toSet()));
 		}
-		return openingHours;
+		return ImmutableSet.copyOf(openingHours);
 	}
 
 	@Override

@@ -1,6 +1,7 @@
 package com.spanishcoders.agenda;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -44,7 +45,7 @@ public class Agenda {
 	@MapsId
 	private Hairdresser hairdresser;
 
-	@OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "agenda", cascade = CascadeType.ALL, orphanRemoval = true)
 	@MapKey(name = "date")
 	@OrderBy("date")
 	private final SortedMap<LocalDate, WorkingDay> workingDays;
@@ -117,7 +118,10 @@ public class Agenda {
 	}
 
 	private boolean isInAnyTimetable(LocalDate day) {
-		return this.timetables.stream().anyMatch(timetable -> timetable.contains(day));
+		return this.timetables.stream().filter(timetable -> timetable.contains(day)).findFirst()
+				.map(timetable -> timetable.getOpeningDays().stream()
+						.anyMatch(openingDay -> openingDay.getWeekDay() == day.getDayOfWeek()))
+				.orElse(false);
 	}
 
 	public void addClosingDay(LocalDate newClosingDay) {
@@ -180,11 +184,117 @@ public class Agenda {
 	}
 
 	public Set<Block> getWorkingDayBlocks(LocalDate day) {
-		Set<Block> blocks = Sets.newHashSet();
+		final Set<Block> blocks = Sets.newHashSet();
 		if (workingDays.containsKey(day)) {
-			blocks = workingDays.get(day).getBlocks();
+			blocks.addAll(workingDays.get(day).getBlocks());
 		}
 		return ImmutableSet.copyOf(blocks);
+	}
+
+	public void modifyStartDate(LocalDate newStartDate, Timetable timetable) {
+		checkArguments(newStartDate, timetable);
+		if (this.timetables.stream().anyMatch(tt -> tt.contains(newStartDate))) {
+			modifyStartDateWithOverlap(newStartDate, timetable);
+		} else {
+			modifyStartDateWithoutOverlap(newStartDate, timetable);
+		}
+	}
+
+	private void modifyStartDateWithOverlap(LocalDate newStartDate, Timetable timetable) {
+		final Timetable overlappedTimetable = this.timetables.stream().filter(tt -> tt.contains(newStartDate))
+				.findFirst().get();
+		if (!overlappedTimetable.equals(timetable)) {
+			final LocalDate oldEndDate = overlappedTimetable.getEndDate();
+			timetable.setStartDate(newStartDate);
+			overlappedTimetable.setEndDate(newStartDate.minusDays(1));
+			checkConflictedAppointments(timetable, newStartDate, oldEndDate);
+			recalculateWorkingDaysBlocks(newStartDate, oldEndDate, timetable);
+		} else {
+			final LocalDate oldStartDate = timetable.getStartDate();
+			timetable.setStartDate(newStartDate);
+			checkOrphanAppointments(timetable, oldStartDate, newStartDate);
+			removeWorkingDays(oldStartDate, newStartDate);
+		}
+	}
+
+	private void removeWorkingDays(LocalDate oldStartDate, LocalDate newStartDate) {
+		LocalDate day = oldStartDate;
+		while (!day.equals(newStartDate)) {
+			if (this.workingDays.containsKey(day)) {
+				this.workingDays.remove(day);
+			}
+			day = day.plusDays(1);
+		}
+	}
+
+	private void checkOrphanAppointments(Timetable timetable, LocalDate oldStartDate, LocalDate newStartDate) {
+		LocalDate day = oldStartDate;
+		while (day.isBefore(newStartDate) || day.isEqual(newStartDate)) {
+			if (this.hasWorkingDay(day) && this.workingDays.get(day).hasValidAppointment()) {
+				throw new IllegalStateException("Start date modification invalidates valid appointments");
+			}
+			day = day.plusDays(1);
+		}
+	}
+
+	private void checkConflictedAppointments(Timetable timetable, LocalDate startDateCheck, LocalDate endDateCheck) {
+		LocalDate day = startDateCheck;
+		while (day.isBefore(endDateCheck) || day.isEqual(endDateCheck)) {
+			if (this.hasWorkingDay(day) && this.workingDays.get(day).hasValidAppointment()) {
+				if (!appointmentStillValid(this.getWorkingDayBlocks(day), timetable)) {
+					throw new IllegalStateException("Start date modification invalidates valid appointments");
+				}
+			}
+			day = day.plusDays(1);
+		}
+	}
+
+	private boolean appointmentStillValid(Set<Block> dayBlocks, Timetable timetable) {
+		return dayBlocks.stream().filter(block -> block.getAppointment() != null
+				&& timetable.contains(block.getAppointment().getDate().toLocalDate())).map(block -> {
+					final LocalTime appointmentTime = block.getAppointment().getDate().toLocalTime();
+					return timetable.getOpeningHoursForDay(block.getAppointment().getDate().toLocalDate()).stream()
+							.anyMatch(openingHours -> openingHours.contains(appointmentTime));
+				}).findFirst().orElse(true);
+	}
+
+	private void modifyStartDateWithoutOverlap(LocalDate newStartDate, Timetable timetable) {
+		timetable.setStartDate(newStartDate);
+	}
+
+	private void recalculateWorkingDaysBlocks(LocalDate newStartDate, LocalDate oldStartDate, Timetable timetable) {
+		LocalDate day = newStartDate;
+		while (!day.equals(oldStartDate)) {
+			if (this.hasWorkingDay(day)) {
+				if (timetable.contains(day)) {
+					final Set<Block> dayBlocks = this.getWorkingDayBlocks(day);
+					final Iterator<Block> dayBlocksIt = dayBlocks.iterator();
+					while (dayBlocksIt.hasNext()) {
+						final Block dayBlock = dayBlocksIt.next();
+						if (!timetable.getOpeningHoursForDay(day).stream()
+								.anyMatch(openingHours -> openingHours.contains(dayBlock.getStart()))) {
+							this.workingDays.get(day).removeBlock(dayBlock);
+						}
+					}
+				} else {
+					this.workingDays.remove(day);
+				}
+			}
+			day = day.plusDays(1);
+		}
+
+	}
+
+	private void checkArguments(LocalDate newStartDate, Timetable timetable) {
+		if (newStartDate == null) {
+			throw new IllegalArgumentException("Can't use an empty start date on a timetable");
+		}
+		if (!this.timetables.contains(timetable)) {
+			throw new IllegalArgumentException("Agenda doesn't contains the specified timetable");
+		}
+		if (timetable.getStartDate().isBefore(LocalDate.now())) {
+			throw new IllegalArgumentException("Can't modify a timetable start date in the past");
+		}
 	}
 
 	@Override

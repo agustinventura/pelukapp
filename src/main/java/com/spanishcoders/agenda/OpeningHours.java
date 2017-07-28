@@ -14,6 +14,8 @@ import javax.validation.constraints.NotNull;
 
 import org.hibernate.annotations.Immutable;
 
+import com.google.common.collect.Range;
+
 @Entity
 @Immutable
 @Table(name = "opening_hours")
@@ -113,5 +115,9 @@ public class OpeningHours implements Comparable<OpeningHours> {
 	@Override
 	public int compareTo(OpeningHours o) {
 		return this.startTime.compareTo(o.startTime);
+	}
+
+	public boolean contains(LocalTime appointmentTime) {
+		return Range.closed(startTime, endTime).contains(appointmentTime);
 	}
 }

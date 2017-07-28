@@ -1,6 +1,7 @@
 package com.spanishcoders.model;
 
 import static com.spanishcoders.TestDataFactory.agenda;
+import static com.spanishcoders.TestDataFactory.hairdresser;
 import static com.spanishcoders.TestDataFactory.publicWork;
 import static com.spanishcoders.TestDataFactory.timetable;
 import static com.spanishcoders.TestDataFactory.workingDay;
@@ -9,7 +10,9 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.collection.IsEmptyCollection.empty;
 import static org.junit.Assert.assertThat;
 
+import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.Set;
 
 import org.junit.Test;
@@ -40,10 +43,17 @@ public class AgendaTests {
 	@Test
 	public void addWorkingDay() throws Exception {
 		final Agenda agenda = agenda();
-		agenda.addTimetable(timetable());
-		agenda.addWorkingDay(agenda.getCurrentTimetable().getEndDate());
+		final Timetable timetable = timetable();
+		agenda.addTimetable(timetable);
+		final Set<OpeningHours> openingHours = Sets.newHashSet();
+		LocalDate day = agenda.getCurrentTimetable().getEndDate();
+		while (openingHours.isEmpty()) {
+			day = day.minusDays(1);
+			openingHours.addAll(timetable.getOpeningHoursForDay(day));
+		}
+		agenda.addWorkingDay(day);
 		assertThat(agenda.getWorkingDays().size(), is(1));
-		assertThat(agenda.getWorkingDays().keySet(), contains(agenda.getCurrentTimetable().getEndDate()));
+		assertThat(agenda.getWorkingDays().keySet(), contains(day));
 	}
 
 	@Test(expected = IllegalArgumentException.class)
@@ -141,5 +151,215 @@ public class AgendaTests {
 	public void addNullClosingDay() {
 		final Agenda agenda = agenda();
 		agenda.addClosingDay(null);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void modifyTimetableNotInAgenda() {
+		final Timetable timetable = getSummerTimetable();
+		final Agenda agenda = agenda();
+		agenda.modifyStartDate(LocalDate.now().minusMonths(1), timetable);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void modifyTimetableStartDateInPast() {
+		final LocalDate startDate = LocalDate.now().minusDays(1);
+		final LocalDate summerEndDate = LocalDate.now().plusDays(1);
+		final Timetable timetable = new Timetable(startDate, summerEndDate);
+		final Agenda agenda = agenda();
+		agenda.addTimetable(timetable);
+		agenda.modifyStartDate(LocalDate.now().minusMonths(1), timetable);
+	}
+
+	@Test
+	public void bringCloserTimetableStartDateWithoutOverlap() {
+		final Timetable timetable = getSummerTimetable();
+		final LocalDate startDate = timetable.getStartDate();
+		final Agenda agenda = agenda();
+		agenda.addTimetable(timetable);
+		LocalDate day = timetable.getStartDate().minusDays(1);
+		while (!agenda.hasWorkingDay(day)) {
+			day = day.plusDays(1);
+			agenda.addWorkingDay(day);
+		}
+		final Set<Block> dayBlocks = agenda.getWorkingDayBlocks(day);
+		agenda.modifyStartDate(startDate.minusMonths(1), timetable);
+		assertThat(timetable.getStartDate(), is(startDate.minusMonths(1)));
+		agenda.addWorkingDay(day.minusDays(7));
+		final Set<Block> oneWeekBeforeDayBlocks = agenda.getWorkingDayBlocks(day.minusDays(7));
+		assertThat(oneWeekBeforeDayBlocks.size(), is(dayBlocks.size()));
+	}
+
+	@Test
+	public void bringCloserTimetableStartDateWithOverlapWithoutAppointments() {
+		final Timetable summerTimetable = getSummerTimetable();
+		final Timetable winterTimetable = getWinterTimetable();
+		final Agenda agenda = agenda();
+		agenda.addTimetable(summerTimetable);
+		agenda.addTimetable(winterTimetable);
+		LocalDate day = summerTimetable.getEndDate().plusDays(1);
+		while (!agenda.hasWorkingDay(day)) {
+			day = day.minusDays(1);
+			agenda.addWorkingDay(day);
+		}
+		final Set<Block> summerTimetableDayBlocks = agenda.getWorkingDayBlocks(day);
+		assertThat(summerTimetableDayBlocks.size(), is(13));
+		final LocalDate newStartDate = winterTimetable.getStartDate().minusMonths(1);
+		agenda.modifyStartDate(newStartDate, winterTimetable);
+		assertThat(winterTimetable.getStartDate(), is(newStartDate));
+		assertThat(summerTimetable.getEndDate(), is(newStartDate.minusDays(1)));
+		final Set<Block> winterTimetableDayBlocks = agenda.getWorkingDayBlocks(day);
+		assertThat(winterTimetableDayBlocks.size(), is(12));
+	}
+
+	@Test
+	public void bringCloserTimetableStartDateWithOverlapWithAppointments() {
+		final Timetable summerTimetable = getSummerTimetable();
+		final Timetable winterTimetable = getWinterTimetable();
+		final Agenda agenda = agenda();
+		agenda.addTimetable(summerTimetable);
+		agenda.addTimetable(winterTimetable);
+		LocalDate day = summerTimetable.getEndDate();
+		final Set<Block> blocks = Sets.newHashSet();
+		while (blocks.isEmpty()) {
+			agenda.addWorkingDay(day);
+			blocks.addAll(agenda.getWorkingDayBlocks(day));
+			day = day.minusDays(1);
+		}
+		day = day.plusDays(1);
+		final Appointment appointment = new Appointment(hairdresser(), publicWork(),
+				Sets.newHashSet(blocks.iterator().next()), "");
+		final LocalDate oldStartDate = winterTimetable.getStartDate();
+		assertThat(blocks.size(), is(13));
+		agenda.modifyStartDate(oldStartDate.minusMonths(1), winterTimetable);
+		assertThat(winterTimetable.getStartDate(), is(oldStartDate.minusMonths(1)));
+		assertThat(summerTimetable.getEndDate(), is(oldStartDate.minusMonths(1).minusDays(1)));
+		assertThat(agenda.getWorkingDays().get(appointment.getDate().toLocalDate()).hasValidAppointment(), is(true));
+		final Set<Block> winterTimetableDayBlocks = agenda.getWorkingDayBlocks(day);
+		assertThat(winterTimetableDayBlocks.size(), is(12));
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void bringCloserTimetableStartDateWithOverlapWithConflictedAppointments() {
+		final Timetable summerTimetable = getSummerTimetable();
+		final Timetable winterTimetable = getWinterTimetable();
+		final Agenda agenda = agenda();
+		agenda.addTimetable(summerTimetable);
+		agenda.addTimetable(winterTimetable);
+		int dayCount = 0;
+		final Set<Block> blocks = Sets.newHashSet();
+		while (blocks.isEmpty()) {
+			agenda.addWorkingDay(summerTimetable.getEndDate().minusDays(dayCount));
+			blocks.addAll(agenda.getWorkingDayBlocks(summerTimetable.getEndDate().minusDays(dayCount)));
+			dayCount++;
+		}
+		final Block firstAfternoonBlock = blocks.stream().filter(block -> block.getStart().equals(LocalTime.of(20, 30)))
+				.findFirst().get();
+		final Appointment appointment = new Appointment(hairdresser(), publicWork(),
+				Sets.newHashSet(firstAfternoonBlock), "");
+		agenda.modifyStartDate(winterTimetable.getStartDate().minusMonths(1), winterTimetable);
+	}
+
+	@Test(expected = IllegalArgumentException.class)
+	public void moveForwardThanEndDateTimetableStartDate() {
+		final Timetable timetable = new Timetable(LocalDate.now().plusMonths(2), LocalDate.now().plusMonths(3));
+		final Agenda agenda = agenda();
+		agenda.addTimetable(timetable);
+		agenda.modifyStartDate(LocalDate.now().plusMonths(4), timetable);
+	}
+
+	@Test
+	public void moveForwardTimetableStartDateWithoutAppointments() {
+		final Timetable timetable = getSummerTimetable();
+		final Agenda agenda = agenda();
+		agenda.addTimetable(timetable);
+		LocalDate day = timetable.getStartDate().plusMonths(1);
+		while (!agenda.hasWorkingDay(day)) {
+			day = day.minusDays(1);
+			agenda.addWorkingDay(day);
+		}
+		final LocalDate oldStartDate = timetable.getStartDate();
+		agenda.modifyStartDate(oldStartDate.plusMonths(1), timetable);
+		assertThat(timetable.getStartDate(), is(oldStartDate.plusMonths(1)));
+		assertThat(agenda.hasWorkingDay(day), is(false));
+	}
+
+	@Test
+	public void moveForwardTimetableStartDateWithAppointments() {
+		final Timetable summerTimetable = getSummerTimetable();
+		final Timetable winterTimetable = getWinterTimetable();
+		final Agenda agenda = agenda();
+		agenda.addTimetable(summerTimetable);
+		agenda.addTimetable(winterTimetable);
+		int dayCount = 0;
+		final Set<Block> blocks = Sets.newHashSet();
+		while (blocks.isEmpty()) {
+			agenda.addWorkingDay(winterTimetable.getEndDate().minusDays(dayCount));
+			blocks.addAll(agenda.getWorkingDayBlocks(winterTimetable.getEndDate().minusDays(dayCount)));
+			dayCount++;
+		}
+		final Appointment appointment = new Appointment(hairdresser(), publicWork(),
+				Sets.newHashSet(blocks.iterator().next()), "");
+		LocalDate day = winterTimetable.getStartDate().plusMonths(1);
+		while (!agenda.hasWorkingDay(day)) {
+			day = day.minusDays(1);
+			agenda.addWorkingDay(day);
+		}
+		final LocalDate oldStartDate = winterTimetable.getStartDate();
+		agenda.modifyStartDate(oldStartDate.plusMonths(1), winterTimetable);
+		assertThat(winterTimetable.getStartDate(), is(oldStartDate.plusMonths(1)));
+		assertThat(agenda.getWorkingDays().get(appointment.getDate().toLocalDate()).hasValidAppointment(), is(true));
+		assertThat(agenda.hasWorkingDay(day), is(false));
+	}
+
+	@Test(expected = IllegalStateException.class)
+	public void moveForwardTimetableStartDateWithConflictedAppointments() {
+		final Timetable summerTimetable = getSummerTimetable();
+		final Timetable winterTimetable = getWinterTimetable();
+		final Agenda agenda = agenda();
+		agenda.addTimetable(summerTimetable);
+		agenda.addTimetable(winterTimetable);
+		LocalDate day = winterTimetable.getStartDate();
+		final Set<Block> blocks = Sets.newHashSet();
+		while (blocks.isEmpty()) {
+			agenda.addWorkingDay(day);
+			blocks.addAll(agenda.getWorkingDayBlocks(day));
+			day = day.plusDays(1);
+		}
+		day = day.minusDays(1);
+		final Block firstAfternoonBlock = blocks.stream().filter(block -> block.getStart() == LocalTime.of(17, 00))
+				.findFirst().get();
+		final Appointment appointment = new Appointment(hairdresser(), publicWork(),
+				Sets.newHashSet(firstAfternoonBlock), "");
+		agenda.modifyStartDate(winterTimetable.getStartDate().plusMonths(1), winterTimetable);
+	}
+
+	private Timetable getSummerTimetable() {
+		final LocalDate summerStartDate = LocalDate.of(LocalDate.now().getYear() + 1, 6, 1);
+		final LocalDate summerEndDate = LocalDate.of(LocalDate.now().getYear() + 1, 9, 30);
+		final Timetable summerTimetable = new Timetable(summerStartDate, summerEndDate);
+		for (final DayOfWeek weekDay : DayOfWeek.values()) {
+			final OpeningHours morning = new OpeningHours(LocalTime.of(10, 30), LocalTime.of(14, 00));
+			final OpeningHours afternoon = new OpeningHours(LocalTime.of(18, 00), LocalTime.of(21, 00));
+			if (weekDay != DayOfWeek.SUNDAY && weekDay != DayOfWeek.SATURDAY) {
+				summerTimetable.addOpeningDay(weekDay, morning, afternoon);
+			}
+		}
+		return summerTimetable;
+	}
+
+	private Timetable getWinterTimetable() {
+		final LocalDate winterStartDate = LocalDate.of(LocalDate.now().getYear() + 1, 10, 1);
+		final LocalDate winterEndDate = LocalDate.of(LocalDate.now().getYear() + 2, 5, 31);
+		final Timetable summerTimetable = new Timetable(winterStartDate, winterEndDate);
+		for (final DayOfWeek weekDay : DayOfWeek.values()) {
+			final OpeningHours morning = new OpeningHours(LocalTime.of(9, 30), LocalTime.of(13, 30));
+			final OpeningHours afternoon = new OpeningHours(LocalTime.of(17, 00), LocalTime.of(20, 00));
+			if (weekDay == DayOfWeek.SATURDAY) {
+				summerTimetable.addOpeningDay(weekDay, morning);
+			} else if (weekDay != DayOfWeek.SUNDAY) {
+				summerTimetable.addOpeningDay(weekDay, morning, afternoon);
+			}
+		}
+		return summerTimetable;
 	}
 }

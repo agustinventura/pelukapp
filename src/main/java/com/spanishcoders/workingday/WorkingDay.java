@@ -40,7 +40,7 @@ public class WorkingDay implements Comparable<WorkingDay> {
 	@JoinColumn(foreignKey = @ForeignKey(name = "working_day_agenda_fk"))
 	private Agenda agenda;
 
-	@OneToMany(mappedBy = "workingDay", cascade = CascadeType.ALL)
+	@OneToMany(mappedBy = "workingDay", cascade = CascadeType.ALL, orphanRemoval = true)
 	@OrderBy("start asc")
 	private final SortedSet<Block> blocks;
 
@@ -143,6 +143,15 @@ public class WorkingDay implements Comparable<WorkingDay> {
 				this.blocks.add(newBlock);
 				startTime = startTime.plusMinutes(Block.BLOCK_MINUTES);
 			}
+		}
+	}
+
+	public void removeBlock(Block block) {
+		if (block != null && this.blocks.contains(block)) {
+			if (block.getAppointment() != null && block.getAppointment().getStatus() == AppointmentStatus.VALID) {
+				throw new IllegalStateException("Can't remove block " + block + ", has valid appointments");
+			}
+			this.blocks.remove(block);
 		}
 	}
 }
