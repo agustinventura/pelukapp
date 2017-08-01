@@ -192,11 +192,41 @@ public class Agenda {
 	}
 
 	public void modifyStartDate(LocalDate newStartDate, Timetable timetable) {
-		checkArguments(newStartDate, timetable);
+		checkStartDate(newStartDate, timetable);
 		if (this.timetables.stream().anyMatch(tt -> tt.contains(newStartDate))) {
 			modifyStartDateWithOverlap(newStartDate, timetable);
 		} else {
 			modifyStartDateWithoutOverlap(newStartDate, timetable);
+		}
+	}
+
+	public void modifyEndDate(LocalDate newEndDate, Timetable timetable) {
+		checkStartDate(newEndDate, timetable);
+		if (this.timetables.stream().anyMatch(tt -> tt.contains(newEndDate))) {
+			modifyEndDateWithOverlap(newEndDate, timetable);
+		} else {
+			modifyEndDateWithoutOverlap(newEndDate, timetable);
+		}
+	}
+
+	private void modifyEndDateWithoutOverlap(LocalDate newEndDate, Timetable timetable) {
+		timetable.setEndDate(newEndDate);
+	}
+
+	private void modifyEndDateWithOverlap(LocalDate newEndDate, Timetable timetable) {
+		final Timetable overlappedTimetable = this.timetables.stream().filter(tt -> tt.contains(newEndDate)).findFirst()
+				.get();
+		if (!overlappedTimetable.equals(timetable)) {
+			final LocalDate oldStartDate = overlappedTimetable.getStartDate();
+			timetable.setEndDate(newEndDate);
+			overlappedTimetable.setStartDate(newEndDate.plusDays(1));
+			checkConflictedAppointments(timetable, oldStartDate, newEndDate);
+			recalculateWorkingDaysBlocks(oldStartDate, newEndDate, timetable);
+		} else {
+			final LocalDate oldEndDate = timetable.getEndDate();
+			timetable.setEndDate(newEndDate);
+			checkOrphanAppointments(timetable, newEndDate, oldEndDate);
+			removeWorkingDays(newEndDate, oldEndDate);
 		}
 	}
 
@@ -265,27 +295,34 @@ public class Agenda {
 	private void recalculateWorkingDaysBlocks(LocalDate newStartDate, LocalDate oldStartDate, Timetable timetable) {
 		LocalDate day = newStartDate;
 		while (!day.equals(oldStartDate)) {
-			if (this.hasWorkingDay(day)) {
-				if (timetable.contains(day)) {
-					final Set<Block> dayBlocks = this.getWorkingDayBlocks(day);
-					final Iterator<Block> dayBlocksIt = dayBlocks.iterator();
-					while (dayBlocksIt.hasNext()) {
-						final Block dayBlock = dayBlocksIt.next();
-						if (!timetable.getOpeningHoursForDay(day).stream()
-								.anyMatch(openingHours -> openingHours.contains(dayBlock.getStart()))) {
-							this.workingDays.get(day).removeBlock(dayBlock);
-						}
-					}
-				} else {
-					this.workingDays.remove(day);
-				}
-			}
+			workingDayStillValid(timetable, day);
 			day = day.plusDays(1);
 		}
 
 	}
 
-	private void checkArguments(LocalDate newStartDate, Timetable timetable) {
+	private void workingDayStillValid(Timetable timetable, LocalDate day) {
+		if (this.hasWorkingDay(day)) {
+			if (timetable.contains(day)) {
+				final Set<Block> oldBlocks = this.workingDays.get(day).getBlocks();
+				this.workingDays.remove(day);
+				this.addWorkingDay(day);
+				for (final Block oldBlock : oldBlocks) {
+					if (this.workingDays.get(day).getBlocks().contains(oldBlock)) {
+						for (final Block newBlock : workingDays.get(day).getBlocks()) {
+							if (newBlock.equals(oldBlock)) {
+								newBlock.setAppointment(oldBlock.getAppointment());
+							}
+						}
+					}
+				}
+			} else {
+				this.workingDays.remove(day);
+			}
+		}
+	}
+
+	private void checkStartDate(LocalDate newStartDate, Timetable timetable) {
 		if (newStartDate == null) {
 			throw new IllegalArgumentException("Can't use an empty start date on a timetable");
 		}
@@ -294,6 +331,18 @@ public class Agenda {
 		}
 		if (timetable.getStartDate().isBefore(LocalDate.now())) {
 			throw new IllegalArgumentException("Can't modify a timetable start date in the past");
+		}
+	}
+
+	private void checkEndDate(LocalDate newEndDate, Timetable timetable) {
+		if (newEndDate == null) {
+			throw new IllegalArgumentException("Can't use an empty end date on a timetable");
+		}
+		if (!this.timetables.contains(timetable)) {
+			throw new IllegalArgumentException("Agenda doesn't contains the specified timetable");
+		}
+		if (timetable.getEndDate().isBefore(LocalDate.now())) {
+			throw new IllegalArgumentException("Can't modify a timetable end date in the past");
 		}
 	}
 
